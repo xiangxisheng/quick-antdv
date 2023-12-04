@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>node-koa-antd</title>
+  <link rel="stylesheet" href="./css/reset.min.css">
+  <style>
+    .logo {
+      height: 32px;
+      margin: 16px;
+      background: rgba(255, 255, 255, 0.3);
+    }
+  </style>
+</head>
+
+<body class="hold-transition">
+  <div id="app">
+    <router-view></router-view>
+  </div>
+</body>
+
+<script src="./js/antd/dayjs.min.js"></script>
+<script src="./js/antd/dayjs-plugin.min.js"></script>
+<script src="./js/vue/vue.global.prod.js"></script>
+<script src="./js/vue/vue-router.global.prod.js"></script>
+<script src="./js/antd/antd.min.js"></script>
+<!--
+
+开发环境下ESM风格
+https://unpkg.com/vue@3/dist/vue.esm-browser.js
+https://unpkg.com/@vue/devtools-api@6.5.1/lib/esm/index.js
+https://unpkg.com/vue-router@4.2.5/dist/vue-router.esm-browser.js
+https://cdn.jsdelivr.net/npm/ant-design-vue@4.0.7/dist/antd.esm.js
+https://cdn.jsdelivr.net/npm/@ant-design/icons-vue@7.0.1/+esm
+
+生产环境下的ESM风格
+https://unpkg.com/vue@3.3.9/dist/vue.esm-browser.prod.js
+https://unpkg.com/vue-router@4.2.5/dist/vue-router.prod.cjs
+https://cdn.jsdelivr.net/npm/ant-design-vue@4.0.7/dist/antd.esm.min.js (推荐)
+
+生产环境下的全局风格
+https://unpkg.com/vue@3.3.9/dist/vue.global.prod.js (推荐)
+https://unpkg.com/vue-router@4.2.5/dist/vue-router.global.prod.js (推荐)
+https://cdn.jsdelivr.net/npm/ant-design-vue@4.0.7/dist/antd.min.js
+
+-->
+<script type="importmap">
+{
+  "imports": {
+    "@ant-design/icons-vue": "https://cdn.jsdelivr.net/npm/@ant-design/icons-vue@7.0.1/+esm",
+    "firadio": "./js/firadio.js"
+  }
+}
+</script>
+<script type="module">
+  const { createApp } = Vue;
+  const { createRouter, createWebHashHistory } = VueRouter;
+  import { P } from 'firadio';
+  const routes = [
+    { path: '/', component: await P('home') },
+    { path: '/login', component: await P('sign') },
+    {
+      path: '/panel',
+      component: await P('panel'),
+      children: [
+        { path: '', component: await P('panel/index') },
+        { path: 'table', component: await P('panel/table') },
+      ]
+    },
+  ];
+  const router = createRouter({
+    history: createWebHashHistory(),
+    routes, // `routes: routes` 的缩写
+  });
+  const app = createApp();
+  app.use(router);
+  for (var s in antd) {
+    const o = antd[s];
+    if (o.setup) {
+      app.use(o);
+    }
+  }
+  app.mount('#app');
+</script>
+
+</html>
