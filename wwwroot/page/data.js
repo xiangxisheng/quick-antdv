@@ -1,6 +1,6 @@
 export default async (param) => {
   return {
-    template: await (await fetch('./page/panel/index.htm')).text(),
+    template: '<router-view></router-view>',
     data() {
       return {
 

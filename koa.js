@@ -26,6 +26,7 @@ app.use(async (ctx, next) => {
     ctx.body = e;
   }
 });
+app.use(require("./router/public").routes());
 app.use(require("./router/api").routes());
 app.use(KoaStatic('wwwroot', {
   index: 'index.html',

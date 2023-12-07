@@ -34,4 +34,23 @@ async function fetchDataByPathname(_pathname, _param) {
 async function P(name) {
   return (await import(`../page/${name}.js`)).default;
 };
-export { fetchDataByPathname, P };
+
+async function routes_filter(route, func, parent) {
+  const parents = [parent];
+  if (route.name) {
+    parents.push(route.name);
+  }
+  const mRet = await func(parent, route);
+  if (route.children) {
+    mRet.children = [];
+    for (const subroute of route.children) {
+      const oSub = await routes_filter(subroute, func, parents.join('/'));
+      if (oSub) {
+        mRet.children.push(oSub);
+      }
+    }
+  }
+  return mRet;
+}
+
+export { fetchDataByPathname, P, routes_filter };

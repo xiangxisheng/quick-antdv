@@ -15,7 +15,7 @@
   </style>
 </head>
 
-<body class="hold-transition">
+<body>
   <div id="app">
     <router-view></router-view>
   </div>
@@ -57,19 +57,20 @@ https://cdn.jsdelivr.net/npm/ant-design-vue@4.0.7/dist/antd.min.js
 <script type="module">
   const { createApp } = Vue;
   const { createRouter, createWebHashHistory } = VueRouter;
-  import { P } from 'firadio';
-  const routes = [
-    { path: '/', component: await P('home') },
-    { path: '/login', component: await P('sign') },
-    {
-      path: '/panel',
-      component: await P('panel'),
-      children: [
-        { path: '', component: await P('panel/index') },
-        { path: 'table', component: await P('panel/table') },
-      ]
-    },
-  ];
+  import { P, routes_filter } from 'firadio';
+  const oTopRoute = await (await fetch('/api/public/route')).json();
+  const routes1 = await routes_filter(oTopRoute, async (sParent, mRoute) => {
+    // if (!mFRoute1.name) {
+    //   return;
+    // }
+    const mRet = {};
+    mRet.path = (sParent.indexOf('/') === -1 ? '/' : '') + mRoute.name;
+    //mRet.key = `${sParent}/${mFRoute1.name}`;
+    mRet.component = await (await P(mRoute.component))(mRoute);
+    return mRet;
+  }, '');
+  const routes = routes1.children;
+  routes.unshift({ path: '/', component: await (await P(oTopRoute.component))(oTopRoute) });
   const router = createRouter({
     history: createWebHashHistory(),
     routes, // `routes: routes` 的缩写

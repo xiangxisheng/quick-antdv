@@ -1,14 +1,16 @@
-export default {
-  template: await (await fetch('./page/sign.htm')).text(),
-  data() {
-    return {
+export default async (param) => {
+  return {
+    template: await (await fetch('./page/sign.htm')).text(),
+    data() {
+      return {
 
-    }
-  },
-  async created() {
+      }
+    },
+    async created() {
 
-  },
-  methods: {
+    },
+    methods: {
 
-  },
+    },
+  }
 }
