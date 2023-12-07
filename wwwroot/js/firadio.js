@@ -35,7 +35,7 @@ async function P(name) {
   return (await import(`../page/${name}.js`)).default;
 };
 
-async function routes_filter(route, func, parent) {
+async function routes_filter(route, func, parent = '') {
   const parents = [parent];
   if (route.name) {
     parents.push(route.name);

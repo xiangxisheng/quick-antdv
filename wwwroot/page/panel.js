@@ -17,7 +17,7 @@ export default async (oTopRoute) => {
         mRet.key = `${sParent}/${mRoute.name}`;
         mRet.label = mRoute.label;
         return mRet;
-      }, '');
+      });
       this.items = routes1.children;
     },
     methods: {

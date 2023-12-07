@@ -60,15 +60,11 @@ https://cdn.jsdelivr.net/npm/ant-design-vue@4.0.7/dist/antd.min.js
   import { P, routes_filter } from 'firadio';
   const oTopRoute = await (await fetch('/api/public/route')).json();
   const routes1 = await routes_filter(oTopRoute, async (sParent, mRoute) => {
-    // if (!mFRoute1.name) {
-    //   return;
-    // }
     const mRet = {};
     mRet.path = (sParent.indexOf('/') === -1 ? '/' : '') + mRoute.name;
-    //mRet.key = `${sParent}/${mFRoute1.name}`;
     mRet.component = await (await P(mRoute.component))(mRoute);
     return mRet;
-  }, '');
+  });
   const routes = routes1.children;
   routes.unshift({ path: '/', component: await (await P(oTopRoute.component))(oTopRoute) });
   const router = createRouter({
