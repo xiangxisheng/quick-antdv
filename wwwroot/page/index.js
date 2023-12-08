@@ -8,12 +8,17 @@ export default async (oTopRoute) => {
         selectedKeys: [],
       }
     },
+    watch: {
+      $route(to) {
+        const cur = to.name.split('/')[1];
+        this.selectedKeys = [cur];
+      }
+    },
     async created() {
       this.items.length = 0;
       for (const mRoute of oTopRoute.children) {
         const item = {};
-        item.key = '/' + mRoute.name;
-        item.isDir = mRoute.children ? true : false;
+        item.key = mRoute.name;
         item.label = mRoute.label;
         this.items.push(item);
       }
@@ -24,16 +29,12 @@ export default async (oTopRoute) => {
       //   item.label = mRoute.label;
       //   return item;
       // })).children;
-      const cur = '/' + this.$route.name.split('/')[1];
+      const cur = this.$route.name.split('/')[1];
       this.selectedKeys = [cur];
     },
     methods: {
       handleClick(e) {
-        if (e.item.originItemValue.isDir) {
-          this.$router.push(e.key + '/index');
-        } else {
-          this.$router.push(e.key);
-        }
+        this.$router.push('/' + e.key);
       },
       goToDashboard() {
         if (isAuthenticated) {

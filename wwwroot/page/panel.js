@@ -9,9 +9,14 @@ export default async (oTopRoute) => {
         selectedKeys: [],
       }
     },
+    watch: {
+      $route(to) {
+        this.selectedKeys = [to.name];
+      }
+    },
     async created() {
       this.openKeys.push('/console/data');
-      this.selectedKeys.push(this.$route.path);
+      this.selectedKeys = [this.$route.name];
       this.items = (await routes_filter(oTopRoute, async (sParent, mRoute) => {
         const mRet = {};
         mRet.key = `${sParent}/${mRoute.name}`;

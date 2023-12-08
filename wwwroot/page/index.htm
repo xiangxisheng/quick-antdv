@@ -1,7 +1,9 @@
 <a-layout style="min-height:100vh">
   <a-layout-header>
     <div style="float: left;">
-      <img height="64" src="https://next.antdv.com/assets/logo.1ef800a8.svg">
+      <router-link to="/">
+        <img height="64" src="https://next.antdv.com/assets/logo.1ef800a8.svg" />
+      </router-link>
     </div>
     <a-menu v-model:selectedKeys="selectedKeys" mode="horizontal" :items="items" theme="dark"
       @click="handleClick"></a-menu>
