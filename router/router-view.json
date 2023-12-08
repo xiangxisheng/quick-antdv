@@ -49,8 +49,14 @@
             ]
         },
         {
-            "name": "sign",
-            "label": "用户登录",
+            "name": "sign-up",
+            "label": "注册",
+            "component": "sign",
+            "role": "public"
+        },
+        {
+            "name": "sign-in",
+            "label": "登录",
             "component": "sign",
             "role": "public"
         }

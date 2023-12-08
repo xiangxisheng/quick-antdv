@@ -10,15 +10,14 @@ export default async (oTopRoute) => {
       }
     },
     async created() {
-      this.openKeys.push('/panel/data');
+      this.openKeys.push('/console/data');
       this.selectedKeys.push(this.$route.path);
-      const routes1 = await routes_filter(oTopRoute, async (sParent, mRoute) => {
+      this.items = (await routes_filter(oTopRoute, async (sParent, mRoute) => {
         const mRet = {};
         mRet.key = `${sParent}/${mRoute.name}`;
         mRet.label = mRoute.label;
         return mRet;
-      });
-      this.items = routes1.children;
+      })).children;
     },
     methods: {
       handleClick(e) {
