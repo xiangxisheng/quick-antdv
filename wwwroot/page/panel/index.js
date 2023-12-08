@@ -7,8 +7,8 @@ export default async (param) => {
       }
     },
     async created() {
-      this.$route.params['aa'] = 'asdf';
-      this.xxx = this.$route.path + ',' + JSON.stringify(this.$route.params);
+      this.$router.push({ query: { date: new Date() } });
+      this.xxx = this.$route.path + ',' + JSON.stringify(this.$route.query);
     },
     methods: {
 

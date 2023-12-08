@@ -31,10 +31,6 @@ async function fetchDataByPathname(_pathname, _param) {
   }
 };
 
-async function P(name) {
-  return (await import(`../page/${name}.js`)).default;
-};
-
 async function routes_filter(route, func, parent = '') {
   const parents = [parent];
   if (route.name) {
@@ -53,4 +49,4 @@ async function routes_filter(route, func, parent = '') {
   return mRet;
 }
 
-export { fetchDataByPathname, P, routes_filter };
+export { fetchDataByPathname, routes_filter };

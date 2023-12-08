@@ -3,11 +3,11 @@ export default async (param) => {
     template: await (await fetch('./page/sign.htm')).text(),
     data() {
       return {
-
+        title: 'xxx',
       }
     },
     async created() {
-
+      this.title = this.$route.name;
     },
     methods: {
 

@@ -7,7 +7,6 @@
   <title>node-koa-antd</title>
   <link rel="stylesheet" href="./css/reset.min.css">
   <style>
-
     /*
     * {
        -webkit-transition-property: none !important;
@@ -59,17 +58,22 @@ https://cdn.jsdelivr.net/npm/ant-design-vue@4.0.7/dist/antd.min.js
 <script type="module">
   const { createApp } = Vue;
   const { createRouter, createWebHashHistory } = VueRouter;
-  import { P, routes_filter } from 'firadio';
+  import { routes_filter } from 'firadio';
   const oTopRoute = { children: await (await fetch('/api/public/route')).json() }
   const routes = (await routes_filter(oTopRoute, async (sParent, mRoute) => {
-    const mRet = {};
-    if (mRoute.name) {
-      mRet.path = (sParent.indexOf('/') === -1 ? '/' : '') + mRoute.name;
+    const item = {};
+    if (typeof (mRoute.name) === 'string') {
+      item.name = sParent + '/' + mRoute.name;
+      item.path = (sParent.indexOf('/') === -1 ? '/' : '') + mRoute.name;
     }
     if (mRoute.component) {
-      mRet.component = await (await P(mRoute.component))(mRoute);
+      // 路由懒加载(https://router.vuejs.org/zh/guide/advanced/lazy-loading.html)
+      item.component = async () => (await import(`/page/${mRoute.component}.js`)).default(mRoute);
     }
-    return mRet;
+    if (mRoute.alias) {
+      item.alias = mRoute.alias;
+    }
+    return item;
   })).children;
   const router = createRouter({
     history: createWebHashHistory(),

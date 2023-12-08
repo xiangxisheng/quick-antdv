@@ -24,8 +24,7 @@ export default async (oTopRoute) => {
       //   item.label = mRoute.label;
       //   return item;
       // })).children;
-      const path = this.$route.path;
-      const cur = '/' + path.split('/')[1];
+      const cur = '/' + this.$route.name.split('/')[1];
       this.selectedKeys = [cur];
     },
     methods: {
