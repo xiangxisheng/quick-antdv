@@ -1,0 +1,58 @@
+{
+    "component": "index",
+    "role": "public",
+    "children": [
+        {
+            "name": "home",
+            "label": "首页",
+            "component": "home",
+            "role": "public"
+        },
+        {
+            "name": "console",
+            "label": "控制台",
+            "component": "panel",
+            "role": "user",
+            "children": [
+                {
+                    "name": "index",
+                    "label": "面板首页",
+                    "component": "panel/index",
+                    "role": "user"
+                },
+                {
+                    "name": "index2",
+                    "label": "面板首页index2",
+                    "component": "panel/index",
+                    "role": "user"
+                },
+                {
+                    "name": "data",
+                    "label": "数据查询",
+                    "component": "data",
+                    "role": "user",
+                    "children": [
+                        {
+                            "name": "table1",
+                            "label": "测试表1",
+                            "component": "panel/table",
+                            "role": "user"
+                        },
+                        {
+                            "name": "table2",
+                            "label": "测试表2",
+                            "component": "panel/table",
+                            "role": "user"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "sign",
+            "label": "用户登录",
+            "component": "sign",
+            "role": "public"
+        }
+    ]
+}

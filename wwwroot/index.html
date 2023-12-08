@@ -8,17 +8,26 @@
   <link rel="stylesheet" href="./css/reset.min.css">
   <style>
     .logo {
-      height: 32px;
-      margin: 16px;
+      float: left;
+      width: 120px;
+      height: 31px;
+      margin: 16px 24px 16px 0;
       background: rgba(255, 255, 255, 0.3);
     }
+
+    /*
+    * {
+       -webkit-transition-property: none !important;
+      -moz-transition-property: none !important;
+      -o-transition-property: none !important;
+      transition-property: none !important;
+    }
+    */
   </style>
 </head>
 
 <body>
-  <div id="app">
-    <router-view></router-view>
-  </div>
+  <div id="app"><router-view></router-view></div>
 </body>
 
 <script src="./js/antd/dayjs.min.js"></script>
@@ -58,15 +67,17 @@ https://cdn.jsdelivr.net/npm/ant-design-vue@4.0.7/dist/antd.min.js
   const { createApp } = Vue;
   const { createRouter, createWebHashHistory } = VueRouter;
   import { P, routes_filter } from 'firadio';
-  const oTopRoute = await (await fetch('/api/public/route')).json();
-  const routes1 = await routes_filter(oTopRoute, async (sParent, mRoute) => {
+  const oTopRoute = { children: await (await fetch('/api/public/route')).json() }
+  const routes = (await routes_filter(oTopRoute, async (sParent, mRoute) => {
     const mRet = {};
-    mRet.path = (sParent.indexOf('/') === -1 ? '/' : '') + mRoute.name;
-    mRet.component = await (await P(mRoute.component))(mRoute);
+    if (mRoute.name) {
+      mRet.path = (sParent.indexOf('/') === -1 ? '/' : '') + mRoute.name;
+    }
+    if (mRoute.component) {
+      mRet.component = await (await P(mRoute.component))(mRoute);
+    }
     return mRet;
-  });
-  const routes = routes1.children;
-  routes.unshift({ path: '/', component: await (await P(oTopRoute.component))(oTopRoute) });
+  })).children;
   const router = createRouter({
     history: createWebHashHistory(),
     routes, // `routes: routes` 的缩写
@@ -74,6 +85,7 @@ https://cdn.jsdelivr.net/npm/ant-design-vue@4.0.7/dist/antd.min.js
   const app = createApp();
   app.use(router);
   for (var s in antd) {
+    // 加载 antd 的全部组件
     const o = antd[s];
     if (o.setup) {
       app.use(o);
