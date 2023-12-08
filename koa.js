@@ -57,6 +57,15 @@ app.use(KoaCompress({
   br: false // disable brotli
 }));
 
+// 添加中间件来处理304响应
+app.use(async (ctx, next) => {
+  await next();
+  if (ctx.fresh) {
+    // 没有修改，返回304
+    ctx.status = 304;
+  }
+});
+
 // 加载路由
 app.use(require("./router/public").routes());
 app.use(require("./router/api").routes());
@@ -68,6 +77,7 @@ app.use(KoaStatic('wwwroot', {
   defer: false, // 如果为true，则在返回next()之后进行服务，从而允许后续中间件先进行响应
   // 当defer配置为false时，只要文件存在就会直接读取并响应相应的文件，而不会经过API中间件的处理了
   // 建议将defer配置为false让他只处理纯静态
+  maxage: 1000 * 5,
 }));
 
 // 加载404页面
