@@ -7,6 +7,7 @@ export default async (oTopRoute) => {
         items: [],
         openKeys: [],
         selectedKeys: [],
+        collapsed: false,
       }
     },
     watch: {

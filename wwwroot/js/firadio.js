@@ -49,4 +49,39 @@ async function routes_filter(route, func, parent = '') {
   return mRet;
 }
 
-export { fetchDataByPathname, routes_filter };
+async function vue_index_main(routes_filter) {
+  const { createApp } = Vue;
+  const { createRouter, createWebHashHistory } = VueRouter;
+  const oTopRoute = { children: await (await fetch('/api/public/route')).json() }
+  const routes = (await routes_filter(oTopRoute, async (sParent, mRoute) => {
+    const item = {};
+    if (typeof (mRoute.name) === 'string') {
+      item.name = sParent + '/' + mRoute.name;
+      item.path = (sParent.indexOf('/') === -1 ? '/' : '') + mRoute.name;
+    }
+    if (mRoute.component) {
+      // 路由懒加载(https://router.vuejs.org/zh/guide/advanced/lazy-loading.html)
+      item.component = async () => (await import(`/page/${mRoute.component}.js`)).default(mRoute);
+    }
+    if (mRoute.alias) {
+      item.alias = mRoute.alias;
+    }
+    return item;
+  })).children;
+  const router = createRouter({
+    history: createWebHashHistory(),
+    routes, // `routes: routes` 的缩写
+  });
+  const app = createApp();
+  app.use(router);
+  for (var s in antd) {
+    // 加载 antd 的全部组件
+    const o = antd[s];
+    if (o.install && o.setup) {
+      app.use(o);
+    }
+  }
+  app.mount('#app');
+}
+
+export { fetchDataByPathname, routes_filter, vue_index_main };
