@@ -49,7 +49,7 @@ async function routes_filter(route, func, parent = '') {
   return mRet;
 }
 
-async function vue_index_main(routes_filter) {
+async function vue_index_main() {
   const { createApp } = Vue;
   const { createRouter, createWebHashHistory } = VueRouter;
   const oTopRoute = { children: await (await fetch('/api/public/route')).json() }
