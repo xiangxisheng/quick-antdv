@@ -39,12 +39,14 @@ compress_list.push('text/html');
 compress_list.push('text/css');
 compress_list.push('application/javascript');
 compress_list.push('application/json');
+compress_list.push('image/vnd.microsoft.icon');
+compress_list.push('image/svg+xml');
 app.use(KoaCompress({
   filter(content_type) {
     if (compress_list.indexOf(content_type) !== -1) {
       return true;
     }
-    console.log(content_type);
+    console.log(`Not Compress content_type=${content_type}`);
     return false;
   },
   threshold: 2048,
