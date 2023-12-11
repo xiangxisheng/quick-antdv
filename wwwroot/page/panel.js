@@ -1,34 +1,51 @@
 import { routes_filter } from 'firadio';
-export default async (oTopRoute) => {
-  return {
-    template: await (await fetch('./page/panel.htm')).text(),
-    data() {
-      return {
-        items: [],
-        openKeys: [],
-        selectedKeys: [],
-        collapsed: false,
-      }
-    },
-    watch: {
-      $route(to) {
-        this.selectedKeys = [to.name];
-      }
-    },
-    async created() {
-      this.openKeys.push('/console/data');
-      this.selectedKeys = [this.$route.name];
-      this.items = (await routes_filter(oTopRoute, async (sParent, mRoute) => {
+const { ref, watch } = Vue;
+const { useRouter, useRoute } = VueRouter;
+const { Layout, LayoutContent, LayoutFooter, LayoutSider, Menu, Breadcrumb, BreadcrumbItem } = antd;
+export default async (oTopRoute) => ({
+  template: await (await fetch('./page/panel.htm')).text(),
+  components: {
+    ALayout: Layout,
+    ALayoutContent: LayoutContent,
+    ALayoutFooter: LayoutFooter,
+    ALayoutSider: LayoutSider,
+    AMenu: Menu,
+    ABreadcrumb: Breadcrumb,
+    ABreadcrumbItem: BreadcrumbItem,
+  },
+  setup() {
+    const router = useRouter();
+    const route = useRoute();
+    const items = ref([]);
+    const openKeys = ref(['/console/data']);
+    const selectedKeys = ref([]);
+    const collapsed = ref(false);
+    selectedKeys.value = [route.name];
+    (async () => {
+      items.value = (await routes_filter(oTopRoute, async (sParent, mRoute) => {
         const mRet = {};
         mRet.key = `${sParent}/${mRoute.name}`;
         mRet.label = mRoute.label;
         return mRet;
       })).children;
-    },
-    methods: {
-      handleClick(e) {
-        this.$router.push(e.key);
+    })();
+    const handleClick = (e) => {
+      router.push(e.key);
+    };
+    watch(
+      () => route.name,
+      (v) => {
+        if (v) {
+          selectedKeys.value = [v];
+        }
       }
-    },
-  }
-}
+    );
+    return {
+      items,
+      openKeys,
+      selectedKeys,
+      collapsed,
+      handleClick,
+    };
+  },
+})

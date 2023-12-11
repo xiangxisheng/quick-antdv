@@ -1,20 +1,54 @@
 import { fetchDataByPathname } from 'firadio';
-export default async (param) => {
-  return {
-    template: await (await fetch('./page/panel/table.htm')).text(),
-    data() {
-      return {
-        state: {
-          searchText: '',
-          searchedColumn: '',
-        },
-        dataSource: [],
-        columns: [],
-      }
-    },
-    async created() {
-      const data = await this.fetchDataByPathname('api/table', { keyspace_name: 'test', table_name: 'test' });
-      this.columns.length = 0;
+const { ref, reactive } = Vue;
+const { usePagination } = VueRequest;
+const { Table, Input, Button } = antd;
+export default async () => ({
+  template: await (await fetch('./page/panel/table.htm')).text(),
+  components: {
+    ATable: Table,
+    AInput: Input,
+    AButton: Button,
+  },
+  setup() {
+    // https://www.attojs.org/guide/documentation/pagination.html#example
+    // const queryData = async (params) => {
+    //   console.log(params);
+    // };
+    // const aa = usePagination(queryData, {
+    //   formatResult: res => {
+    //     console.log('res', res);
+    //   },
+    //   defaultParams: [
+    //     {
+    //       limit: 5,
+    //     },
+    //   ],
+    //   pagination: {
+    //     currentKey: 'page',
+    //     pageSizeKey: 'results',
+    //   },
+    // });
+    // console.log(aa);
+    const state = reactive({
+      searchText: '',
+      searchedColumn: '',
+    });
+    const handleSearch = (selectedKeys, confirm, dataIndex) => {
+      confirm();
+      state.searchText = selectedKeys[0];
+      state.searchedColumn = dataIndex;
+    };
+    const handleReset = (clearFilters) => {
+      clearFilters({
+        confirm: true,
+      });
+      state.searchText = '';
+    };
+    const columns = ref([]);
+    const dataSource = ref([]);
+    const searchInput = ref();
+    (async () => {
+      const data = await fetchDataByPathname('api/table', { keyspace_name: 'test', table_name: 'test' });
       for (const col of data.columns) {
         const column = { title: col.name, dataIndex: col.name, key: col.name };
         column.customFilterDropdown = true;
@@ -24,33 +58,23 @@ export default async (param) => {
         column.onFilterDropdownOpenChange = visible => {
           if (visible) {
             setTimeout(() => {
-              this.$refs.searchInput.focus();
+              searchInput.value.focus();
             }, 100);
           }
         };
-        this.columns.push(column);
+        columns.value.push(column);
       }
-      this.dataSource.length = 0;
       for (const row of data.rows) {
-        this.dataSource.push(row);
+        dataSource.value.push(row);
       }
-    },
-    methods: {
-      async fetchDataByPathname(_pathname, _param) {
-        const ret = await fetchDataByPathname(_pathname, _param);
-        return ret;
-      },
-      async handleSearch(selectedKeys, confirm, dataIndex) {
-        confirm();
-        this.state.searchText = selectedKeys[0];
-        this.state.searchedColumn = dataIndex;
-      },
-      async handleReset(clearFilters) {
-        clearFilters({
-          confirm: true,
-        });
-        this.state.searchText = '';
-      },
-    },
-  }
-}
+    })();
+    return {
+      state,
+      dataSource,
+      columns,
+      searchInput,
+      handleSearch,
+      handleReset,
+    }
+  },
+})

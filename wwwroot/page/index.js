@@ -1,55 +1,48 @@
-import { routes_filter } from 'firadio';
-export default async (oTopRoute) => {
-  return {
-    template: await (await fetch('./page/index.htm')).text(),
-    data() {
-      return {
-        items: [],
-        selectedKeys: [],
+const { ref, watch } = Vue;
+const { useRouter, useRoute } = VueRouter;
+const { Layout, LayoutHeader, LayoutContent, Menu } = antd;
+export default async (oTopRoute) => ({
+  template: await (await fetch('./page/index.htm')).text(),
+  components: {
+    ALayout: Layout,
+    ALayoutContent: LayoutContent,
+    ALayoutHeader: LayoutHeader,
+    AMenu: Menu,
+  },
+  setup() {
+    const router = useRouter();
+    const route = useRoute();
+    const items = ref([]);
+    for (const mRoute of oTopRoute.children) {
+      if (!mRoute.label) {
+        continue;
       }
-    },
-    watch: {
-      $route(to) {
-        if (to.name) {
-          const cur = to.name.split('/')[1];
-          this.selectedKeys = [cur];
+      const item = {};
+      item.key = mRoute.name;
+      item.label = mRoute.label;
+      items.value.push(item);
+    }
+    const selectedKeys = ref();
+    if (route.name) {
+      const cur = route.name.split('/')[1];
+      selectedKeys.value = [cur];
+    }
+    const handleClick = (e) => {
+      router.push('/' + e.key);
+    };
+    watch(
+      () => route.name,
+      (v) => {
+        if (v) {
+          const cur = v.split('/')[1];
+          selectedKeys.value = [cur];
         }
       }
-    },
-    async created() {
-      this.items.length = 0;
-      for (const mRoute of oTopRoute.children) {
-        if (!mRoute.label) {
-          continue;
-        }
-        const item = {};
-        item.key = mRoute.name;
-        item.label = mRoute.label;
-        this.items.push(item);
-      }
-      // this.items = (await routes_filter(oTopRoute, async (sParent, mRoute) => {
-      //   const item = {};
-      //   item.key = `${sParent}/${mRoute.name}`;
-      //   item.isDir = mRoute.children ? true : false;
-      //   item.label = mRoute.label;
-      //   return item;
-      // })).children;
-      if (this.$route.name) {
-        const cur = this.$route.name.split('/')[1];
-        this.selectedKeys = [cur];
-      }
-    },
-    methods: {
-      handleClick(e) {
-        this.$router.push('/' + e.key);
-      },
-      goToDashboard() {
-        if (isAuthenticated) {
-          this.$router.push('/dashboard')
-        } else {
-          this.$router.push('/login')
-        }
-      },
-    },
-  }
-}
+    );
+    return {
+      items,
+      selectedKeys,
+      handleClick,
+    };
+  },
+})

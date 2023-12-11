@@ -78,13 +78,6 @@ async function vue_index_main(Vue, VueRouter, antd) {
   });
   const app = createApp();
   app.use(router);
-  for (var s in antd) {
-    // 加载 antd 的全部组件
-    const o = antd[s];
-    if (o.install && o.setup) {
-      app.use(o);
-    }
-  }
   app.mount('#app');
 }
 

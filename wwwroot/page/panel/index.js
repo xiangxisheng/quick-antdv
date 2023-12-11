@@ -1,17 +1,12 @@
-export default async (param) => {
-  return {
-    template: await (await fetch('./page/panel/index.htm')).text(),
-    data() {
-      return {
-        xxx: 'asdfasdfasdf',
-      }
-    },
-    async created() {
-      this.$router.push({ query: { date: new Date() } });
-      this.xxx = this.$route.path + ',' + JSON.stringify(this.$route.query);
-    },
-    methods: {
-
-    },
-  }
-}
+const { computed } = Vue;
+const { useRouter, useRoute } = VueRouter;
+export default async () => ({
+  template: await (await fetch('./page/panel/index.htm')).text(),
+  setup() {
+    const router = useRouter();
+    const route = useRoute();
+    router.push({ query: { date: new Date() } });
+    const xxx = computed(() => (route.path + ',' + JSON.stringify(route.query)));
+    return { xxx };
+  },
+})
