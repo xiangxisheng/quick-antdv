@@ -51,10 +51,13 @@ async function routes_filter(route, func, parent = '') {
 
 async function vue_index_main(Vue, VueRouter, antd) {
   const { createApp } = Vue;
-  const { createRouter, createWebHashHistory } = VueRouter;
+  const { createRouter, createWebHistory } = VueRouter;
   const oTopRoute = { children: await (await fetch('/api/public/route')).json() }
   const routes = (await routes_filter(oTopRoute, async (sParent, mRoute) => {
     const item = {};
+    if (typeof (mRoute.path) === 'string') {
+      item.path = mRoute.path;
+    }
     if (typeof (mRoute.name) === 'string') {
       item.name = sParent + '/' + mRoute.name;
       item.path = (sParent.indexOf('/') === -1 ? '/' : '') + mRoute.name;
@@ -68,8 +71,9 @@ async function vue_index_main(Vue, VueRouter, antd) {
     }
     return item;
   })).children;
+  //routes.push({ path: '/:pathMatch(.*)', component: NotFoundComponent });
   const router = createRouter({
-    history: createWebHashHistory(),
+    history: createWebHistory(),
     routes, // `routes: routes` 的缩写
   });
   const app = createApp();

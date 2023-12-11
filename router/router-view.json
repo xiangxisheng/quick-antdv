@@ -1,8 +1,12 @@
 {
-  "name": "",
+  "path": "/",
   "component": "index",
   "role": "public",
   "children": [
+    {
+      "path": "/:pathMatch(.*)",
+      "component": "404"
+    },
     {
       "name": "home",
       "alias": "/",

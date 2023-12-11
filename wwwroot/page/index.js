@@ -10,13 +10,18 @@ export default async (oTopRoute) => {
     },
     watch: {
       $route(to) {
-        const cur = to.name.split('/')[1];
-        this.selectedKeys = [cur];
+        if (to.name) {
+          const cur = to.name.split('/')[1];
+          this.selectedKeys = [cur];
+        }
       }
     },
     async created() {
       this.items.length = 0;
       for (const mRoute of oTopRoute.children) {
+        if (!mRoute.label) {
+          continue;
+        }
         const item = {};
         item.key = mRoute.name;
         item.label = mRoute.label;
@@ -29,8 +34,10 @@ export default async (oTopRoute) => {
       //   item.label = mRoute.label;
       //   return item;
       // })).children;
-      const cur = this.$route.name.split('/')[1];
-      this.selectedKeys = [cur];
+      if (this.$route.name) {
+        const cur = this.$route.name.split('/')[1];
+        this.selectedKeys = [cur];
+      }
     },
     methods: {
       handleClick(e) {
