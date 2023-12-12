@@ -1,6 +1,5 @@
 import { fetchDataByPathname } from 'firadio';
 const { ref, reactive } = Vue;
-const { usePagination } = VueRequest;
 const { Table, Input, Button } = antd;
 export default async () => ({
   template: await (await fetch('./page/panel/table.htm')).text(),
@@ -10,25 +9,6 @@ export default async () => ({
     AButton: Button,
   },
   setup() {
-    // https://www.attojs.org/guide/documentation/pagination.html#example
-    // const queryData = async (params) => {
-    //   console.log(params);
-    // };
-    // const aa = usePagination(queryData, {
-    //   formatResult: res => {
-    //     console.log('res', res);
-    //   },
-    //   defaultParams: [
-    //     {
-    //       limit: 5,
-    //     },
-    //   ],
-    //   pagination: {
-    //     currentKey: 'page',
-    //     pageSizeKey: 'results',
-    //   },
-    // });
-    // console.log(aa);
     const state = reactive({
       searchText: '',
       searchedColumn: '',
@@ -45,16 +25,21 @@ export default async () => ({
       state.searchText = '';
     };
     const columns = ref([]);
+    const pagination = reactive({
+      total: 200,
+      current: 2,
+      pageSize: 20,
+    });
+    const loading = ref(false);
     const dataSource = ref([]);
-    const searchInput = ref();
-    (async () => {
+    const searchInput = ref('');
+    const fetchData = async () => {
       const data = await fetchDataByPathname('api/table', { keyspace_name: 'test', table_name: 'test' });
+      pagination.total = 100;
+      columns.value.length = 0;
       for (const col of data.columns) {
         const column = { title: col.name, dataIndex: col.name, key: col.name };
         column.customFilterDropdown = true;
-        column.onFilter = (value, record) => {
-          return record.name.toString().toLowerCase().includes(value.toLowerCase());
-        };
         column.onFilterDropdownOpenChange = visible => {
           if (visible) {
             setTimeout(() => {
@@ -64,17 +49,24 @@ export default async () => ({
         };
         columns.value.push(column);
       }
-      for (const row of data.rows) {
-        dataSource.value.push(row);
-      }
-    })();
+      dataSource.value = data.rows;
+    };
+    const handleTableChange = async (pag, filters, sorter) => {
+      fetchData();
+      pagination.current = pag.current;
+      pagination.pageSize = pag.pageSize;
+      console.log(pag, filters, sorter);
+    }
     return {
       state,
       dataSource,
       columns,
+      pagination,
+      loading,
       searchInput,
       handleSearch,
       handleReset,
+      handleTableChange,
     }
   },
 })

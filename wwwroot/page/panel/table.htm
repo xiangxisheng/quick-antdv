@@ -1,4 +1,5 @@
-<a-table :dataSource="dataSource" :columns="columns">
+<a-table :dataSource="dataSource" :columns="columns" :pagination="pagination" :loading="loading"
+  @change="handleTableChange">
   <template #customFilterDropdown="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }">
     <div style="padding: 8px">
       <a-input ref="searchInput" :placeholder="`Search ${column.dataIndex}`" :value="selectedKeys[0]"
