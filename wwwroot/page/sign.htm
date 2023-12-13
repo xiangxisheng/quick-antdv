@@ -1,7 +1,7 @@
 <h1 style="text-align: center; margin: 40px;">{{title}}</h1>
 
 <a-form :model="formState" name="basic" :label-col="{ span: 8 }" :wrapper-col="{ span: 10 }" autocomplete="off"
-  @finish="onFinish" @finishFailed="onFinishFailed">
+  @finish="onFinish" @finishFailed="onFinishFailed" style="text-align: center; margin: 0 40px;">
   <a-form-item label="Username" name="username" :rules="[{ required: true, message: 'Please input your username!' }]">
     <a-input v-model:value="formState.username" />
   </a-form-item>
@@ -15,11 +15,16 @@
     <a-input-password v-model:value="formState.password_confirm" />
   </a-form-item>
 
-  <a-form-item name="remember" :wrapper-col="{ offset: 8, span: 16 }">
+  <a-form-item name="remember" :wrapper-col="{ span: 24 }">
     <a-checkbox v-model:checked="formState.remember">Remember me</a-checkbox>
   </a-form-item>
 
-  <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
-    <a-button type="primary" html-type="submit">Submit</a-button>
+  <a-form-item :wrapper-col="{span: 24 }">
+    <a-space wrap>
+      <a-button type="link" v-on:click="router.push('/sign-up')" v-if="route.name==='/sign-in'">Register</a-button>
+      <a-button type="link" v-on:click="router.push('/sign-in')" v-if="route.name==='/sign-up'">Login</a-button>
+      <a-button type="primary" html-type="submit" span="8">Submit</a-button>
+    </a-space>
+
   </a-form-item>
 </a-form>
