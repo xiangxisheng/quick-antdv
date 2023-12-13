@@ -49,6 +49,12 @@ export default async () => ({
         };
         columns.value.push(column);
       }
+      columns.value.push({
+        title: 'Action',
+        key: 'operation',
+        fixed: 'right',
+        width: 100,
+      });
       dataSource.value = data.rows;
     };
     const handleTableChange = async (pag, filters, sorter) => {

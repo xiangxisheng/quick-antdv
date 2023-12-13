@@ -1,5 +1,5 @@
 <a-table :dataSource="dataSource" :columns="columns" :pagination="pagination" :loading="loading"
-  @change="handleTableChange">
+  @change="handleTableChange" :scroll="{ x: 500 }">
   <template #customFilterDropdown="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }">
     <div style="padding: 8px">
       <a-input ref="searchInput" :placeholder="`Search ${column.dataIndex}`" :value="selectedKeys[0]"
@@ -17,5 +17,10 @@
         Reset
       </a-button>
     </div>
+  </template>
+  <template #bodyCell="{ column }">
+    <template v-if="column.key === 'operation'">
+      <a><i class="bx bx-edit"></i></a>
+    </template>
   </template>
 </a-table>
