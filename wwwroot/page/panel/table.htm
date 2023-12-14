@@ -1,3 +1,85 @@
+<context-holder />
+<a-drawer title="Create a new account" :width="720" :open="insertOpen" :body-style="{ paddingBottom: '80px' }"
+  :footer-style="{ textAlign: 'right' }" @close="insertOpen=false">
+  <a-form :model="form" :rules="rules" layout="vertical">
+    <a-row :gutter="16">
+      <a-col :span="12">
+        <a-form-item label="Name" name="name">
+          <a-input v-model:value="form.name" placeholder="Please enter user name" />
+        </a-form-item>
+      </a-col>
+      <a-col :span="12">
+        <a-form-item label="Url" name="url">
+          <a-input v-model:value="form.url" style="width: 100%" addon-before="http://" addon-after=".com"
+            placeholder="please enter url" />
+        </a-form-item>
+      </a-col>
+    </a-row>
+    <a-row :gutter="16">
+      <a-col :span="12">
+        <a-form-item label="Owner" name="owner">
+          <a-select v-model:value="form.owner" placeholder="Please a-s an owner">
+            <a-select-option value="xiao">Xiaoxiao Fu</a-select-option>
+            <a-select-option value="mao">Maomao Zhou</a-select-option>
+          </a-select>
+        </a-form-item>
+      </a-col>
+      <a-col :span="12">
+        <a-form-item label="Type" name="type">
+          <a-select v-model:value="form.type" placeholder="Please choose the type">
+            <a-select-option value="private">Private</a-select-option>
+            <a-select-option value="public">Public</a-select-option>
+          </a-select>
+        </a-form-item>
+      </a-col>
+    </a-row>
+    <a-row :gutter="16">
+      <a-col :span="12">
+        <a-form-item label="Approver" name="approver">
+          <a-select v-model:value="form.approver" placeholder="Please choose the approver">
+            <a-select-option value="jack">Jack Ma</a-select-option>
+            <a-select-option value="tom">Tom Liu</a-select-option>
+          </a-select>
+        </a-form-item>
+      </a-col>
+      <a-col :span="12">
+        <a-form-item label="DateTime" name="dateTime">
+          <a-date-picker v-model:value="form.dateTime" style="width: 100%"
+            :get-popup-container="trigger => trigger.parentElement" />
+        </a-form-item>
+      </a-col>
+    </a-row>
+    <a-row :gutter="16">
+      <a-col :span="24">
+        <a-form-item label="Description" name="description">
+          <a-textarea v-model:value="form.description" :rows="4" placeholder="please enter url description" />
+        </a-form-item>
+      </a-col>
+    </a-row>
+  </a-form>
+  <template #extra>
+    <a-space>
+      <a-button @click="insertOpen=false">Cancel</a-button>
+      <a-button type="primary" :loading="loading" @click="handleInsertSubmit">Submit</a-button>
+    </a-space>
+  </template>
+</a-drawer>
+<a-space wrap :size="20" style="margin: 10px;">
+  <a-button @click="handleInsert" type="primary">
+    <template #icon>
+      <i class="bx bx-plus-circle" style="font-size: 16px; vertical-align: -2px; margin-right: 4px;"></i>
+    </template>
+    Insert
+  </a-button>
+  <a-popconfirm title="Are you sure delete?" ok-text="Yes" cancel-text="No" @confirm="handleDelete">
+    <a-button danger :loading="loading">
+      <template #icon>
+        <i class="bx bx-trash" style="font-size: 16px; vertical-align: -2px; margin-right: 4px;"></i>
+      </template>
+      Delete
+    </a-button>
+  </a-popconfirm>
+</a-space>
 <a-table :dataSource="dataSource" :columns="columns" :pagination="pagination" :loading="loading"
   @change="handleTableChange" :scroll="{ x: 500 }">
   <template #customFilterDropdown="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }">
@@ -8,9 +90,9 @@
         @pressEnter="handleSearch(selectedKeys, confirm, column.dataIndex)" />
       <a-button type="primary" size="small" style="width: 90px; margin-right: 8px"
         @click="handleSearch(selectedKeys, confirm, column.dataIndex)">
-        <!-- <template #icon>
-          <SearchOutlined />
-        </template> -->
+        <template #icon>
+          <i class="bx bx-search" style="vertical-align: -2px; margin-right: 4px;"></i>
+        </template>
         Search
       </a-button>
       <a-button size="small" style="width: 90px" @click="handleReset(clearFilters)">

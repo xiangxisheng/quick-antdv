@@ -1,12 +1,28 @@
 import { fetchDataByPathname } from 'firadio';
+import { delay } from 'firadio';
 const { ref, reactive } = Vue;
-const { Table, Input, Button } = antd;
+const { Space, Table, Input, Button, Popconfirm, Drawer } = antd;
+const { Form, FormItem, Row, Col, Textarea, DatePicker, Select, SelectOption } = antd;
+const [messageApi, contextHolder] = antd.message.useMessage();
+
 export default async () => ({
   template: await (await fetch('./page/panel/table.htm')).text(),
   components: {
+    ASpace: Space,
     ATable: Table,
     AInput: Input,
     AButton: Button,
+    APopconfirm: Popconfirm,
+    contextHolder,
+    ADrawer: Drawer,
+    AForm: Form,
+    AFormItem: FormItem,
+    ARow: Row,
+    ACol: Col,
+    ATextarea: Textarea,
+    ADatePicker: DatePicker,
+    ASelect: Select,
+    ASelectOption: SelectOption,
   },
   setup() {
     const state = reactive({
@@ -63,6 +79,32 @@ export default async () => ({
       pagination.pageSize = pag.pageSize;
       console.log(pag, filters, sorter);
     }
+    const form = ref({});
+    const insertOpen = ref(false);
+    const handleInsert = async () => {
+      insertOpen.value = true;
+    }
+    const handleInsertSubmit = async () => {
+      loading.value = true;
+      await delay(1000);
+      loading.value = false;
+      insertOpen.value = false;
+    }
+    const handleDelete = async () => {
+      loading.value = true;
+      await delay(1000);
+      loading.value = false;
+      messageApi.info('handleDelete!');
+    }
+    const rules = {
+      name: [{ required: true, message: 'Please enter user name' }],
+      url: [{ required: true, message: 'please enter url' }],
+      owner: [{ required: true, message: 'Please select an owner' }],
+      type: [{ required: true, message: 'Please choose the type' }],
+      approver: [{ required: true, message: 'Please choose the approver' }],
+      dateTime: [{ required: true, message: 'Please choose the dateTime', type: 'object' }],
+      description: [{ required: true, message: 'Please enter url description' }],
+    };
     return {
       state,
       dataSource,
@@ -70,9 +112,15 @@ export default async () => ({
       pagination,
       loading,
       searchInput,
+      insertOpen,
+      form,
+      rules,
       handleSearch,
       handleReset,
       handleTableChange,
+      handleInsert,
+      handleInsertSubmit,
+      handleDelete,
     }
   },
 })

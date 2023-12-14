@@ -81,4 +81,6 @@ async function vue_index_main(Vue, VueRouter, antd) {
   app.mount('#app');
 }
 
-export { fetchDataByPathname, routes_filter, vue_index_main };
+const delay = ms => new Promise((resolve) => setTimeout(resolve, ms))
+
+export { fetchDataByPathname, routes_filter, vue_index_main, delay };
