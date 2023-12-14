@@ -40,19 +40,28 @@ export default async () => ({
       });
       state.searchText = '';
     };
-    const columns = ref([]);
-    const pagination = reactive({
-      total: 200,
-      current: 2,
-      pageSize: 20,
-    });
     const loading = ref(false);
-    const dataSource = ref([]);
+    const tableState = reactive({
+      columns: [],
+      dataSource: [],
+      rowSelection: {
+        selectedRowKeys: [],
+      },
+      pagination: {
+        total: 200,
+        current: 2,
+        pageSize: 20,
+      },
+    });
+    tableState.rowSelection.onChange = (selectedRowKeys) => {
+      tableState.rowSelection.selectedRowKeys = selectedRowKeys;
+    };
+
     const searchInput = ref('');
     const fetchData = async () => {
       const data = await fetchDataByPathname('api/table', { keyspace_name: 'test', table_name: 'test' });
-      pagination.total = 100;
-      columns.value.length = 0;
+      tableState.pagination.total = 100;
+      tableState.columns.length = 0;
       for (const col of data.columns) {
         const column = { title: col.name, dataIndex: col.name, key: col.name };
         column.customFilterDropdown = true;
@@ -63,40 +72,45 @@ export default async () => ({
             }, 100);
           }
         };
-        columns.value.push(column);
+        tableState.columns.push(column);
       }
-      columns.value.push({
+      tableState.columns.push({
         title: 'Action',
         key: 'operation',
         fixed: 'right',
         width: 100,
       });
-      dataSource.value = data.rows;
+      tableState.dataSource = data.rows;
     };
-    const handleTableChange = async (pag, filters, sorter) => {
+    tableState.change = async (pag, filters, sorter) => {
       fetchData();
-      pagination.current = pag.current;
-      pagination.pageSize = pag.pageSize;
+      tableState.pagination.current = pag.current;
+      tableState.pagination.pageSize = pag.pageSize;
       console.log(pag, filters, sorter);
     }
-    const form = ref({});
-    const insertOpen = ref(false);
-    const handleInsert = async () => {
-      insertOpen.value = true;
-    }
-    const handleInsertSubmit = async () => {
+
+    const drawerState = reactive({
+      open: false,
+      data: {},
+      rules: {},
+      model: {},
+    });
+    drawerState.finish = async () => {
       loading.value = true;
       await delay(1000);
       loading.value = false;
-      insertOpen.value = false;
+      drawerState.open = false;
     }
     const handleDelete = async () => {
       loading.value = true;
       await delay(1000);
       loading.value = false;
-      messageApi.info('handleDelete!');
+      messageApi.info(JSON.stringify(tableState.rowSelection.selectedRowKeys));
     }
-    const rules = {
+    drawerState.finishFailed = (errorInfo) => {
+      messageApi.error(errorInfo.errorFields[0].errors[0], 1);
+    };
+    drawerState.rules = {
       name: [{ required: true, message: 'Please enter user name' }],
       url: [{ required: true, message: 'please enter url' }],
       owner: [{ required: true, message: 'Please select an owner' }],
@@ -106,20 +120,13 @@ export default async () => ({
       description: [{ required: true, message: 'Please enter url description' }],
     };
     return {
-      state,
-      dataSource,
-      columns,
-      pagination,
       loading,
+      tableState,
+      drawerState,
+      state,
       searchInput,
-      insertOpen,
-      form,
-      rules,
       handleSearch,
       handleReset,
-      handleTableChange,
-      handleInsert,
-      handleInsertSubmit,
       handleDelete,
     }
   },

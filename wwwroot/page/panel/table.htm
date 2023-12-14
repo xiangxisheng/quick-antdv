@@ -1,71 +1,47 @@
 <context-holder />
-<a-drawer title="Create a new account" :width="720" :open="insertOpen" :body-style="{ paddingBottom: '80px' }"
-  :footer-style="{ textAlign: 'right' }" @close="insertOpen=false">
-  <a-form :model="form" :rules="rules" layout="vertical">
-    <a-row :gutter="16">
-      <a-col :span="12">
-        <a-form-item label="Name" name="name">
-          <a-input v-model:value="form.name" placeholder="Please enter user name" />
-        </a-form-item>
-      </a-col>
-      <a-col :span="12">
-        <a-form-item label="Url" name="url">
-          <a-input v-model:value="form.url" style="width: 100%" addon-before="http://" addon-after=".com"
-            placeholder="please enter url" />
-        </a-form-item>
-      </a-col>
-    </a-row>
-    <a-row :gutter="16">
-      <a-col :span="12">
-        <a-form-item label="Owner" name="owner">
-          <a-select v-model:value="form.owner" placeholder="Please a-s an owner">
-            <a-select-option value="xiao">Xiaoxiao Fu</a-select-option>
-            <a-select-option value="mao">Maomao Zhou</a-select-option>
-          </a-select>
-        </a-form-item>
-      </a-col>
-      <a-col :span="12">
-        <a-form-item label="Type" name="type">
-          <a-select v-model:value="form.type" placeholder="Please choose the type">
-            <a-select-option value="private">Private</a-select-option>
-            <a-select-option value="public">Public</a-select-option>
-          </a-select>
-        </a-form-item>
-      </a-col>
-    </a-row>
-    <a-row :gutter="16">
-      <a-col :span="12">
-        <a-form-item label="Approver" name="approver">
-          <a-select v-model:value="form.approver" placeholder="Please choose the approver">
-            <a-select-option value="jack">Jack Ma</a-select-option>
-            <a-select-option value="tom">Tom Liu</a-select-option>
-          </a-select>
-        </a-form-item>
-      </a-col>
-      <a-col :span="12">
-        <a-form-item label="DateTime" name="dateTime">
-          <a-date-picker v-model:value="form.dateTime" style="width: 100%"
-            :get-popup-container="trigger => trigger.parentElement" />
-        </a-form-item>
-      </a-col>
-    </a-row>
-    <a-row :gutter="16">
-      <a-col :span="24">
-        <a-form-item label="Description" name="description">
-          <a-textarea v-model:value="form.description" :rows="4" placeholder="please enter url description" />
-        </a-form-item>
-      </a-col>
-    </a-row>
+<a-drawer title="Create" :open="drawerState.open" :body-style="{ paddingBottom: '80px' }"
+  :footer-style="{ textAlign: 'right' }" @close="$refs.myForm.clearValidate();drawerState.open=false;"
+  :maskClosable="false">
+  <a-form ref="myForm" :rules="drawerState.rules" :model="drawerState.model" name="basic" layout="vertical"
+    @finish="drawerState.finish" @finishFailed="drawerState.finishFailed" autocomplete="off">
+    <button type="submit" style="display: none;"></button>
+
+    <a-form-item label="Name" name="name">
+      <a-input v-model:value="drawerState.model.name" placeholder="Please enter user name" />
+    </a-form-item>
+
+    <a-form-item label="Url" name="url">
+      <a-input v-model:value="drawerState.model.url" style="width: 100%" addon-before="http://" addon-after=".com"
+        placeholder="please enter url" />
+    </a-form-item>
+
+    <a-form-item label="Type" name="type">
+      <a-select v-model:value="drawerState.model.type" placeholder="Please choose the type">
+        <a-select-option value="private">Private</a-select-option>
+        <a-select-option value="public">Public</a-select-option>
+      </a-select>
+    </a-form-item>
+
+    <a-form-item label="DateTime" name="dateTime">
+      <a-date-picker v-model:value="drawerState.model.dateTime" style="width: 100%"
+        :get-popup-container="trigger => trigger.parentElement" />
+    </a-form-item>
+
+    <a-form-item label="Description" name="description">
+      <a-textarea v-model:value="drawerState.model.description" :rows="4" placeholder="please enter url description" />
+    </a-form-item>
+
   </a-form>
   <template #extra>
     <a-space>
-      <a-button @click="insertOpen=false">Cancel</a-button>
-      <a-button type="primary" :loading="loading" @click="handleInsertSubmit">Submit</a-button>
+      <a-button @click="$refs.myForm.clearValidate();drawerState.open=false;">Cancel</a-button>
+      <a-button type="primary" :loading="loading"
+        @click="async()=>{ try { await $refs.myForm.validate(); drawerState.finish(); } catch (e) { drawerState.finishFailed(e); } }">Submit</a-button>
     </a-space>
   </template>
 </a-drawer>
 <a-space wrap :size="20" style="margin: 10px;">
-  <a-button @click="handleInsert" type="primary">
+  <a-button @click="drawerState.open=true;" type="primary">
     <template #icon>
       <i class="bx bx-plus-circle" style="font-size: 16px; vertical-align: -2px; margin-right: 4px;"></i>
     </template>
@@ -80,8 +56,8 @@
     </a-button>
   </a-popconfirm>
 </a-space>
-<a-table :dataSource="dataSource" :columns="columns" :pagination="pagination" :loading="loading"
-  @change="handleTableChange" :scroll="{ x: 500 }">
+<a-table :dataSource="tableState.dataSource" :columns="tableState.columns" :pagination="tableState.pagination"
+  :loading="loading" @change="tableState.change" :scroll="{ x: 500 }" :rowSelection="tableState.rowSelection" rowKey="name">
   <template #customFilterDropdown="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }">
     <div style="padding: 8px">
       <a-input ref="searchInput" :placeholder="`Search ${column.dataIndex}`" :value="selectedKeys[0]"
