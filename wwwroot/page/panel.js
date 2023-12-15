@@ -16,15 +16,18 @@ export default async (oTopRoute) => ({
   setup() {
     const router = useRouter();
     const route = useRoute();
-    const items = ref([]);
-    const openKeys = ref(['/console/data']);
-    const selectedKeys = ref([]);
     const menuState = reactive({
       collapsed: false,
+      openKeys: ref(['/console/data']),
+      selectedKeys: ref([]),
+      items: ref([]),
+      handleClick: (e) => {
+        router.push(e.key);
+      },
     });
-    selectedKeys.value = [route.name];
+    menuState.selectedKeys = [route.name];
     (async () => {
-      items.value = (await routes_filter(oTopRoute, async (sParent, mRoute) => {
+      menuState.items = (await routes_filter(oTopRoute, async (sParent, mRoute) => {
         const mRet = {};
         mRet.key = `${sParent}/${mRoute.name}`;
         mRet.icon = () => h({
@@ -37,23 +40,16 @@ export default async (oTopRoute) => ({
         return mRet;
       })).children;
     })();
-    const handleClick = (e) => {
-      router.push(e.key);
-    };
     watch(
       () => route.name,
       (v) => {
         if (v) {
-          selectedKeys.value = [v];
+          menuState.selectedKeys.value = [v];
         }
       }
     );
     return {
-      items,
-      openKeys,
-      selectedKeys,
       menuState,
-      handleClick,
     };
   },
 })
