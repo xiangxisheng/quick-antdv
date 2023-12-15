@@ -1,5 +1,6 @@
 <a-layout style="height: 100%">
-  <a-layout-sider v-model:collapsed="menuState.collapsed" style="min-height: calc(100vh - 64px);" collapsible>
+  <a-layout-sider v-model:collapsed="menuState.collapsed" style="min-height: calc(100vh - 64px);" :collapsedWidth="40"
+    collapsible>
     <a-menu v-model:openKeys="openKeys" v-model:selectedKeys="selectedKeys" mode="inline" theme="dark"
       :inline-collapsed="menuState.collapsed" :items="items" @click="handleClick"></a-menu>
   </a-layout-sider>
