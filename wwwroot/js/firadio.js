@@ -83,4 +83,41 @@ async function vue_index_main(Vue, VueRouter, antd) {
 
 const delay = ms => new Promise((resolve) => setTimeout(resolve, ms))
 
-export { fetchDataByPathname, routes_filter, vue_index_main, delay };
+const storage = (key, object) => {
+  let data = (() => {
+    const str = object.getItem(key);
+    if (str === null || typeof (str) !== 'string' || str === '') {
+      return {};
+    }
+    try {
+      return JSON.parse(str);
+    } catch (e) { }
+    return {};
+  })();
+  return {
+    set(name, value) {
+      data[name] = value;
+    },
+    del(name) {
+      delete data[name];
+    },
+    has(name) {
+      return data.hasOwnProperty(name);
+    },
+    get(name) {
+      return data[name];
+    },
+    save() {
+      object.setItem(key, JSON.stringify(data));
+    },
+    clear() {
+      object.removeItem(key);
+    },
+  };
+};
+
+const stateStorage = (key) => {
+  return storage(key, sessionStorage);
+};
+
+export { fetchDataByPathname, routes_filter, vue_index_main, delay, stateStorage };
