@@ -1,4 +1,4 @@
-import { routes_filter, stateStorage } from 'firadio';
+const { routes_filter, stateStorage } = firadio;
 const { ref, reactive, watch, h } = Vue;
 const { useRouter, useRoute } = VueRouter;
 const { Layout, LayoutContent, LayoutFooter, LayoutSider, Menu, Breadcrumb, BreadcrumbItem } = antd;
