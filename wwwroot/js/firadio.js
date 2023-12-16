@@ -134,7 +134,7 @@ window.firadio = (() => {
     document.head.appendChild(link);
   };
 
-  const loadJSone = (file, cb) => {
+  const loadJS_one = (file, cb) => {
     const script = document.createElement('script');
     script.src = file;
     script.onload = () => {
@@ -145,10 +145,10 @@ window.firadio = (() => {
     document.head.appendChild(script);
   };
 
-  const loadJS = (files, cb) => {
+  const loadJS_all = (files, cb) => {
     let c = 0;
     for (const file of files) {
-      loadJSone(file, () => {
+      loadJS_one(file, () => {
         c++;
         if (c === files.length) {
           if (typeof (cb) === 'function') {
@@ -159,6 +159,8 @@ window.firadio = (() => {
     }
   };
 
+  const loadJS = files => new Promise((resolve) => loadJS_all(files, resolve));
+
   const isDev = () => {
     const devHost = [];
     devHost.push('localhost');
@@ -166,17 +168,15 @@ window.firadio = (() => {
     return devHost.indexOf(location.hostname) !== -1;
   };
 
-  const main = () => {
+  const main = async () => {
 
     loadCSS('./css/reset.min.css');
     loadCSS('./css/boxicons.min.css');
 
     const VueGlobalFile = isDev() ? 'https://unpkg.com/vue@3/dist/vue.global.js' : './js/vue/vue.global.prod.js';
-    loadJS([VueGlobalFile, './js/antd/dayjs.min.js', './js/antd/dayjs-plugin.min.js'], () => {
-      loadJS(['./js/vue/vue-router.global.prod.js', './js/antd/antd.min.js'], () => {
-        VueCreateApp(Vue, VueRouter);
-      });
-    });
+    await loadJS([VueGlobalFile, './js/antd/dayjs.min.js', './js/antd/dayjs-plugin.min.js']);
+    await loadJS(['./js/vue/vue-router.global.prod.js', './js/antd/antd.min.js']);
+    await VueCreateApp(Vue, VueRouter);
 
   };
 

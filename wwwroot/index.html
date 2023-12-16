@@ -7,15 +7,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>node-koa-antd</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="./css/firadio.css">
   <script src="./js/firadio.js"></script>
 </head>
 
 <body>
+  <div id="loader" style="position: absolute; background-color: black; width: 100%; height: 100%; z-index: 999;">
+    <div class="loader">加载中...</div>
+  </div>
   <div id="app"><router-view></router-view></div>
 </body>
 
 <script>
-  firadio.main();
+  (async () => {
+    await firadio.main();
+    document.getElementById('loader').style.display = 'none';
+  })();
 </script>
 
 </html>
