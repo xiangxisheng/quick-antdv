@@ -78,7 +78,7 @@ export default async () => ({
         title: 'Action',
         key: 'operation',
         fixed: 'right',
-        width: 100,
+        width: 80,
       });
       tableState.dataSource = data.rows;
     };

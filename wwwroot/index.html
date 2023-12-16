@@ -7,6 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>node-koa-antd</title>
   <link rel="stylesheet" href="./css/reset.min.css">
+  <link rel="stylesheet" href="./css/boxicons.min.css">
   <style>
     /*
     * {
@@ -26,17 +27,6 @@
 <script src="./js/antd/dayjs.min.js"></script>
 <script src="./js/antd/dayjs-plugin.min.js"></script>
 
-<script src="./js/vue/vue.global.prod.js"></script>
-<script src="./js/vue/vue-router.global.prod.js"></script>
-<script src="./js/antd/antd.min.js"></script>
-
-<!-- 开发环境下的全局风格 -->
-<!--
-<script src="https://unpkg.com/vue/dist/vue.global.js"></script>
-<script src="https://unpkg.com/vue-router/dist/vue-router.global.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/ant-design-vue/dist/antd.js"></script>
--->
-
 <!--
 
 开发环境下ESM风格
@@ -49,11 +39,16 @@ https://cdn.jsdelivr.net/npm/@ant-design/icons-vue@7.0.1/+esm
 生产环境下的ESM风格
 https://unpkg.com/vue@3.3.9/dist/vue.esm-browser.prod.js
 https://unpkg.com/vue-router@4.2.5/dist/vue-router.prod.cjs
-https://cdn.jsdelivr.net/npm/ant-design-vue@4.0.7/dist/antd.esm.min.js (推荐)
+https://cdn.jsdelivr.net/npm/ant-design-vue@4.0.7/dist/antd.esm.min.js
+
+开发环境下的全局风格
+https://unpkg.com/vue/dist/vue.global.js
+https://unpkg.com/vue-router/dist/vue-router.global.js
+https://cdn.jsdelivr.net/npm/ant-design-vue/dist/antd.js
 
 生产环境下的全局风格
-https://unpkg.com/vue@3.3.9/dist/vue.global.prod.js (推荐)
-https://unpkg.com/vue-router@4.2.5/dist/vue-router.global.prod.js (推荐)
+https://unpkg.com/vue@3.3.9/dist/vue.global.prod.js
+https://unpkg.com/vue-router@4.2.5/dist/vue-router.global.prod.js
 https://cdn.jsdelivr.net/npm/ant-design-vue@4.0.7/dist/antd.min.js
 
 -->
@@ -66,8 +61,14 @@ https://cdn.jsdelivr.net/npm/ant-design-vue@4.0.7/dist/antd.min.js
 }
 </script>
 <script type="module">
-  import { vue_index_main } from 'firadio';
-  vue_index_main(Vue, VueRouter, antd);
+  import { vue_index_main, loadJS } from 'firadio';
+  loadJS('./js/vue/vue.global.prod.js', () => {
+    loadJS('./js/vue/vue-router.global.prod.js', () => {
+      loadJS('./js/antd/antd.min.js', () => {
+        vue_index_main(Vue, VueRouter);
+      });
+    });
+  });
 </script>
 
 

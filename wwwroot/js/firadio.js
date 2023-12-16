@@ -120,4 +120,13 @@ const stateStorage = (key) => {
   return storage(key, sessionStorage);
 };
 
-export { fetchDataByPathname, routes_filter, vue_index_main, delay, stateStorage };
+const loadJS = (file, cb) => {
+  const script = document.createElement('script');
+  script.src = file;
+  script.onload = () => {
+    cb();
+  };
+  document.head.appendChild(script);
+};
+
+export { fetchDataByPathname, routes_filter, vue_index_main, delay, stateStorage, loadJS };
