@@ -50,7 +50,7 @@ window.firadio = (() => {
     return mRet;
   }
 
-  async function vue_index_main(Vue, VueRouter, antd) {
+  async function VueCreateApp(Vue, VueRouter) {
     const { createApp } = Vue;
     const { createRouter, createWebHistory } = VueRouter;
     const oTopRoute = { children: await (await fetch('/api/public/route')).json() }
@@ -80,6 +80,7 @@ window.firadio = (() => {
     const app = createApp();
     app.use(router);
     app.mount('#app');
+    return app;
   }
 
   const delay = ms => new Promise((resolve) => setTimeout(resolve, ms))
@@ -163,17 +164,27 @@ window.firadio = (() => {
     devHost.push('localhost');
     devHost.push('127.0.0.1');
     return devHost.indexOf(location.hostname) !== -1;
-  }
+  };
 
-  // export { fetchDataByPathname, routes_filter, vue_index_main, delay, stateStorage, loadJS };
+  const main = () => {
+
+    loadCSS('./css/reset.min.css');
+    loadCSS('./css/boxicons.min.css');
+
+    const VueGlobalFile = isDev() ? 'https://unpkg.com/vue@3/dist/vue.global.js' : './js/vue/vue.global.prod.js';
+    loadJS([VueGlobalFile, './js/antd/dayjs.min.js', './js/antd/dayjs-plugin.min.js'], () => {
+      loadJS(['./js/vue/vue-router.global.prod.js', './js/antd/antd.min.js'], () => {
+        VueCreateApp(Vue, VueRouter);
+      });
+    });
+
+  };
+
   const firadio = {};
   firadio.fetchDataByPathname = fetchDataByPathname;
   firadio.routes_filter = routes_filter;
-  firadio.vue_index_main = vue_index_main;
   firadio.delay = delay;
   firadio.stateStorage = stateStorage;
-  firadio.loadJS = loadJS;
-  firadio.loadCSS = loadCSS;
-  firadio.isDev = isDev;
+  firadio.main = main;
   return firadio;
 })();

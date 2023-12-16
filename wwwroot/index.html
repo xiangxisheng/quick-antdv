@@ -7,16 +7,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>node-koa-antd</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <style>
-    /*
-    * {
-       -webkit-transition-property: none !important;
-      -moz-transition-property: none !important;
-      -o-transition-property: none !important;
-      transition-property: none !important;
-    }
-    */
-  </style>
   <script src="./js/firadio.js"></script>
 </head>
 
@@ -24,46 +14,8 @@
   <div id="app"><router-view></router-view></div>
 </body>
 
-<!--
-
-开发环境下ESM风格
-https://unpkg.com/vue@3/dist/vue.esm-browser.js
-https://unpkg.com/@vue/devtools-api@6.5.1/lib/esm/index.js
-https://unpkg.com/vue-router@4.2.5/dist/vue-router.esm-browser.js
-https://cdn.jsdelivr.net/npm/ant-design-vue@4.0.7/dist/antd.esm.js
-https://cdn.jsdelivr.net/npm/@ant-design/icons-vue@7.0.1/+esm
-
-生产环境下的ESM风格
-https://unpkg.com/vue@3.3.9/dist/vue.esm-browser.prod.js
-https://unpkg.com/vue-router@4.2.5/dist/vue-router.prod.cjs
-https://cdn.jsdelivr.net/npm/ant-design-vue@4.0.7/dist/antd.esm.min.js
-
-开发环境下的全局风格
-https://unpkg.com/vue/dist/vue.global.js
-https://unpkg.com/vue-router/dist/vue-router.global.js
-https://cdn.jsdelivr.net/npm/ant-design-vue/dist/antd.js
-
-生产环境下的全局风格
-https://unpkg.com/vue@3.3.9/dist/vue.global.prod.js
-https://unpkg.com/vue-router@4.2.5/dist/vue-router.global.prod.js
-https://cdn.jsdelivr.net/npm/ant-design-vue@4.0.7/dist/antd.min.js
-
--->
-
 <script>
-  const { vue_index_main, loadJS, loadCSS, isDev } = firadio;
-  loadCSS('./css/reset.min.css');
-  loadCSS('./css/boxicons.min.css');
-
-  const VueGlobalFile = isDev() ? 'https://unpkg.com/vue@3/dist/vue.global.js' : './js/vue/vue.global.prod.js';
-  if (1) {
-    loadJS([VueGlobalFile, './js/antd/dayjs.min.js', './js/antd/dayjs-plugin.min.js'], () => {
-      loadJS(['./js/vue/vue-router.global.prod.js', './js/antd/antd.min.js'], () => {
-        vue_index_main(Vue, VueRouter);
-      });
-    });
-  }
+  firadio.main();
 </script>
-
 
 </html>
