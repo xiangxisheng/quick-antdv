@@ -1,5 +1,5 @@
-import { fetchDataByPathname } from 'firadio';
-import { delay } from 'firadio';
+const { fetchDataByPathname } = firadio;
+const { delay } = firadio;
 const { ref, reactive } = Vue;
 const { Space, Table, Input, Button, Popconfirm, Drawer } = antd;
 const { Form, FormItem, Row, Col, Textarea, DatePicker, Select, SelectOption } = antd;

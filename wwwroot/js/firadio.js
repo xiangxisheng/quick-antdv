@@ -121,11 +121,25 @@ window.firadio = (() => {
     return storage(key, sessionStorage);
   };
 
+  const loadCSS = (file, cb) => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = file;
+    link.onload = () => {
+      if (typeof (cb) === 'function') {
+        cb();
+      }
+    };
+    document.head.appendChild(link);
+  };
+
   const loadJSone = (file, cb) => {
     const script = document.createElement('script');
     script.src = file;
     script.onload = () => {
-      cb();
+      if (typeof (cb) === 'function') {
+        cb();
+      }
     };
     document.head.appendChild(script);
   };
@@ -136,7 +150,9 @@ window.firadio = (() => {
       loadJSone(file, () => {
         c++;
         if (c === files.length) {
-          cb();
+          if (typeof (cb) === 'function') {
+            cb();
+          }
         }
       });
     }
@@ -157,6 +173,7 @@ window.firadio = (() => {
   firadio.delay = delay;
   firadio.stateStorage = stateStorage;
   firadio.loadJS = loadJS;
+  firadio.loadCSS = loadCSS;
   firadio.isDev = isDev;
   return firadio;
 })();

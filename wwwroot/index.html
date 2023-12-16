@@ -7,8 +7,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>node-koa-antd</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="./css/reset.min.css">
-  <link rel="stylesheet" href="./css/boxicons.min.css">
   <style>
     /*
     * {
@@ -53,10 +51,11 @@ https://cdn.jsdelivr.net/npm/ant-design-vue@4.0.7/dist/antd.min.js
 -->
 
 <script>
-  const { vue_index_main, loadJS, isDev } = firadio;
-  const VueEsmFile = isDev() ? 'https://unpkg.com/vue@3/dist/vue.esm-browser.js' : './js/vue/vue.esm-browser.prod.js';
+  const { vue_index_main, loadJS, loadCSS, isDev } = firadio;
+  loadCSS('./css/reset.min.css');
+  loadCSS('./css/boxicons.min.css');
+
   const VueGlobalFile = isDev() ? 'https://unpkg.com/vue@3/dist/vue.global.js' : './js/vue/vue.global.prod.js';
-  //window.Vue = await import(vueFile);
   if (1) {
     loadJS([VueGlobalFile, './js/antd/dayjs.min.js', './js/antd/dayjs-plugin.min.js'], () => {
       loadJS(['./js/vue/vue-router.global.prod.js', './js/antd/antd.min.js'], () => {
