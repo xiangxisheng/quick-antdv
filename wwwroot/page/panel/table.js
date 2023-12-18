@@ -1,9 +1,10 @@
-const { fetchDataByPathname } = firadio;
+const { fetchDataByPathname, router } = firadio;
 const { delay } = firadio;
-const { ref, reactive } = Vue;
+const { ref, reactive, watch } = Vue;
 const { Space, Table, Input, Button, Popconfirm, Drawer } = antd;
 const { Form, FormItem, Row, Col, Textarea, DatePicker, Select, SelectOption } = antd;
 const [messageApi, contextHolder] = antd.message.useMessage();
+const { useRoute } = VueRouter;
 
 export default async () => ({
   template: await (await fetch('./page/panel/table.htm')).text(),
@@ -25,6 +26,7 @@ export default async () => ({
     ASelectOption: SelectOption,
   },
   setup() {
+    const route = useRoute();
     const state = reactive({
       searchText: '',
       searchedColumn: '',
@@ -48,8 +50,8 @@ export default async () => ({
         selectedRowKeys: [],
       },
       pagination: {
-        total: 200,
-        current: 2,
+        total: 0,
+        current: 1,
         pageSize: 20,
       },
     });
@@ -59,11 +61,17 @@ export default async () => ({
 
     const searchInput = ref('');
     const fetchData = async () => {
-      const data = await fetchDataByPathname('api/table', { keyspace_name: 'test', table_name: 'test' });
-      tableState.pagination.total = 100;
+      const query = router.curQuery();
+      var path = 'api/tables';
+      const param = { keyspace_name: 'test' };
+      if (query.table_name) {
+        param.table_name = query.table_name;
+        path = 'api/columns';
+      }
+      const data = await fetchDataByPathname(path, param);
+      tableState.pagination = data.pagination;
       tableState.columns.length = 0;
-      for (const col of data.columns) {
-        const column = { title: col.name, dataIndex: col.name, key: col.name };
+      for (const column of data.columns) {
         column.customFilterDropdown = true;
         column.onFilterDropdownOpenChange = visible => {
           if (visible) {
@@ -74,12 +82,7 @@ export default async () => ({
         };
         tableState.columns.push(column);
       }
-      tableState.columns.push({
-        title: 'Action',
-        key: 'operation',
-        fixed: 'right',
-        width: 80,
-      });
+
       tableState.dataSource = data.rows;
     };
     tableState.change = async (pag, filters, sorter) => {
@@ -88,6 +91,10 @@ export default async () => ({
       tableState.pagination.pageSize = pag.pageSize;
       console.log(pag, filters, sorter);
     }
+    tableState.push_query = (record) => {
+      router.push_query({ table_name: record.table_name });
+    };
+    fetchData();
 
     const drawerState = reactive({
       open: false,
@@ -119,6 +126,12 @@ export default async () => ({
       dateTime: [{ required: true, message: 'Please choose the dateTime', type: 'object' }],
       description: [{ required: true, message: 'Please enter url description' }],
     };
+    watch(
+      () => route.query,
+      () => {
+        fetchData();
+      }
+    );
     return {
       loading,
       tableState,

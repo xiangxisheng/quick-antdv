@@ -14,16 +14,52 @@ router.get(`/tables`, async (ctx, next) => {
   const result = await ctx.client.execute(cql, [q.keyspace_name]);
   ctx.body = {};
   ctx.body.rows = result.rows;
-  ctx.body.columns = result.columns;
+  ctx.body.columns = ((columns) => {
+    const ret = [];
+    for (const column of columns) {
+      const col = { title: column.name, dataIndex: column.name, key: column.name };
+      ret.push(col);
+    }
+    ret.push({
+      title: 'Action',
+      fixed: 'right',
+      width: 100,
+      actions: [
+        { title: '表结构' }
+      ]
+    });
+    return ret;
+  })(result.columns);
 });
 
 router.get(`/columns`, async (ctx, next) => {
+  const pageSize = 100;
   const q = ctx.request.query;
-  const cql = `SELECT position,column_name,type,kind FROM system_schema.columns WHERE keyspace_name=? AND table_name=?`;
+  const cql = `SELECT position,column_name,type,kind FROM system_schema.columns WHERE keyspace_name=? AND table_name=? LIMIT ${pageSize}`;
   const result = await ctx.client.execute(cql, [q.keyspace_name, q.table_name]);
   ctx.body = {};
+  ctx.body.pagination = {
+    total: result.rows.length,
+    current: 1,
+    pageSize,
+  };
   ctx.body.rows = result.rows;
-  ctx.body.columns = result.columns;
+  ctx.body.columns = ((columns) => {
+    const ret = [];
+    for (const column of columns) {
+      const col = { title: column.name, dataIndex: column.name, key: column.name };
+      ret.push(col);
+    }
+    ret.push({
+      title: 'Action',
+      fixed: 'right',
+      width: 100,
+      actions: [
+        { title: '编辑' }
+      ]
+    });
+    return ret;
+  })(result.columns);
 });
 
 router.get(`/table`, async (ctx, next) => {
