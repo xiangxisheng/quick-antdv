@@ -1,10 +1,10 @@
-const { fetchDataByPathname, router } = firadio;
+const { fetchDataByPathname } = firadio;
 const { delay } = firadio;
 const { ref, reactive, watch } = Vue;
 const { Space, Table, Input, Button, Popconfirm, Drawer } = antd;
 const { Form, FormItem, Row, Col, Textarea, DatePicker, Select, SelectOption } = antd;
 const [messageApi, contextHolder] = antd.message.useMessage();
-const { useRoute } = VueRouter;
+const { useRouter, useRoute } = VueRouter;
 
 export default async () => ({
   template: await (await fetch('./page/panel/table.htm')).text(),
@@ -26,6 +26,7 @@ export default async () => ({
     ASelectOption: SelectOption,
   },
   setup() {
+    const router = useRouter();
     const route = useRoute();
     const state = reactive({
       searchText: '',
@@ -44,6 +45,7 @@ export default async () => ({
     };
     const loading = ref(false);
     const tableState = reactive({
+      info: {},
       columns: [],
       dataSource: [],
       rowSelection: {
@@ -61,7 +63,7 @@ export default async () => ({
 
     const searchInput = ref('');
     const fetchData = async () => {
-      const query = router.curQuery();
+      const query = route.query;
       var path = 'api/tables';
       const param = { keyspace_name: 'test' };
       if (query.table_name) {
@@ -69,6 +71,7 @@ export default async () => ({
         path = 'api/columns';
       }
       const data = await fetchDataByPathname(path, param);
+      tableState.info = data.info;
       tableState.pagination = data.pagination;
       tableState.columns.length = 0;
       for (const column of data.columns) {
@@ -92,7 +95,7 @@ export default async () => ({
       console.log(pag, filters, sorter);
     }
     tableState.push_query = (record) => {
-      router.push_query({ table_name: record.table_name });
+      router.push({ hash: '/xx', query: { table_name: record.table_name } });
     };
     fetchData();
 

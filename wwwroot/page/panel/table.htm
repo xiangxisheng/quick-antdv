@@ -58,7 +58,7 @@
 </a-space>
 <a-table :dataSource="tableState.dataSource" :columns="tableState.columns" :pagination="tableState.pagination"
   :loading="loading" @change="tableState.change" :scroll="{ x: 500 }" :rowSelection="tableState.rowSelection"
-  rowKey="name">
+  :rowKey="tableState.info ? tableState.info.rowKey : 'name'">
   <template #customFilterDropdown="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }">
     <div style="padding: 8px">
       <a-input ref="searchInput" :placeholder="`Search ${column.dataIndex}`" :value="selectedKeys[0]"

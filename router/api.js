@@ -35,11 +35,14 @@ router.get(`/tables`, async (ctx, next) => {
 router.get(`/columns`, async (ctx, next) => {
   const pageSize = 100;
   const q = ctx.request.query;
-  const cql = `SELECT position,column_name,type,kind FROM system_schema.columns WHERE keyspace_name=? AND table_name=? LIMIT ${pageSize}`;
+  const cql = `SELECT column_name,type,kind,position FROM system_schema.columns WHERE keyspace_name=? AND table_name=? LIMIT ${pageSize}`;
   const result = await ctx.client.execute(cql, [q.keyspace_name, q.table_name]);
+  console.log(result);
   ctx.body = {};
+  ctx.body.info = {};
+  ctx.body.info.rowKey = 'column_name';
   ctx.body.pagination = {
-    total: result.rows.length,
+    total: result.rowLength,
     current: 1,
     pageSize,
   };
@@ -55,7 +58,7 @@ router.get(`/columns`, async (ctx, next) => {
       fixed: 'right',
       width: 100,
       actions: [
-        { title: '编辑' }
+        { title: '删除' }
       ]
     });
     return ret;
