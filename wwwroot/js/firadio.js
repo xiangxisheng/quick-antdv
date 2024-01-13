@@ -53,7 +53,7 @@ window.firadio = (() => {
   async function VueCreateApp(Vue, VueRouter) {
     const { createApp } = Vue;
     const { createRouter, createWebHistory } = VueRouter;
-    const oTopRoute = { children: await (await fetch('/api/public/route')).json() }
+    const oTopRoute = { children: await (await fetch('/api/public/route.php')).json() }
     const routes = (await routes_filter(oTopRoute, async (sParent, mRoute) => {
       const item = {};
       if (typeof (mRoute.path) === 'string') {
