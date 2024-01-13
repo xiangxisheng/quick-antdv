@@ -64,12 +64,14 @@ export default async () => ({
     const searchInput = ref('');
     const fetchData = async () => {
       const query = route.query;
-      var path = 'api/tables';
-      const param = { keyspace_name: 'test' };
+      const path = `api${route.path}.php`;
+      const param = {};
       if (query.table_name) {
         param.table_name = query.table_name;
-        path = 'api/columns';
       }
+      param.pagination = query.pagination;
+      param.filters = query.filters;
+      param.sorter = query.sorter;
       const data = await fetchDataByPathname(path, param);
       tableState.info = data.info;
       tableState.pagination = data.pagination;
@@ -88,11 +90,12 @@ export default async () => ({
 
       tableState.dataSource = data.rows;
     };
-    tableState.change = async (pag, filters, sorter) => {
-      fetchData();
-      tableState.pagination.current = pag.current;
-      tableState.pagination.pageSize = pag.pageSize;
-      console.log(pag, filters, sorter);
+    tableState.change = async (pagination, filters, sorter) => {
+      const query = {};
+      query.pagination = JSON.stringify({ current: pagination.current, pageSize: pagination.pageSize });
+      query.filters = JSON.stringify(filters);
+      query.sorter = JSON.stringify(sorter);
+      router.push({ query });
     }
     tableState.push_query = (record) => {
       router.push({ hash: '/xx', query: { table_name: record.table_name } });
