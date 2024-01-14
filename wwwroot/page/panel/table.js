@@ -39,20 +39,16 @@ export default async () => ({
     const loading = ref(false);
     const tableState = reactive({
       info: {},
+      buttons: [],
       columns: [],
       dataSource: [],
-      rowSelection: {
-        selectedRowKeys: [],
-      },
+      rowSelection: null,
       pagination: {
         total: 0,
         current: 1,
         pageSize: 20,
       },
     });
-    tableState.rowSelection.onChange = (selectedRowKeys) => {
-      tableState.rowSelection.selectedRowKeys = selectedRowKeys;
-    };
 
     const searchInput = ref('');
     const jsonTryParse = (str) => {
@@ -73,10 +69,21 @@ export default async () => ({
       param.sorter = query.sorter;
       const data = await fetchDataByPathname(path, param);
       tableState.info = data.info;
+      if (data.info.rowSelection) {
+        tableState.rowSelection = {
+          selectedRowKeys: [],
+        };
+        tableState.rowSelection.onChange = (selectedRowKeys) => {
+          tableState.rowSelection.selectedRowKeys = selectedRowKeys;
+        };
+      }
       tableState.pagination = data.pagination;
       tableState.columns.length = 0;
       const oQueryFilters = jsonTryParse(query.filters);
       const oQuerySorter = jsonTryParse(query.sorter);
+      if (data.buttons) {
+        tableState.buttons = data.buttons;
+      }
       for (const column of data.columns) {
         column.customFilterDropdown = column.sql_where ? true : false;
         if (oQueryFilters[column.dataIndex]) {

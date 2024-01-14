@@ -41,20 +41,24 @@
   </template>
 </a-drawer>
 <a-space wrap :size="20" style="margin: 10px;">
-  <a-button @click="drawerState.open=true;" type="primary">
-    <template #icon>
-      <i class="bx bx-plus-circle" style="font-size: 16px; vertical-align: -2px; margin-right: 4px;"></i>
-    </template>
-    Insert
-  </a-button>
-  <a-popconfirm title="Are you sure delete?" ok-text="Yes" cancel-text="No" @confirm="handleDelete">
-    <a-button danger :loading="loading">
+  <div v-for="button of tableState.buttons">
+    <div v-if="0"></div>
+    <a-button @click="drawerState.open=true;" type="primary" v-else-if="button.type==='add'">
       <template #icon>
-        <i class="bx bx-trash" style="font-size: 16px; vertical-align: -2px; margin-right: 4px;"></i>
+        <i class="bx bx-plus-circle" style="font-size: 16px; vertical-align: -2px; margin-right: 4px;"></i>
       </template>
-      Delete
+      Insert
     </a-button>
-  </a-popconfirm>
+    <a-popconfirm title="Are you sure delete?" ok-text="Yes" cancel-text="No" @confirm="handleDelete"
+      v-else-if="button.type==='delete'">
+      <a-button danger :loading="loading">
+        <template #icon>
+          <i class="bx bx-trash" style="font-size: 16px; vertical-align: -2px; margin-right: 4px;"></i>
+        </template>
+        Delete
+      </a-button>
+    </a-popconfirm>
+  </div>
 </a-space>
 <a-table :dataSource="tableState.dataSource" :columns="tableState.columns" :pagination="tableState.pagination"
   :loading="loading" @change="tableState.change" :scroll="{ x: 500 }" :rowSelection="tableState.rowSelection"
