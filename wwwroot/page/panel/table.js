@@ -28,7 +28,7 @@ export default async () => ({
   setup() {
     const router = useRouter();
     const route = useRoute();
-    const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    const handleSearch = (confirm) => {
       confirm();
     };
     const handleReset = (clearFilters) => {
@@ -85,9 +85,15 @@ export default async () => ({
         tableState.buttons = data.buttons;
       }
       for (const column of data.columns) {
+        column.search_dayjs = [];
         column.customFilterDropdown = column.sql_where ? true : false;
         if (oQueryFilters[column.dataIndex]) {
           column.filteredValue = oQueryFilters[column.dataIndex];
+          if (column.type === 'date') {
+            for (var i = 0; i < column.filteredValue.length; i++) {
+              column.search_dayjs[i] = dayjs(column.filteredValue[i], column.format);
+            }
+          }
         }
         if (oQuerySorter['field'] === column.dataIndex && oQuerySorter['order']) {
           column.sortOrder = oQuerySorter['order'];

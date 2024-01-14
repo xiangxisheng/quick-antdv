@@ -64,22 +64,25 @@
   :loading="loading" @change="tableState.change" :scroll="{ x: 500 }" :rowSelection="tableState.rowSelection"
   :rowKey="tableState.info ? tableState.info.rowKey : 'name'">
   <template #customFilterDropdown="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }">
-    <div style="padding: 8px">
-      <a-input ref="searchInput" :placeholder="`Search ${column.dataIndex}`" :value="selectedKeys[0]"
-        style="width: 188px; margin-bottom: 8px; display: block"
-        @change="e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
-        @pressEnter="handleSearch(selectedKeys, confirm, column.dataIndex)" />
-      <a-button type="primary" size="small" style="width: 90px; margin-right: 8px"
-        @click="handleSearch(selectedKeys, confirm, column.dataIndex)">
-        <template #icon>
-          <i class="bx bx-search" style="vertical-align: -2px; margin-right: 4px;"></i>
-        </template>
-        Search
-      </a-button>
-      <a-button size="small" style="width: 90px" @click="handleReset(clearFilters)">
-        Reset
-      </a-button>
-    </div>
+    <a-space direction="vertical" :size="12" style="padding: 8px;">
+      <div v-if="0"></div>
+      <a-date-picker ref="searchInput" v-else-if="column.type==='date'" v-model:value="column.search_dayjs[0]"
+        format="YYYY-MM-DD" @change="e => setSelectedKeys(e?[e.format('YYYY-MM-DD')]:[])" style=" width: 188px;" />
+      <a-input v-else ref="searchInput" :placeholder="`Search ${column.dataIndex}`" :value="selectedKeys[0]"
+        style="width: 188px;" @change="e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
+        @pressEnter="handleSearch(confirm)" />
+      <a-space direction="horizontal">
+        <a-button type="primary" size="small" style="width:90px;" @click="handleSearch(confirm)">
+          <template #icon>
+            <i class="bx bx-search" style="vertical-align: -2px; margin-right: 4px;"></i>
+          </template>
+          Search
+        </a-button>
+        <a-button size="small" style="width:90px;" @click="handleReset(clearFilters)">
+          Reset
+        </a-button>
+      </a-space>
+    </a-space>
   </template>
   <template #bodyCell="{ column, record }">
     <template v-if="column.actions">

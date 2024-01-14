@@ -19,6 +19,8 @@ $data['columns'] = array();
 $data['columns'][] = array(
     'title' => 'Date',
     'dataIndex' => 'event_date',
+    'type' => 'date',
+    'format' => 'YYYY-MM-DD',
     'sorter' => true,
     'sql_select' => "event_time::date",
     'sql_where' => 'event_time::date = ?'
