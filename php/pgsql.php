@@ -80,7 +80,7 @@ class PgSQL
         }
         $sSqlOrder = $this->getOrderSql($aSql, $data);
         if ($sSqlOrder) {
-            $aSql[] = "ORDER BY {$sSqlOrder}";
+            $aSql[] = $sSqlOrder;
         } else if ($data['sql']['order']) {
             $aSql[] = 'ORDER BY ' . $data['sql']['order'];
         }
