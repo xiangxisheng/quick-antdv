@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  php74:
+    container_name: 'php-antdv'
+    hostname: 'php-antdv'
+    image: 'php:7.4-apache'
+    restart: unless-stopped
+    ports:
+      - '80:80'
+    volumes:
+      - ./script:/root/script
+      - ./log:/root/log
+      - ../wwwroot:/var/www/html
+    environment:
+      - APACHE_LOG_DIR=/root/log
+    entrypoint: ["sh", "/root/script/start.sh"]
+
