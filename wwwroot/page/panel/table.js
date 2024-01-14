@@ -28,20 +28,13 @@ export default async () => ({
   setup() {
     const router = useRouter();
     const route = useRoute();
-    const state = reactive({
-      searchText: '',
-      searchedColumn: '',
-    });
     const handleSearch = (selectedKeys, confirm, dataIndex) => {
       confirm();
-      state.searchText = selectedKeys[0];
-      state.searchedColumn = dataIndex;
     };
     const handleReset = (clearFilters) => {
       clearFilters({
         confirm: true,
       });
-      state.searchText = '';
     };
     const loading = ref(false);
     const tableState = reactive({
@@ -76,8 +69,17 @@ export default async () => ({
       tableState.info = data.info;
       tableState.pagination = data.pagination;
       tableState.columns.length = 0;
+      const oQueryFilters = (() => {
+        try {
+          return JSON.parse(query.filters);
+        } catch (e) { }
+        return {};
+      })();
       for (const column of data.columns) {
-        column.customFilterDropdown = true;
+        column.customFilterDropdown = column.sql_where ? true : false;
+        if (oQueryFilters[column.dataIndex]) {
+          column.filteredValue = oQueryFilters[column.dataIndex];
+        }
         column.onFilterDropdownOpenChange = visible => {
           if (visible) {
             setTimeout(() => {
@@ -142,7 +144,6 @@ export default async () => ({
       loading,
       tableState,
       drawerState,
-      state,
       searchInput,
       handleSearch,
       handleReset,

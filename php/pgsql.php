@@ -73,34 +73,50 @@ class PgSQL
         return $this->fetchNum($sSql, $data['sql']['param'])[0];
     }
 
+    private function getParamFromSqlAndValue($sql_where, $aValue)
+    {
+        if (strstr($sql_where, 'LIKE')) {
+            return '%' . $aValue[0] . '%';
+        }
+        return $aValue[0];
+    }
+
+    private function putWhereAndParam($column, &$aWhere, &$aParam, $aValue)
+    {
+        $aWhere[] = $column['sql_where'];
+        $aParam[] = $this->getParamFromSqlAndValue($column['sql_where'], $aValue);
+    }
+
     public function tableReader($data)
     {
         $data['sql']['param'] = array();
         $filters = isset($_GET['filters']) ? json_decode($_GET['filters'], true) : array();
         foreach ($data['columns'] as $column) {
+            if (!isset($column['sql_where'])) {
+                continue;
+            }
             if (isset($filters[$column['dataIndex']])) {
-                $data['sql']['where'][] = $column['sql_where'];
-                $data['sql']['param'][] = $filters[$column['dataIndex']][0];
+                $this->putWhereAndParam($column, $data['sql']['where'], $data['sql']['param'], $filters[$column['dataIndex']]);
             }
         }
         $pagination = isset($_GET['pagination']) ? json_decode($_GET['pagination'], true) : array();
-        $current = isset($pagination['current']) ? $pagination['current'] : 1;
-        if ($current < 1) {
-            $current = 1;
-        }
         $pageSize = isset($pagination['pageSize']) ? $pagination['pageSize'] : 20;
         if ($pageSize < 1) {
             $pageSize = 1;
         }
-        $total = $this->getRecordTotal($data);
-        $pages = ceil($total / $pageSize);
-        if ($current > $pages) {
-            // 页码不能超过最大页数
-            $current = $pages;
+        $pageMax = isset($data['info']['pageMax']) ? $data['info']['pageMax'] : 100;
+        if ($pageSize > $pageMax) {
+            $pageSize = $pageMax;
         }
-        $pageSizeMax = isset($data['info']['pageSizeMax']) ? $data['info']['pageSizeMax'] : 100;
-        if ($pageSize > $pageSizeMax) {
-            $pageSize = $pageSizeMax;
+        $total = $this->getRecordTotal($data);
+        $pageCount = ceil($total / $pageSize);
+        $current = isset($pagination['current']) ? $pagination['current'] : 1;
+        if ($current > $pageCount) {
+            // 页码不能超过最大页数
+            $current = $pageCount;
+        }
+        if ($current < 1) {
+            $current = 1;
         }
         $data['pagination'] = array();
         $data['pagination']['total'] = $total;
