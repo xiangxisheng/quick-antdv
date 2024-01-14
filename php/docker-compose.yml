@@ -10,7 +10,7 @@ services:
     volumes:
       - ./script:/root/script
       - ./log:/root/log
-      - ../wwwroot:/var/www/html
+      - ../:/var/www/root
     environment:
       - APACHE_LOG_DIR=/root/log
     entrypoint: ["sh", "/root/script/start.sh"]
