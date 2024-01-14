@@ -27,6 +27,42 @@ class PgSQL
         return $stmt->fetch(PDO::FETCH_NUM);
     }
 
+    private function getColumnByField($aColumns, $sField)
+    {
+        foreach ($aColumns as $column) {
+            if ($column['dataIndex'] === $sField) {
+                return $column;
+            }
+        }
+    }
+
+    private function getOrderSql(&$aSql, $data)
+    {
+        $mSorter = $data['sql']['sorter'];
+        if (!$mSorter) {
+            return;
+        }
+        if (!$mSorter['field']) {
+            return;
+        }
+        $mColumn = $this->getColumnByField($data['columns'], $mSorter['field']);
+        if (!$mColumn) {
+            return;
+        }
+        if (!$mColumn['sorter']) {
+            return;
+        }
+        $sField = $mColumn['dataIndex'];
+        $mOrderDict = array(
+            'ascend' => 'ASC',
+            'descend' => 'DESC',
+        );
+        if ($mOrderDict[$mSorter['order']]) {
+            $sOrder = $mOrderDict[$mSorter['order']];
+            return "ORDER BY {$sField} {$sOrder}";
+        }
+    }
+
     private function fetchAllSelect($data)
     {
         $aSelect = array();
@@ -42,7 +78,10 @@ class PgSQL
         if (isset($data['sql']['group'])) {
             $aSql[] = 'GROUP BY ' . $data['sql']['group'];
         }
-        if ($data['sql']['order']) {
+        $sSqlOrder = $this->getOrderSql($aSql, $data);
+        if ($sSqlOrder) {
+            $aSql[] = "ORDER BY {$sSqlOrder}";
+        } else if ($data['sql']['order']) {
             $aSql[] = 'ORDER BY ' . $data['sql']['order'];
         }
         if ($data['sql']['limit']) {
@@ -99,6 +138,7 @@ class PgSQL
                 $this->putWhereAndParam($column, $data['sql']['where'], $data['sql']['param'], $filters[$column['dataIndex']]);
             }
         }
+        $data['sql']['sorter'] = isset($_GET['sorter']) ? json_decode($_GET['sorter'], true) : array();
         $pagination = isset($_GET['pagination']) ? json_decode($_GET['pagination'], true) : array();
         $pageSize = isset($pagination['pageSize']) ? $pagination['pageSize'] : 20;
         if ($pageSize < 1) {

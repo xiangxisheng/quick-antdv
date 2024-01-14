@@ -55,6 +55,12 @@ export default async () => ({
     };
 
     const searchInput = ref('');
+    const jsonTryParse = (str) => {
+      try {
+        return JSON.parse(str);
+      } catch (e) { }
+      return {};
+    };
     const fetchData = async () => {
       const query = route.query;
       const path = `api${route.path}.php`;
@@ -69,16 +75,15 @@ export default async () => ({
       tableState.info = data.info;
       tableState.pagination = data.pagination;
       tableState.columns.length = 0;
-      const oQueryFilters = (() => {
-        try {
-          return JSON.parse(query.filters);
-        } catch (e) { }
-        return {};
-      })();
+      const oQueryFilters = jsonTryParse(query.filters);
+      const oQuerySorter = jsonTryParse(query.sorter);
       for (const column of data.columns) {
         column.customFilterDropdown = column.sql_where ? true : false;
         if (oQueryFilters[column.dataIndex]) {
           column.filteredValue = oQueryFilters[column.dataIndex];
+        }
+        if (oQuerySorter['field'] === column.dataIndex && oQuerySorter['order']) {
+          column.sortOrder = oQuerySorter['order'];
         }
         column.onFilterDropdownOpenChange = visible => {
           if (visible) {
@@ -96,7 +101,7 @@ export default async () => ({
       const query = {};
       query.pagination = JSON.stringify({ current: pagination.current, pageSize: pagination.pageSize });
       query.filters = JSON.stringify(filters);
-      query.sorter = JSON.stringify(sorter);
+      query.sorter = JSON.stringify({ order: sorter.order, field: sorter.field });
       router.push({ query });
     }
     tableState.push_query = (record) => {
