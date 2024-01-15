@@ -13,6 +13,9 @@ class TableCrud extends PDO
     private function getColumnByField($aColumns, $sField)
     {
         foreach ($aColumns as $column) {
+            if (!isset($column['dataIndex'])) {
+                continue;
+            }
             if ($column['dataIndex'] === $sField) {
                 return $column;
             }
@@ -48,10 +51,31 @@ class TableCrud extends PDO
         }
     }
 
+    private function fetchOne($data, $value)
+    {
+        $aSelect = array();
+        foreach ($data['columns'] as $column) {
+            if (!isset($column['dataIndex'])) {
+                continue;
+            }
+            $aSelect[] = (isset($column['sql_selone']) ? $column['sql_selone'] . ' ' : '') . $column['dataIndex'];
+        }
+        $aSql = array();
+        $aSql[] = 'SELECT ' . implode(',', $aSelect);
+        $aSql[] = 'FROM ' . $data['sql']['from'];
+        $aSql[] = 'WHERE ' . $data['info']['rowKey'] . '=?';
+        $sSql = implode("\r\n", $aSql);
+        $data['sql']['param'][] = $value;
+        return $this->fetch($sSql, $data['sql']['param']);
+    }
+
     private function fetchAllSelect($data)
     {
         $aSelect = array();
         foreach ($data['columns'] as $column) {
+            if (!isset($column['dataIndex'])) {
+                continue;
+            }
             $aSelect[] = (isset($column['sql_select']) ? $column['sql_select'] . ' ' : '') . $column['dataIndex'];
         }
         $aSql = array();
@@ -113,9 +137,38 @@ class TableCrud extends PDO
 
     public function tableReader($data)
     {
+
+        $action = isset($_GET['action']) ? $_GET['action'] : '';
+        if ($action === 'view' || $action === 'edit') {
+            if (!isset($data['info']['rowKey'])) {
+                return;
+            }
+            $rowKey = $data['info']['rowKey'];
+            if (!isset($_GET[$rowKey])) {
+                return;
+            }
+            $mRow = $this->fetchOne($data, $_GET[$rowKey]);
+            $formItems = array();
+            foreach ($data['columns'] as $column) {
+                if (!isset($column['dataIndex'])) {
+                    continue;
+                }
+                if (isset($mRow[$column['dataIndex']])) {
+                    $column['value'] = $mRow[$column['dataIndex']];
+                }
+                $formItems[] = $column;
+            }
+            return [
+                'formItems' => $formItems,
+            ];
+        }
+
         $data['sql']['param'] = array();
         $filters = isset($_GET['filters']) ? json_decode($_GET['filters'], true) : array();
         foreach ($data['columns'] as $column) {
+            if (!isset($column['dataIndex'])) {
+                continue;
+            }
             if (!isset($column['sql_where'])) {
                 continue;
             }
@@ -152,6 +205,9 @@ class TableCrud extends PDO
         $data['rows'] = $this->fetchAllSelect($data);
 
         foreach ($data['columns'] as $column) {
+            if (!isset($column['dataIndex'])) {
+                continue;
+            }
             if (isset($column['valueFunc'])) {
                 foreach ($data['rows'] as &$row) {
                     $row[$column['dataIndex']] = $column['valueFunc']($row[$column['dataIndex']]);

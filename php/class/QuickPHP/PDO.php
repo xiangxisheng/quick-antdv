@@ -21,6 +21,15 @@ class PDO extends \PDO
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function fetch($sql, $param)
+    {
+        $this->db->beginTransaction();
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($param);
+        $this->db->rollBack();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function fetchNum($sql, $param)
     {
         $this->db->beginTransaction();

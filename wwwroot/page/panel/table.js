@@ -85,6 +85,9 @@ export default async () => ({
         tableState.buttons = data.buttons;
       }
       for (const column of data.columns) {
+        if (!column.width) {
+          continue;
+        }
         column.search_dayjs = [];
         column.customFilterDropdown = column.sql_where ? true : false;
         if (oQueryFilters[column.dataIndex]) {
@@ -120,10 +123,34 @@ export default async () => ({
     tableState.push_query = (record) => {
       router.push({ hash: '/xx', query: { table_name: record.table_name } });
     };
+    tableState.action = async (action, record) => {
+      const path = `api${route.path}.php`;
+      const param = { action };
+      param[tableState.info.rowKey] = record[tableState.info.rowKey];
+      loading.value = true;
+      const data = await fetchDataByPathname(path, param);
+      drawerState.action = action;
+      drawerState.title = action === 'edit' ? 'Edit' : 'View';
+      for (const formItem of data.formItems) {
+        if (formItem.form === 'date-picker') {
+          formItem.value_date = dayjs(formItem.value, formItem.format);
+        }
+        if (action !== 'edit') {
+          formItem.readonly = true;
+        }
+      }
+      if (action === 'view') {
+        drawerState.maskClosable = true;
+      }
+      drawerState.formItems = data.formItems;
+      drawerState.open = true;
+      loading.value = false;
+    };
     fetchData();
 
     const drawerState = reactive({
       open: false,
+      maskClosable: false,
       data: {},
       rules: {},
       model: {},
