@@ -22,6 +22,12 @@ $route['children'] = array(
         'component' => 'panel/table',
         'role' => 'user',
       ),
+      array(
+        'name' => 'tb_person',
+        'label' => 'person',
+        'component' => 'panel/table',
+        'role' => 'user',
+      ),
     ),
   ),
 );

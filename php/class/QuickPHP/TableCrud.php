@@ -1,30 +1,13 @@
 <?php
 
-class PgSQL
+namespace QuickPHP;
+
+class TableCrud extends PDO
 {
-    private $db;
-    public function __construct($dsn, $user, $pass)
-    {
-        $this->db = new PDO($dsn, $user, $pass);
-        $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    }
 
-    public function fetchAll($sql, $param)
+    public function __construct($dbConf)
     {
-        $this->db->beginTransaction();
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute($param);
-        $this->db->rollBack();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public function fetchNum($sql, $param)
-    {
-        $this->db->beginTransaction();
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute($param);
-        $this->db->rollBack();
-        return $stmt->fetch(PDO::FETCH_NUM);
+        $this->conn($dbConf['dsn'], $dbConf['user'], $dbConf['pass']);
     }
 
     private function getColumnByField($aColumns, $sField)
@@ -36,7 +19,7 @@ class PgSQL
         }
     }
 
-    private function getOrderSql(&$aSql, $data)
+    private function getOrderSql($data)
     {
         $mSorter = $data['sql']['sorter'];
         if (!$mSorter) {
@@ -57,7 +40,9 @@ class PgSQL
             'ascend' => 'ASC',
             'descend' => 'DESC',
         );
-        if ($mOrderDict[$mSorter['order']]) {
+        $sSorterOrder = isset($mSorter['order']) ? $mSorter['order'] : '';
+        $sOrder = isset($mOrderDict[$sSorterOrder]) ? $mOrderDict[$sSorterOrder] : '';
+        if ($sOrder) {
             $sOrder = $mOrderDict[$mSorter['order']];
             return "ORDER BY {$sField} {$sOrder}";
         }
@@ -78,7 +63,7 @@ class PgSQL
         if (isset($data['sql']['group'])) {
             $aSql[] = 'GROUP BY ' . $data['sql']['group'];
         }
-        $sSqlOrder = $this->getOrderSql($aSql, $data);
+        $sSqlOrder = $this->getOrderSql($data);
         if ($sSqlOrder) {
             $aSql[] = $sSqlOrder;
         } else if ($data['sql']['order']) {
@@ -165,6 +150,15 @@ class PgSQL
         $data['sql']['limit'] = $pageSize;
         $data['sql']['offset'] = ($current - 1) * $pageSize;
         $data['rows'] = $this->fetchAllSelect($data);
+
+        foreach ($data['columns'] as $column) {
+            if (isset($column['valueFunc'])) {
+                foreach ($data['rows'] as &$row) {
+                    $row[$column['dataIndex']] = $column['valueFunc']($row[$column['dataIndex']]);
+                }
+            }
+        }
+
         unset($data['sql']);
         foreach ($data['columns'] as &$column) {
             unset($column['sql_select']);

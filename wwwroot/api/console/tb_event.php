@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(__DIR__) . '/F.php';
+require_once dirname(__DIR__) . '/quick.php';
 
 $data = array();
 $data['info'] = array();
@@ -44,4 +44,4 @@ $data['columns'][] = array(
     'sql_select' => "MIN(person_name)",
     'sql_where' => 'person_name LIKE ?'
 );
-echo json_encode($pgSQL->tableReader($data));
+echo json_encode($_C->db('acs_acsdb')->tableReader($data));
