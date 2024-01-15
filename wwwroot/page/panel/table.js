@@ -138,6 +138,17 @@ export default async () => ({
         if (action !== 'edit') {
           formItem.readonly = true;
         }
+        if (formItem.form === 'select') {
+          if (formItem.readonly) {
+            const options = [];
+            for (const option of formItem.options) {
+              if (option.value === formItem.value) {
+                options.push(option);
+              }
+            }
+            formItem.options = options;
+          }
+        }
       }
       if (action === 'view') {
         drawerState.maskClosable = true;

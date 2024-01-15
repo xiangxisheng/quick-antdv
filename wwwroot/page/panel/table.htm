@@ -11,13 +11,15 @@
       <a-input v-else-if="formItem.form=='input'" :disabled="formItem.disabled" :readonly="formItem.readonly"
         v-model:value="formItem.value" :placeholder="formItem.placeholder" :addon-before="formItem.addonBefore"
         :addon-after="formItem.addonAfter" style="width: 100%" />
-      <a-select v-else-if="formItem.form=='select'" :disabled="formItem.disabled||formItem.readonly"
-        v-model:value="formItem.value" :placeholder="formItem.placeholder">
+      <a-select v-else-if="formItem.form=='select'" :disabled="formItem.disabled" v-model:value="formItem.value"
+        :placeholder="formItem.placeholder">
         <a-select-option v-for="option of formItem.options" :value="option.value">{{option.title}}</a-select-option>
       </a-select>
-      <a-date-picker v-else-if="formItem.form=='date-picker'" :disabled="formItem.disabled||formItem.readonly"
-        v-model:value="formItem.value_date" style="width: 100%"
-        :get-popup-container="trigger => trigger.parentElement" />
+      <div v-else-if="formItem.form=='date-picker'">
+        <a-input v-if="formItem.readonly" :readonly="formItem.readonly" :value="formItem.value"></a-input>
+        <a-date-picker v-else :disabled="formItem.disabled" v-model:value="formItem.value_date" style="width: 100%"
+          :get-popup-container="trigger => trigger.parentElement" />
+      </div>
       <a-textarea v-else-if="formItem.form=='textarea'" :disabled="formItem.disabled" :readonly="formItem.readonly"
         v-model:value="formItem.value" :rows="4" :placeholder="formItem.placeholder" />
     </a-form-item>
