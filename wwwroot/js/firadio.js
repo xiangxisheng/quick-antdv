@@ -26,6 +26,9 @@ window.firadio = (() => {
       if (oResponse.status !== 200) {
         return { message: oResponse.statusText };
       }
+      if (location.hostname === '127.0.0.1') {
+        await delay(500);
+      }
       return await oResponse.json();
     } catch (e) {
       return e;

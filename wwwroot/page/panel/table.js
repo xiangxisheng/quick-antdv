@@ -28,15 +28,19 @@ export default async () => ({
   setup() {
     const router = useRouter();
     const route = useRoute();
-    const handleSearch = (confirm) => {
-      confirm();
-    };
-    const handleReset = (clearFilters) => {
-      clearFilters({
-        confirm: true,
-      });
-    };
-    const loading = ref(false);
+    const pageState = reactive({
+      loading: false,
+      handleButton: async (button) => {
+        if (button.type === 'add') {
+          drawerState.open = true;
+          return;
+        }
+        if (button.type === 'delete') {
+          messageApi.info(JSON.stringify(tableState.rowSelection.selectedRowKeys));
+          return;
+        }
+      },
+    });
     const tableState = reactive({
       info: {},
       buttons: [],
@@ -48,8 +52,15 @@ export default async () => ({
         current: 1,
         pageSize: 20,
       },
+      handleSearch: (confirm) => {
+        confirm();
+      },
+      handleReset: (clearFilters) => {
+        clearFilters({
+          confirm: true,
+        });
+      },
     });
-
     const searchInput = ref('');
     const jsonTryParse = (str) => {
       try {
@@ -57,7 +68,13 @@ export default async () => ({
       } catch (e) { }
       return {};
     };
-    const fetchData = async () => {
+    const fetchData_api = async (path, param) => {
+      pageState.loading = true;
+      const data = await fetchDataByPathname(path, param);
+      pageState.loading = false;
+      return data;
+    };
+    const fetchData_list = async () => {
       const query = route.query;
       const path = `api${route.path}.php`;
       const param = {};
@@ -67,7 +84,7 @@ export default async () => ({
       param.pagination = query.pagination;
       param.filters = query.filters;
       param.sorter = query.sorter;
-      const data = await fetchDataByPathname(path, param);
+      const data = await fetchData_api(path, param);
       tableState.info = data.info;
       if (data.info.rowSelection) {
         tableState.rowSelection = {
@@ -127,37 +144,37 @@ export default async () => ({
       const path = `api${route.path}.php`;
       const param = { action };
       param[tableState.info.rowKey] = record[tableState.info.rowKey];
-      loading.value = true;
-      const data = await fetchDataByPathname(path, param);
-      drawerState.action = action;
-      drawerState.title = action === 'edit' ? 'Edit' : 'View';
-      for (const formItem of data.formItems) {
-        if (formItem.form === 'date-picker') {
-          formItem.value_date = dayjs(formItem.value, formItem.format);
-        }
-        if (action !== 'edit') {
-          formItem.readonly = true;
-        }
-        if (formItem.form === 'select') {
-          if (formItem.readonly) {
-            const options = [];
-            for (const option of formItem.options) {
-              if (option.value === formItem.value) {
-                options.push(option);
+      const data = await fetchData_api(path, param);
+      if (data.formItems) {
+        drawerState.action = action;
+        drawerState.title = action === 'edit' ? 'Edit' : 'View';
+        for (const formItem of data.formItems) {
+          if (formItem.form === 'date-picker') {
+            formItem.value_date = dayjs(formItem.value, formItem.format);
+          }
+          if (action !== 'edit') {
+            formItem.readonly = true;
+          }
+          if (formItem.form === 'select') {
+            if (formItem.readonly) {
+              const options = [];
+              for (const option of formItem.options) {
+                if (option.value === formItem.value) {
+                  options.push(option);
+                }
               }
+              formItem.options = options;
             }
-            formItem.options = options;
           }
         }
+        if (action === 'view') {
+          drawerState.maskClosable = true;
+        }
+        drawerState.formItems = data.formItems;
+        drawerState.open = true;
       }
-      if (action === 'view') {
-        drawerState.maskClosable = true;
-      }
-      drawerState.formItems = data.formItems;
-      drawerState.open = true;
-      loading.value = false;
     };
-    fetchData();
+    fetchData_list();
 
     const drawerState = reactive({
       open: false,
@@ -167,16 +184,7 @@ export default async () => ({
       model: {},
     });
     drawerState.finish = async () => {
-      loading.value = true;
-      await delay(1000);
-      loading.value = false;
       drawerState.open = false;
-    }
-    const handleDelete = async () => {
-      loading.value = true;
-      await delay(1000);
-      loading.value = false;
-      messageApi.info(JSON.stringify(tableState.rowSelection.selectedRowKeys));
     }
     drawerState.finishFailed = (errorInfo) => {
       messageApi.error(errorInfo.errorFields[0].errors[0], 1);
@@ -193,17 +201,14 @@ export default async () => ({
     watch(
       () => route.query,
       () => {
-        fetchData();
+        fetchData_list();
       }
     );
     return {
-      loading,
+      pageState,
       tableState,
       drawerState,
       searchInput,
-      handleSearch,
-      handleReset,
-      handleDelete,
     }
   },
 })

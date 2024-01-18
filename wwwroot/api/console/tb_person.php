@@ -13,8 +13,8 @@ $data['sql']['where'] = array();
 $data['sql']['where'][] = "status = '0'";
 $data['sql']['order'] = '';
 $data['buttons'] = array();
-$data['buttons'][] = array('type' => 'add');
-$data['buttons'][] = array('type' => 'delete');
+$data['buttons'][] = array('type' => 'add', 'title' => '添加');
+$data['buttons'][] = array('type' => 'delete', 'title' => '删除', 'popconfirm' => ['title' => '确定要批量删除这些吗？', 'okText' => '确定', 'cancelText' => '取消']);
 $data['columns'] = array();
 $data['columns'][] = array(
     'title' => 'data_no',
@@ -61,7 +61,7 @@ $data['columns'][] = array(
     'actions' => [
         ['action' => 'view', 'title' => '查看'],
         ['action' => 'edit', 'title' => '编辑'],
-        ['action' => 'delete', 'title' => '删除'],
+        ['action' => 'delete', 'title' => '删除', 'popconfirm' => ['title' => 'Are you sure delete?', 'okText' => 'Yes', 'cancelText' => 'Cancel']],
     ]
 );
 echo json_encode($_C->db('kaoqin')->tableReader($data));

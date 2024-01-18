@@ -28,7 +28,7 @@
   <template v-if="drawerState.action=='edit'" #extra>
     <a-space>
       <a-button @click="$refs.myForm.clearValidate();drawerState.open=false;">Cancel</a-button>
-      <a-button type="primary" :loading="loading"
+      <a-button type="primary" :loading="pageState.loading"
         @click="async()=>{ try { await $refs.myForm.validate(); drawerState.finish(); } catch (e) { drawerState.finishFailed(e); } }">Submit</a-button>
     </a-space>
   </template>
@@ -36,25 +36,35 @@
 <a-space wrap :size="20" style="margin: 10px;">
   <div v-for="button of tableState.buttons">
     <div v-if="0"></div>
-    <a-button @click="drawerState.open=true;" type="primary" v-else-if="button.type==='add'">
-      <template #icon>
-        <i class="bx bx-plus-circle" style="font-size: 16px; vertical-align: -2px; margin-right: 4px;"></i>
-      </template>
-      Insert
-    </a-button>
-    <a-popconfirm title="Are you sure delete?" ok-text="Yes" cancel-text="No" @confirm="handleDelete"
-      v-else-if="button.type==='delete'">
-      <a-button danger :loading="loading">
+    <a-popconfirm :title="button.popconfirm.title" :ok-text="button.popconfirm.okText"
+      :cancel-text="button.popconfirm.cancelText" @confirm="pageState.handleButton(button)"
+      v-else-if="button.popconfirm">
+      <a-button type="primary" :danger="button.type==='delete'" :loading="pageState.loading">
         <template #icon>
-          <i class="bx bx-trash" style="font-size: 16px; vertical-align: -2px; margin-right: 4px;"></i>
+          <span v-if="0"></span>
+          <i v-else-if="button.type==='delete'" class="bx bx-trash"
+            style="font-size: 16px; vertical-align: -2px; margin-right: 4px;"></i>
+          <i v-else-if="button.type==='add'" class="bx bx-plus-circle"
+            style="font-size: 16px; vertical-align: -2px; margin-right: 4px;"></i>
         </template>
-        Delete
+        {{button.title}}
       </a-button>
     </a-popconfirm>
+    <a-button type="primary" :danger="button.type==='delete'" :loading="pageState.loading"
+      @click="pageState.handleButton(button)" v-else>
+      <template #icon>
+        <span v-if="0"></span>
+        <i v-else-if="button.type==='delete'" class="bx bx-trash"
+          style="font-size: 16px; vertical-align: -2px; margin-right: 4px;"></i>
+        <i v-else-if="button.type==='add'" class="bx bx-plus-circle"
+          style="font-size: 16px; vertical-align: -2px; margin-right: 4px;"></i>
+      </template>
+      {{button.title}}
+    </a-button>
   </div>
 </a-space>
 <a-table :dataSource="tableState.dataSource" :columns="tableState.columns" :pagination="tableState.pagination"
-  :loading="loading" @change="tableState.change" :scroll="{ x: 500 }" :rowSelection="tableState.rowSelection"
+  :loading="pageState.loading" @change="tableState.change" :scroll="{ x: 500 }" :rowSelection="tableState.rowSelection"
   :rowKey="tableState.info ? tableState.info.rowKey : 'name'">
   <template #customFilterDropdown="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }">
     <a-space direction="vertical" :size="12" style="padding: 8px;">
@@ -63,15 +73,15 @@
         format="YYYY-MM-DD" @change="e => setSelectedKeys(e?[e.format('YYYY-MM-DD')]:[])" style=" width: 188px;" />
       <a-input v-else ref="searchInput" :placeholder="`Search ${column.dataIndex}`" :value="selectedKeys[0]"
         style="width: 188px;" @change="e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
-        @pressEnter="handleSearch(confirm)" />
+        @pressEnter="tableState.handleSearch(confirm)" />
       <a-space direction="horizontal">
-        <a-button type="primary" size="small" style="width:90px;" @click="handleSearch(confirm)">
+        <a-button type="primary" size="small" style="width:90px;" @click="tableState.handleSearch(confirm)">
           <template #icon>
             <i class="bx bx-search" style="vertical-align: -2px; margin-right: 4px;"></i>
           </template>
           Search
         </a-button>
-        <a-button size="small" style="width:90px;" @click="handleReset(clearFilters)">
+        <a-button size="small" style="width:90px;" @click="tableState.handleReset(clearFilters)">
           Reset
         </a-button>
       </a-space>
@@ -80,7 +90,15 @@
   <template #bodyCell="{ column, record }">
     <template v-if="column.actions">
       <a-space direction="horizontal">
-        <a v-on:click="tableState.action(action.action,record)" v-for="action of column.actions">{{action.title}}</a>
+        <span v-for="action of column.actions">
+          <span v-if="0"></span>
+          <a-popconfirm :title="action.popconfirm.title" :ok-text="action.popconfirm.okText"
+            :cancel-text="action.popconfirm.cancelText" @confirm="tableState.action(action.action,record)"
+            v-else-if="action.popconfirm">
+            <a>{{action.title}}</a>
+          </a-popconfirm>
+          <a v-else v-on:click="tableState.action(action.action,record)">{{action.title}}</a>
+        </span>
       </a-space>
     </template>
   </template>
