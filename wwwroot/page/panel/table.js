@@ -1,5 +1,5 @@
 const { fetchDataByPathname } = firadio;
-const { delay } = firadio;
+const { deepCloneObject } = firadio;
 const { ref, reactive, watch } = Vue;
 const { Space, Table, Input, Button, Popconfirm, Drawer } = antd;
 const { Form, FormItem, Row, Col, Textarea, DatePicker, Select, SelectOption } = antd;
@@ -41,17 +41,18 @@ export default async () => ({
           drawerState.open = true;
           drawerState.model = {};
           drawerState.formItems.length = 0;
-          for (const column of PageData.columns) {
-            if (!column.form) {
+          const formItems = deepCloneObject(PageData.columns);
+          for (const formItem of formItems) {
+            if (!formItem.form) {
               continue;
             }
-            if (column.disabled) {
+            if (formItem.disabled) {
               continue;
             }
-            if (column.readonly) {
+            if (formItem.readonly) {
               continue;
             }
-            drawerState.formItems.push(column);
+            drawerState.formItems.push(formItem);
           }
           return;
         }
@@ -177,32 +178,33 @@ export default async () => ({
         drawerState.buttons = mAction.buttons;
         drawerState.title = mAction.title;
         drawerState.formItems.length = 0;
-        for (const column of PageData.columns) {
-          if (!column.form) {
+        const formItems = deepCloneObject(PageData.columns);
+        for (const formItem of formItems) {
+          if (!formItem.form) {
             continue;
           }
-          if (!data.formModel.hasOwnProperty(column.dataIndex)) {
+          if (!data.formModel.hasOwnProperty(formItem.dataIndex)) {
             continue;
           }
           if (action !== 'edit') {
-            column.readonly = true;
+            formItem.readonly = true;
           }
-          const formValue = data.formModel[column.dataIndex];
-          if (column.form === 'date-picker') {
-            column.value_date = formValue ? dayjs(formValue, column.format) : null;
+          const formValue = data.formModel[formItem.dataIndex];
+          if (formItem.form === 'date-picker') {
+            formItem.value_date = formValue ? dayjs(formValue, formItem.format) : null;
           }
-          if (column.form === 'select') {
-            if (column.readonly) {
+          if (formItem.form === 'select') {
+            if (formItem.readonly) {
               const options = [];
-              for (const option of column.options) {
+              for (const option of formItem.options) {
                 if (option.value === formValue) {
                   options.push(option);
                 }
               }
-              column.options = options;
+              formItem.options = options;
             }
           }
-          drawerState.formItems.push(column);
+          drawerState.formItems.push(formItem);
         }
         drawerState.maskClosable = action === 'view';
         drawerState.open = true;

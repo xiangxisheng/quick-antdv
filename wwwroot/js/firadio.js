@@ -197,11 +197,26 @@ window.firadio = (() => {
 
   };
 
+  function deepCloneObject(source) {
+    if (typeof source !== "object" || source === null) return source;
+
+    const target = Array.isArray(source) ? [] : {};
+
+    for (var key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        target[key] = deepCloneObject(source[key]);
+      }
+    }
+
+    return target;
+  }
+
   const firadio = {};
   firadio.fetchDataByPathname = fetchDataByPathname;
   firadio.routes_filter = routes_filter;
   firadio.delay = delay;
   firadio.stateStorage = stateStorage;
   firadio.main = main;
+  firadio.deepCloneObject = deepCloneObject;
   return firadio;
 })();
