@@ -1,35 +1,39 @@
 <context-holder />
 <a-drawer :title="drawerState.title" :open="drawerState.open" :body-style="{ paddingBottom: '80px' }"
-  :footer-style="{ textAlign: 'right' }" @close="$refs.myForm.clearValidate();drawerState.open=false;"
+  :footer-style="{ textAlign: 'right' }" @close="$refs.drawerForm.clearValidate();drawerState.open=false;"
   :maskClosable="drawerState.maskClosable">
-  <a-form ref="myForm" :rules="drawerState.rules" :model="drawerState.model" name="basic" layout="vertical"
+  <a-form ref="drawerForm" :rules="drawerState.rules" :model="drawerState.model" name="basic" layout="vertical"
     @finish="drawerState.finish" @finishFailed="drawerState.finishFailed" autocomplete="off">
     <button type="submit" style="display: none;"></button>
 
     <a-form-item v-for="formItem of drawerState.formItems" :label="formItem.title" :name="formItem.dataIndex">
       <div v-if="0"></div>
       <a-input v-else-if="formItem.form=='input'" :disabled="formItem.disabled" :readonly="formItem.readonly"
-        v-model:value="formItem.value" :placeholder="formItem.placeholder" :addon-before="formItem.addonBefore"
-        :addon-after="formItem.addonAfter" style="width: 100%" />
-      <a-select v-else-if="formItem.form=='select'" :disabled="formItem.disabled" v-model:value="formItem.value"
-        :placeholder="formItem.placeholder">
+        v-model:value="drawerState.model[formItem.dataIndex]" :placeholder="formItem.placeholder"
+        :addon-before="formItem.addonBefore" :addon-after="formItem.addonAfter" style="width: 100%" />
+      <a-select v-else-if="formItem.form=='select'" :disabled="formItem.disabled"
+        v-model:value="drawerState.model[formItem.dataIndex]" :placeholder="formItem.placeholder">
         <a-select-option v-for="option of formItem.options" :value="option.value">{{option.title}}</a-select-option>
       </a-select>
       <div v-else-if="formItem.form=='date-picker'">
-        <a-input v-if="formItem.readonly" :readonly="formItem.readonly" :value="formItem.value"></a-input>
-        <a-date-picker v-else :disabled="formItem.disabled" v-model:value="formItem.value_date" style="width: 100%"
+        <a-input v-if="formItem.readonly" :readonly="formItem.readonly"
+          :value="drawerState.model[formItem.dataIndex]"></a-input>
+        <a-date-picker v-else :disabled="formItem.disabled" v-model:value="formItem.value_date"
+          @change="e=>{drawerState.model[formItem.dataIndex]=e?e.format(formItem.format):null;}" style="width: 100%"
           :get-popup-container="trigger => trigger.parentElement" />
       </div>
       <a-textarea v-else-if="formItem.form=='textarea'" :disabled="formItem.disabled" :readonly="formItem.readonly"
-        v-model:value="formItem.value" :rows="4" :placeholder="formItem.placeholder" />
+        v-model:value="drawerState.model[formItem.dataIndex]" :rows="4" :placeholder="formItem.placeholder" />
     </a-form-item>
 
   </a-form>
-  <template v-if="drawerState.action=='edit'" #extra>
+  <template v-if="drawerState.action=='add'||drawerState.action=='edit'" #extra>
     <a-space>
-      <a-button @click="$refs.myForm.clearValidate();drawerState.open=false;">Cancel</a-button>
-      <a-button type="primary" :loading="pageState.loading"
-        @click="async()=>{ try { await $refs.myForm.validate(); drawerState.finish(); } catch (e) { drawerState.finishFailed(e); } }">Submit</a-button>
+      <span v-for="button of drawerState.buttons">
+        <a-button v-if="button.type==='primary'" :type="button.type" :loading="pageState.loading"
+          @click="async()=>{ try { await $refs.drawerForm.validate(); drawerState.finish(); } catch (e) { drawerState.finishFailed(e); } }">{{button.title}}</a-button>
+        <a-button v-else @click="$refs.drawerForm.clearValidate();drawerState.open=false;">{{button.title}}</a-button>
+      </span>
     </a-space>
   </template>
 </a-drawer>
@@ -70,7 +74,7 @@
     <a-space direction="vertical" :size="12" style="padding: 8px;">
       <div v-if="0"></div>
       <a-date-picker ref="searchInput" v-else-if="column.type==='date'" v-model:value="column.search_dayjs[0]"
-        format="YYYY-MM-DD" @change="e => setSelectedKeys(e?[e.format('YYYY-MM-DD')]:[])" style=" width: 188px;" />
+        :format="column.format" @change="e => setSelectedKeys(e?[e.format(column.format)]:[])" style=" width: 188px;" />
       <a-input v-else ref="searchInput" :placeholder="`Search ${column.dataIndex}`" :value="selectedKeys[0]"
         style="width: 188px;" @change="e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
         @pressEnter="tableState.handleSearch(confirm)" />
@@ -97,7 +101,7 @@
             v-else-if="action.popconfirm">
             <a>{{action.title}}</a>
           </a-popconfirm>
-          <a v-else v-on:click="tableState.action(action.action,record)">{{action.title}}</a>
+          <a v-else v-on:click="tableState.action(action,record)">{{action.title}}</a>
         </span>
       </a-space>
     </template>

@@ -26,13 +26,33 @@ export default async () => ({
     ASelectOption: SelectOption,
   },
   setup() {
+    const PageData = {
+      columns: [],
+    };
     const router = useRouter();
     const route = useRoute();
     const pageState = reactive({
       loading: false,
       handleButton: async (button) => {
         if (button.type === 'add') {
+          drawerState.action = 'add';
+          drawerState.title = button.title;
+          drawerState.buttons = button.buttons;
           drawerState.open = true;
+          drawerState.model = {};
+          drawerState.formItems.length = 0;
+          for (const column of PageData.columns) {
+            if (!column.form) {
+              continue;
+            }
+            if (column.disabled) {
+              continue;
+            }
+            if (column.readonly) {
+              continue;
+            }
+            drawerState.formItems.push(column);
+          }
           return;
         }
         if (button.type === 'delete') {
@@ -85,6 +105,7 @@ export default async () => ({
       param.filters = query.filters;
       param.sorter = query.sorter;
       const data = await fetchData_api(path, param);
+      PageData.columns = data.columns;
       tableState.info = data.info;
       if (data.info.rowSelection) {
         tableState.rowSelection = {
@@ -101,7 +122,11 @@ export default async () => ({
       if (data.buttons) {
         tableState.buttons = data.buttons;
       }
+      drawerState.rules = {};
       for (const column of data.columns) {
+        if (column.rules) {
+          drawerState.rules[column.dataIndex] = column.rules;
+        }
         if (!column.width) {
           continue;
         }
@@ -140,37 +165,46 @@ export default async () => ({
     tableState.push_query = (record) => {
       router.push({ hash: '/xx', query: { table_name: record.table_name } });
     };
-    tableState.action = async (action, record) => {
+    tableState.action = async (mAction, record) => {
       const path = `api${route.path}.php`;
+      const action = mAction.action;
       const param = { action };
       param[tableState.info.rowKey] = record[tableState.info.rowKey];
       const data = await fetchData_api(path, param);
-      if (data.formItems) {
+      if (data.formModel) {
+        drawerState.model = data.formModel;
         drawerState.action = action;
-        drawerState.title = action === 'edit' ? 'Edit' : 'View';
-        for (const formItem of data.formItems) {
-          if (formItem.form === 'date-picker') {
-            formItem.value_date = dayjs(formItem.value, formItem.format);
+        drawerState.buttons = mAction.buttons;
+        drawerState.title = mAction.title;
+        drawerState.formItems.length = 0;
+        for (const column of PageData.columns) {
+          if (!column.form) {
+            continue;
+          }
+          if (!data.formModel.hasOwnProperty(column.dataIndex)) {
+            continue;
           }
           if (action !== 'edit') {
-            formItem.readonly = true;
+            column.readonly = true;
           }
-          if (formItem.form === 'select') {
-            if (formItem.readonly) {
+          const formValue = data.formModel[column.dataIndex];
+          if (column.form === 'date-picker') {
+            column.value_date = formValue ? dayjs(formValue, column.format) : null;
+          }
+          if (column.form === 'select') {
+            if (column.readonly) {
               const options = [];
-              for (const option of formItem.options) {
-                if (option.value === formItem.value) {
+              for (const option of column.options) {
+                if (option.value === formValue) {
                   options.push(option);
                 }
               }
-              formItem.options = options;
+              column.options = options;
             }
           }
+          drawerState.formItems.push(column);
         }
-        if (action === 'view') {
-          drawerState.maskClosable = true;
-        }
-        drawerState.formItems = data.formItems;
+        drawerState.maskClosable = action === 'view';
         drawerState.open = true;
       }
     };
@@ -182,21 +216,13 @@ export default async () => ({
       data: {},
       rules: {},
       model: {},
+      formItems: [],
     });
     drawerState.finish = async () => {
       drawerState.open = false;
     }
     drawerState.finishFailed = (errorInfo) => {
       messageApi.error(errorInfo.errorFields[0].errors[0], 1);
-    };
-    drawerState.rules = {
-      name: [{ required: true, message: 'Please enter user name' }],
-      url: [{ required: true, message: 'please enter url' }],
-      owner: [{ required: true, message: 'Please select an owner' }],
-      type: [{ required: true, message: 'Please choose the type' }],
-      approver: [{ required: true, message: 'Please choose the approver' }],
-      dateTime: [{ required: true, message: 'Please choose the dateTime', type: 'object' }],
-      description: [{ required: true, message: 'Please enter url description' }],
     };
     watch(
       () => route.query,

@@ -147,19 +147,9 @@ class TableCrud extends PDO
             if (!isset($_GET[$rowKey])) {
                 return;
             }
-            $mRow = $this->fetchOne($data, $_GET[$rowKey]);
-            $formItems = array();
-            foreach ($data['columns'] as $column) {
-                if (!isset($column['dataIndex'])) {
-                    continue;
-                }
-                if (isset($mRow[$column['dataIndex']])) {
-                    $column['value'] = $mRow[$column['dataIndex']];
-                }
-                $formItems[] = $column;
-            }
+            $formModel = $this->fetchOne($data, $_GET[$rowKey]);
             return [
-                'formItems' => $formItems,
+                'formModel' => $formModel,
             ];
         }
 

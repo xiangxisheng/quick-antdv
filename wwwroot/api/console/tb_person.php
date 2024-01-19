@@ -13,8 +13,17 @@ $data['sql']['where'] = array();
 $data['sql']['where'][] = "status = '0'";
 $data['sql']['order'] = '';
 $data['buttons'] = array();
-$data['buttons'][] = array('type' => 'add', 'title' => '添加');
-$data['buttons'][] = array('type' => 'delete', 'title' => '删除', 'popconfirm' => ['title' => '确定要批量删除这些吗？', 'okText' => '确定', 'cancelText' => '取消']);
+$data['buttons'][] = array(
+    'type' => 'add', 'title' => '添加',
+    'buttons' => [
+        ['title' => '取消'],
+        ['title' => '添加', 'type' => 'primary'],
+    ]
+);
+$data['buttons'][] = array(
+    'type' => 'delete', 'title' => '删除',
+    'popconfirm' => ['title' => '确定要批量删除这些吗？', 'okText' => '确定', 'cancelText' => '取消']
+);
 $data['columns'] = array();
 $data['columns'][] = array(
     'title' => 'data_no',
@@ -26,16 +35,17 @@ $data['columns'][] = array(
     'readonly' => true,
 );
 $data['columns'][] = array(
-    'title' => 'person_name',
+    'title' => '姓名',
     'dataIndex' => 'person_name',
     'width' => 160,
     'sorter' => true,
     'sql_where' => 'person_name LIKE ?',
     'form' => 'input',
     'placeholder' => 'please enter person_name',
+    'rules' => [['required' => true, 'message' => 'Please enter person_name']],
 );
 $data['columns'][] = array(
-    'title' => 'sex',
+    'title' => '性别',
     'dataIndex' => 'sex',
     'width' => 80,
     'sorter' => true,
@@ -53,6 +63,19 @@ $data['columns'][] = array(
         ['value' => 2, 'title' => '女'],
     ],
     'placeholder' => "Please choose the sex",
+    'rules' => [['required' => true, 'message' => 'Please choose the sex']],
+);
+$data['columns'][] = array(
+    'title' => '生日',
+    'dataIndex' => 'birthday',
+    'width' => 160,
+    'sorter' => true,
+    'sql_where' => 'birthday LIKE ?',
+    'form' => 'date-picker',
+    'type' => 'date',
+    'format' => 'YYYY-MM-DD',
+    'placeholder' => 'please enter birthday',
+    'rules' => [['required' => false, 'message' => 'Please enter birthday']],
 );
 $data['columns'][] = array(
     'title' => 'Action',
@@ -60,7 +83,13 @@ $data['columns'][] = array(
     'width' => 140,
     'actions' => [
         ['action' => 'view', 'title' => '查看'],
-        ['action' => 'edit', 'title' => '编辑'],
+        [
+            'action' => 'edit', 'title' => '编辑',
+            'buttons' => [
+                ['title' => '取消'],
+                ['title' => '保存', 'type' => 'primary'],
+            ]
+        ],
         ['action' => 'delete', 'title' => '删除', 'popconfirm' => ['title' => 'Are you sure delete?', 'okText' => 'Yes', 'cancelText' => 'Cancel']],
     ]
 );
