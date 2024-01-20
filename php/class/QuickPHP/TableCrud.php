@@ -135,24 +135,9 @@ class TableCrud extends PDO
         $aParam[] = $this->getParamFromSqlAndValue($column['sql_where'], $aValue);
     }
 
-    public function tableReader($data)
+
+    private function table_action_list($data)
     {
-
-        $action = isset($_GET['action']) ? $_GET['action'] : '';
-        if ($action === 'view' || $action === 'edit') {
-            if (!isset($data['info']['rowKey'])) {
-                return;
-            }
-            $rowKey = $data['info']['rowKey'];
-            if (!isset($_GET[$rowKey])) {
-                return;
-            }
-            $formModel = $this->fetchOne($data, $_GET[$rowKey]);
-            return [
-                'formModel' => $formModel,
-            ];
-        }
-
         $data['sql']['param'] = array();
         $filters = isset($_GET['filters']) ? json_decode($_GET['filters'], true) : array();
         foreach ($data['columns'] as $column) {
@@ -186,29 +171,61 @@ class TableCrud extends PDO
         if ($current < 1) {
             $current = 1;
         }
-        $data['pagination'] = array();
-        $data['pagination']['total'] = $total;
-        $data['pagination']['current'] = $current;
-        $data['pagination']['pageSize'] = $pageSize;
         $data['sql']['limit'] = $pageSize;
         $data['sql']['offset'] = ($current - 1) * $pageSize;
-        $data['rows'] = $this->fetchAllSelect($data);
+        $rows = $this->fetchAllSelect($data);
 
         foreach ($data['columns'] as $column) {
             if (!isset($column['dataIndex'])) {
                 continue;
             }
             if (isset($column['valueFunc'])) {
-                foreach ($data['rows'] as &$row) {
+                foreach ($rows as &$row) {
+                    // 对数据进行二次处理
                     $row[$column['dataIndex']] = $column['valueFunc']($row[$column['dataIndex']]);
                 }
             }
         }
 
-        unset($data['sql']);
-        foreach ($data['columns'] as &$column) {
-            unset($column['sql_select']);
+        return [
+            'pagination' => [
+                'total' => $total,
+                'current' => $current,
+                'pageSize' => $pageSize,
+            ],
+            'rows' => $rows,
+        ];
+    }
+
+    public function tableReader($data)
+    {
+        $action = isset($_GET['action']) ? $_GET['action'] : '';
+
+        if ($action === 'init') {
+            $data = array_merge($data, $this->table_action_list($data));
+            unset($data['sql']);
+            foreach ($data['columns'] as &$column) {
+                unset($column['sql_select']);
+            }
+            return $data;
         }
-        return $data;
+
+        if (in_array($action, ['view', 'edit'])) {
+            if (!isset($data['info']['rowKey'])) {
+                return;
+            }
+            $rowKey = $data['info']['rowKey'];
+            if (!isset($_GET[$rowKey])) {
+                return;
+            }
+            $formModel = $this->fetchOne($data, $_GET[$rowKey]);
+            return [
+                'formModel' => $formModel,
+            ];
+        }
+
+        if ($action === 'list') {
+            return $this->table_action_list($data);
+        }
     }
 }

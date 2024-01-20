@@ -1,6 +1,5 @@
-const { fetchDataByPathname } = firadio;
-const { deepCloneObject } = firadio;
-const { ref, reactive, watch } = Vue;
+const { fetchDataByPathname, deepCloneObject, filterNullItem, tryParseJSON } = firadio;
+const { ref, reactive, watch, onMounted } = Vue;
 const { Space, Table, Input, Button, Popconfirm, Drawer } = antd;
 const { Form, FormItem, Row, Col, Textarea, DatePicker, Select, SelectOption } = antd;
 const [messageApi, contextHolder] = antd.message.useMessage();
@@ -26,11 +25,12 @@ export default async () => ({
     ASelectOption: SelectOption,
   },
   setup() {
-    const PageData = {
-      columns: [],
-    };
     const router = useRouter();
     const route = useRoute();
+    const PageData = {
+      path: route.path,
+      columns: [],
+    };
     const pageState = reactive({
       loading: false,
       handleButton: async (button) => {
@@ -83,28 +83,19 @@ export default async () => ({
       },
     });
     const searchInput = ref('');
-    const jsonTryParse = (str) => {
-      try {
-        return JSON.parse(str);
-      } catch (e) { }
-      return {};
-    };
     const fetchData_api = async (path, param) => {
+      if (pageState.loading) {
+        return;
+      }
       pageState.loading = true;
       const data = await fetchDataByPathname(path, param);
       pageState.loading = false;
       return data;
     };
-    const fetchData_list = async () => {
-      const query = route.query;
+    const fetchData_init = async () => {
       const path = `api${route.path}.php`;
-      const param = {};
-      if (query.table_name) {
-        param.table_name = query.table_name;
-      }
-      param.pagination = query.pagination;
-      param.filters = query.filters;
-      param.sorter = query.sorter;
+      const param = deepCloneObject(route.query);
+      param.action = 'init';
       const data = await fetchData_api(path, param);
       PageData.columns = data.columns;
       tableState.info = data.info;
@@ -116,10 +107,7 @@ export default async () => ({
           tableState.rowSelection.selectedRowKeys = selectedRowKeys;
         };
       }
-      tableState.pagination = data.pagination;
       tableState.columns.length = 0;
-      const oQueryFilters = jsonTryParse(query.filters);
-      const oQuerySorter = jsonTryParse(query.sorter);
       if (data.buttons) {
         tableState.buttons = data.buttons;
       }
@@ -133,17 +121,6 @@ export default async () => ({
         }
         column.search_dayjs = [];
         column.customFilterDropdown = column.sql_where ? true : false;
-        if (oQueryFilters[column.dataIndex]) {
-          column.filteredValue = oQueryFilters[column.dataIndex];
-          if (column.type === 'date') {
-            for (var i = 0; i < column.filteredValue.length; i++) {
-              column.search_dayjs[i] = dayjs(column.filteredValue[i], column.format);
-            }
-          }
-        }
-        if (oQuerySorter['field'] === column.dataIndex && oQuerySorter['order']) {
-          column.sortOrder = oQuerySorter['order'];
-        }
         column.onFilterDropdownOpenChange = visible => {
           if (visible) {
             setTimeout(() => {
@@ -153,19 +130,56 @@ export default async () => ({
         };
         tableState.columns.push(column);
       }
-
-      tableState.dataSource = data.rows;
+      tableReaderList(data);
+    }
+    const tableReaderList = (data) => {
+      const query = route.query;
+      const oQueryFilters = tryParseJSON(query.filters);
+      const oQuerySorter = tryParseJSON(query.sorter);
+      for (const column of tableState.columns) {
+        if (oQueryFilters[column.dataIndex]) {
+          column.filteredValue = oQueryFilters[column.dataIndex];
+          if (column.type === 'date') {
+            for (var i = 0; i < column.filteredValue.length; i++) {
+              column.search_dayjs[i] = dayjs(column.filteredValue[i], column.format);
+            }
+          }
+        } else {
+          delete column.filteredValue;
+          column.search_dayjs = [];
+        }
+        if (oQuerySorter['field'] === column.dataIndex && oQuerySorter['order']) {
+          column.sortOrder = oQuerySorter['order'];
+        } else {
+          delete column.sortOrder;
+        }
+      }
+      if (data.pagination) {
+        tableState.pagination = data.pagination;
+      }
+      if (data.rows) {
+        tableState.dataSource = data.rows;
+      }
+    }
+    const fetchData_list = async () => {
+      const path = `api${route.path}.php`;
+      const param = deepCloneObject(route.query);
+      param.action = 'list';
+      const data = await fetchData_api(path, param);
+      tableReaderList(data);
     };
     tableState.change = async (pagination, filters, sorter) => {
       const query = {};
       query.pagination = JSON.stringify({ current: pagination.current, pageSize: pagination.pageSize });
-      query.filters = JSON.stringify(filters);
-      query.sorter = JSON.stringify({ order: sorter.order, field: sorter.field });
+      filterNullItem(filters);
+      if (Object.keys(filters).length) {
+        query.filters = JSON.stringify(filters);
+      }
+      if (sorter.order) {
+        query.sorter = JSON.stringify({ order: sorter.order, field: sorter.field });
+      }
       router.push({ query });
     }
-    tableState.push_query = (record) => {
-      router.push({ hash: '/xx', query: { table_name: record.table_name } });
-    };
     tableState.action = async (mAction, record) => {
       const path = `api${route.path}.php`;
       const action = mAction.action;
@@ -210,7 +224,7 @@ export default async () => ({
         drawerState.open = true;
       }
     };
-    fetchData_list();
+
 
     const drawerState = reactive({
       open: false,
@@ -226,10 +240,15 @@ export default async () => ({
     drawerState.finishFailed = (errorInfo) => {
       messageApi.error(errorInfo.errorFields[0].errors[0], 1);
     };
+    onMounted(async () => {
+      await fetchData_init();
+    });
     watch(
-      () => route.query,
-      () => {
-        fetchData_list();
+      route,
+      async (to) => {
+        if (PageData.path === to.path) {
+          fetchData_list();
+        }
       }
     );
     return {
@@ -239,4 +258,4 @@ export default async () => ({
       searchInput,
     }
   },
-})
+});

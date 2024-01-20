@@ -19,20 +19,42 @@ window.firadio = (() => {
     return pairs.join('&');
   };
 
-  async function fetchDataByPathname(_pathname, _param) {
-    const url = `${_pathname}?` + stringifyQuery(_param);
+  async function fetchDataByPathname(_pathname, _params) {
+
+    const url = new URL(location.href);
+    url.pathname = _pathname;
+
+    if (true) {
+      while (url.searchParams.keys().next().value) {
+        url.searchParams.delete(url.searchParams.keys().next().value);
+      }
+    }
+
+    if (_params) {
+      Object.keys(_params).forEach(key => {
+        url.searchParams.set(key, _params[key]);
+      });
+    }
+
+    const request = new Request(url, {
+      method: 'GET',
+      headers: {
+      },
+    });
+
     try {
-      const oResponse = await fetch(url);
+      const oResponse = await fetch(request);
       if (oResponse.status !== 200) {
         return { message: oResponse.statusText };
       }
-      if (location.hostname === '127.0.0.1') {
+      if (location.hostname === '127.0.0.2') {
         await delay(500);
       }
       return await oResponse.json();
     } catch (e) {
       return e;
     }
+
   };
 
   async function routes_filter(route, func, parent = '') {
@@ -56,7 +78,8 @@ window.firadio = (() => {
   async function VueCreateApp(Vue, VueRouter) {
     const { createApp } = Vue;
     const { createRouter, createWebHistory } = VueRouter;
-    const oTopRoute = { children: await (await fetch('/api/public/route.php')).json() }
+    const children = await fetchDataByPathname('/api/public/route.php');
+    const oTopRoute = { children }
     const routes = (await routes_filter(oTopRoute, async (sParent, mRoute) => {
       const item = {};
       if (typeof (mRoute.path) === 'string') {
@@ -211,6 +234,22 @@ window.firadio = (() => {
     return target;
   }
 
+  function filterNullItem(items) {
+    for (const k in items) {
+      const item = items[k];
+      if (item === null) {
+        delete items[k];
+      }
+    }
+  };
+
+  function tryParseJSON(str) {
+    try {
+      return JSON.parse(str);
+    } catch (e) { }
+    return {};
+  };
+
   const firadio = {};
   firadio.fetchDataByPathname = fetchDataByPathname;
   firadio.routes_filter = routes_filter;
@@ -218,5 +257,7 @@ window.firadio = (() => {
   firadio.stateStorage = stateStorage;
   firadio.main = main;
   firadio.deepCloneObject = deepCloneObject;
+  firadio.filterNullItem = filterNullItem;
+  firadio.tryParseJSON = tryParseJSON;
   return firadio;
 })();
