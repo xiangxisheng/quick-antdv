@@ -26,6 +26,8 @@ export default async () => ({
     ASelectOption: SelectOption,
   },
   setup() {
+
+    // 1：路由及页面数据定义
     const router = useRouter();
     const route = useRoute();
     const pageData = {
@@ -33,6 +35,8 @@ export default async () => ({
         columns: [],
       },
     };
+
+    // 2：页面状态
     const pageState = reactive({
       loading: false,
       path: route.path,
@@ -66,6 +70,31 @@ export default async () => ({
         }
       },
     });
+
+    // 3：抽屉状态
+    const drawerState = reactive({
+      operId: '',
+      open: false,
+      maskClosable: false,
+      data: {},
+      rules: {},
+      model: {},
+      formItems: [],
+      finish: async () => {
+        if (drawerState.action === 'add') {
+          await Api.create(drawerState.model);
+        }
+        if (drawerState.action === 'edit') {
+          await Api.update(drawerState.operId, drawerState.model);
+        }
+        drawerState.open = false;
+      },
+      finishFailed: (errorInfo) => {
+        messageApi.error(errorInfo.errorFields[0].errors[0], 1);
+      },
+    });
+
+    // 4：表格状态
     const tableState = reactive({
       rowKey: 'id',
       columns: [],
@@ -101,196 +130,202 @@ export default async () => ({
           confirm: true,
         });
       },
+      change: async (pagination, filters, sorter) => {
+        const query = {};
+        query.pagination = JSON.stringify({ current: pagination.current, pageSize: pagination.pageSize });
+        filterNullItem(filters);
+        if (Object.keys(filters).length) {
+          query.filters = JSON.stringify(filters);
+        }
+        if (sorter.order) {
+          query.sorter = JSON.stringify({ order: sorter.order, field: sorter.field });
+        }
+        router.push({ query });
+      },
+      action: async (mAction, record) => {
+        const operId = record[pageData.table.rowKey];
+        const action = mAction.action;
+        if (action === 'delete') {
+          await Api.delete(operId);
+          return;
+        }
+        await Api.view(operId, mAction);
+      },
     });
+
+    // 5：API相关
     const searchInput = ref('');
-    const fetchData_api = async (path, param) => {
-      if (pageState.loading) {
-        return;
-      }
-      pageState.loading = true;
-      const data = await fetchDataByPathname(path, param);
-      pageState.loading = false;
-      return data;
-    };
-    const fetchData_init = async () => {
-      const path = `api${route.path}.php`;
-      const param = deepCloneObject(route.query);
-      param.action = 'init';
-      const data = await fetchData_api(path, param);
-      const tableData = pageData.table = data.table;
-      if (tableData.pagination) {
-        array_set_recursive(tableState.pagination, tableData.pagination);
-      }
-      if (tableData.rowKey) {
-        tableState.rowKey = tableData.rowKey;
-      }
-      if (tableData.rowSelection) {
-        tableState.rowSelection = {
-          selectedRowKeys: [],
-        };
-        tableState.rowSelection.onChange = (selectedRowKeys) => {
-          tableState.rowSelection.selectedRowKeys = selectedRowKeys;
-        };
-      }
-      tableState.columns.length = 0;
-      if (data.buttons) {
-        pageState.buttons = data.buttons;
-      }
-      drawerState.rules = {};
-      for (const column of tableData.columns) {
-        if (column.rules) {
-          drawerState.rules[column.dataIndex] = column.rules;
+    const Api = (() => {
+      const fetchAction = async (action, param, post) => {
+        param.action = action;
+        const path = `api${route.path}.php`;
+        if (pageState.loading) {
+          return;
         }
-        if (!column.width) {
-          continue;
-        }
-        if (column.type === 'sequence') {
-          column.customRender = (o) => {
-            const tableData = pageData.table;
-            var iRet = o.index + 1;
-            iRet += (tableData.pagination.current - 1) * tableData.pagination.pageSize
-            return iRet;
-          }
-        }
-        column.search_dayjs = [];
-        column.customFilterDropdown = column.sql_where ? true : false;
-        column.onFilterDropdownOpenChange = visible => {
-          if (visible) {
-            setTimeout(() => {
-              searchInput.value.focus();
-            }, 100);
-          }
-        };
-        tableState.columns.push(column);
-      }
-      tableReaderList(tableData);
-    }
-    const tableReaderList = (tableData) => {
-      const query = route.query;
-      const oQueryFilters = tryParseJSON(query.filters);
-      const oQuerySorter = tryParseJSON(query.sorter);
-      for (const column of tableState.columns) {
-        if (oQueryFilters[column.dataIndex]) {
-          column.filteredValue = oQueryFilters[column.dataIndex];
-          if (column.type === 'date') {
-            for (var i = 0; i < column.filteredValue.length; i++) {
-              column.search_dayjs[i] = dayjs(column.filteredValue[i], column.format);
-            }
-          }
-        } else {
-          delete column.filteredValue;
-          column.search_dayjs = [];
-        }
-        if (oQuerySorter['field'] === column.dataIndex && oQuerySorter['order']) {
-          column.sortOrder = oQuerySorter['order'];
-        } else {
-          delete column.sortOrder;
-        }
-      }
-      if (tableData.pagination) {
-        array_set_recursive(tableState.pagination, tableData.pagination);
-      }
-      if (tableData.dataSource) {
-        tableState.dataSource = tableData.dataSource;
-      }
-    }
-    const fetchData_list = async () => {
-      const path = `api${route.path}.php`;
-      const param = deepCloneObject(route.query);
-      param.action = 'list';
-      const data = await fetchData_api(path, param);
-      array_set_recursive(pageData, data);
-      tableReaderList(pageData.table);
-    };
-    tableState.change = async (pagination, filters, sorter) => {
-      const query = {};
-      query.pagination = JSON.stringify({ current: pagination.current, pageSize: pagination.pageSize });
-      filterNullItem(filters);
-      if (Object.keys(filters).length) {
-        query.filters = JSON.stringify(filters);
-      }
-      if (sorter.order) {
-        query.sorter = JSON.stringify({ order: sorter.order, field: sorter.field });
-      }
-      router.push({ query });
-    }
-    tableState.action = async (mAction, record) => {
-      const path = `api${route.path}.php`;
-      const action = mAction.action;
-      const param = { action };
-      param[pageData.table.rowKey] = record[pageData.table.rowKey];
-      const data = await fetchData_api(path, param);
-      if (!data) {
-        return;
-      }
-      if (!data.formModel) {
-        return;
-      }
-      drawerState.model = data.formModel;
-      drawerState.action = action;
-      drawerState.buttons = mAction.buttons;
-      drawerState.title = mAction.title;
-      drawerState.formItems.length = 0;
-      const formItems = deepCloneObject(pageData.table.columns);
-      for (const formItem of formItems) {
-        if (!formItem.form) {
-          continue;
-        }
-        if (!data.formModel.hasOwnProperty(formItem.dataIndex)) {
-          continue;
-        }
-        if (action !== 'edit') {
-          formItem.readonly = true;
-        }
-        const formValue = data.formModel[formItem.dataIndex];
-        if (formItem.form === 'date-picker') {
-          formItem.value_date = formValue ? dayjs(formValue, formItem.format) : null;
-        }
-        if (formItem.form === 'select') {
-          if (formItem.readonly) {
-            const options = [];
-            for (const option of formItem.options) {
-              if (option.value === formValue) {
-                options.push(option);
+        pageState.loading = true;
+        const data = await fetchDataByPathname(path, param, post);
+        pageState.loading = false;
+        return data;
+      };
+      const tableReaderList = (tableData) => {
+        const query = route.query;
+        const oQueryFilters = tryParseJSON(query.filters);
+        const oQuerySorter = tryParseJSON(query.sorter);
+        for (const column of tableState.columns) {
+          if (oQueryFilters[column.dataIndex]) {
+            column.filteredValue = oQueryFilters[column.dataIndex];
+            if (column.type === 'date') {
+              for (var i = 0; i < column.filteredValue.length; i++) {
+                column.search_dayjs[i] = dayjs(column.filteredValue[i], column.format);
               }
             }
-            formItem.options = options;
+          } else {
+            delete column.filteredValue;
+            column.search_dayjs = [];
+          }
+          if (oQuerySorter['field'] === column.dataIndex && oQuerySorter['order']) {
+            column.sortOrder = oQuerySorter['order'];
+          } else {
+            delete column.sortOrder;
           }
         }
-        drawerState.formItems.push(formItem);
+        if (tableData.pagination) {
+          array_set_recursive(tableState.pagination, tableData.pagination);
+        }
+        if (tableData.dataSource) {
+          tableState.dataSource = tableData.dataSource;
+        }
       }
-      drawerState.maskClosable = action === 'view';
-      drawerState.open = true;
-    };
+      return ({
+        init: async () => {
+          const param = deepCloneObject(route.query);
+          const data = await fetchAction('init', param);
+          const tableData = pageData.table = data.table;
+          if (tableData.pagination) {
+            array_set_recursive(tableState.pagination, tableData.pagination);
+          }
+          if (tableData.rowKey) {
+            tableState.rowKey = tableData.rowKey;
+          }
+          if (tableData.rowSelection) {
+            tableState.rowSelection = {
+              selectedRowKeys: [],
+            };
+            tableState.rowSelection.onChange = (selectedRowKeys) => {
+              tableState.rowSelection.selectedRowKeys = selectedRowKeys;
+            };
+          }
+          tableState.columns.length = 0;
+          if (data.buttons) {
+            pageState.buttons = data.buttons;
+          }
+          drawerState.rules = {};
+          for (const column of tableData.columns) {
+            if (column.rules) {
+              drawerState.rules[column.dataIndex] = column.rules;
+            }
+            if (!column.width) {
+              continue;
+            }
+            if (column.type === 'sequence') {
+              column.customRender = (o) => {
+                const tableData = pageData.table;
+                var iRet = o.index + 1;
+                iRet += (tableData.pagination.current - 1) * tableData.pagination.pageSize
+                return iRet;
+              }
+            }
+            column.search_dayjs = [];
+            column.customFilterDropdown = column.sql_where ? true : false;
+            column.onFilterDropdownOpenChange = visible => {
+              if (visible) {
+                setTimeout(() => {
+                  searchInput.value.focus();
+                }, 100);
+              }
+            };
+            tableState.columns.push(column);
+          }
+          tableReaderList(tableData);
+        },
+        list: async () => {
+          const param = deepCloneObject(route.query);
+          const data = await fetchAction('list', param);
+          array_set_recursive(pageData, data);
+          tableReaderList(pageData.table);
+        },
+        view: async (id, mAction) => {
+          const action = mAction.action;
+          const data = await fetchAction('view', { id });
+          if (!data) {
+            return;
+          }
+          if (!data.formModel) {
+            return;
+          }
+          drawerState.operId = id;
+          drawerState.model = data.formModel;
+          drawerState.action = action;
+          drawerState.buttons = mAction.buttons;
+          drawerState.title = mAction.title;
+          drawerState.formItems.length = 0;
+          const formItems = deepCloneObject(pageData.table.columns);
+          for (const formItem of formItems) {
+            if (!formItem.form) {
+              continue;
+            }
+            if (!data.formModel.hasOwnProperty(formItem.dataIndex)) {
+              continue;
+            }
+            if (action !== 'edit') {
+              formItem.readonly = true;
+            }
+            const formValue = data.formModel[formItem.dataIndex];
+            if (formItem.form === 'date-picker') {
+              formItem.value_date = formValue ? dayjs(formValue, formItem.format) : null;
+            }
+            if (formItem.form === 'select') {
+              if (formItem.readonly) {
+                const options = [];
+                for (const option of formItem.options) {
+                  if (option.value === formValue) {
+                    options.push(option);
+                  }
+                }
+                formItem.options = options;
+              }
+            }
+            drawerState.formItems.push(formItem);
+          }
+          drawerState.maskClosable = action === 'view';
+          drawerState.open = true;
+        },
+        delete: async (id) => {
+          await fetchAction('delete', { id });
+        },
+        create: async (post) => {
+          await fetchAction('create', {}, post);
+        },
+        update: async (id, post) => {
+          await fetchAction('update', { id }, post);
+        },
+      });
+    })();
 
-    const drawerState = reactive({
-      open: false,
-      maskClosable: false,
-      data: {},
-      rules: {},
-      model: {},
-      formItems: [],
-      finish: async () => {
-        drawerState.open = false;
-      },
-      finishFailed: (errorInfo) => {
-        messageApi.error(errorInfo.errorFields[0].errors[0], 1);
-      },
-    });
-
+    // 6：Vue事件处理
     onMounted(async () => {
-      await fetchData_init();
+      await Api.init();
     });
-
     watch(
       route,
       async (to) => {
         if (pageState.path === to.path) {
-          fetchData_list();
+          Api.list();
         }
       }
     );
 
+    // 7：返回页面
     return {
       pageState,
       tableState,

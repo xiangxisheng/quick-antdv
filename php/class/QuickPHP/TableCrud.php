@@ -216,14 +216,11 @@ class TableCrud extends PDO
         }
 
         if (in_array($action, ['view', 'edit'])) {
-            if (!isset($data['table']['rowKey'])) {
+            if (!isset($_GET['id'])) {
                 return;
             }
-            $rowKey = $data['table']['rowKey'];
-            if (!isset($_GET[$rowKey])) {
-                return;
-            }
-            $formModel = $this->fetchOne($data, $_GET[$rowKey]);
+            $id = $_GET['id'];
+            $formModel = $this->fetchOne($data, $id);
             return [
                 'formModel' => $formModel,
             ];

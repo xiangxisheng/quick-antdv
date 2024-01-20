@@ -19,7 +19,7 @@ window.firadio = (() => {
     return pairs.join('&');
   };
 
-  async function fetchDataByPathname(_pathname, _params) {
+  async function fetchDataByPathname(_pathname, _params, _post) {
 
     const url = new URL(location.href);
     url.pathname = _pathname;
@@ -36,11 +36,19 @@ window.firadio = (() => {
       });
     }
 
-    const request = new Request(url, {
-      method: 'GET',
+    const reqOption = {
+      method: _post ? 'POST' : 'GET',
       headers: {
       },
-    });
+    };
+    if (_post) {
+      const formData = new FormData();
+      for (const [key, value] of Object.entries(_post)) {
+        formData.append(key, value);
+      }
+      reqOption.body = formData;
+    }
+    const request = new Request(url, reqOption);
 
     try {
       const oResponse = await fetch(request);
