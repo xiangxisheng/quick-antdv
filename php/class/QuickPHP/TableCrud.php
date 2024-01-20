@@ -31,7 +31,7 @@ class TableCrud extends PDO
         if (!$mSorter['field']) {
             return;
         }
-        $mColumn = $this->getColumnByField($data['columns'], $mSorter['field']);
+        $mColumn = $this->getColumnByField($data['table']['columns'], $mSorter['field']);
         if (!$mColumn) {
             return;
         }
@@ -54,7 +54,7 @@ class TableCrud extends PDO
     private function fetchOne($data, $value)
     {
         $aSelect = array();
-        foreach ($data['columns'] as $column) {
+        foreach ($data['table']['columns'] as $column) {
             if (!isset($column['dataIndex'])) {
                 continue;
             }
@@ -63,7 +63,7 @@ class TableCrud extends PDO
         $aSql = array();
         $aSql[] = 'SELECT ' . implode(',', $aSelect);
         $aSql[] = 'FROM ' . $data['sql']['from'];
-        $aSql[] = 'WHERE ' . $data['info']['rowKey'] . '=?';
+        $aSql[] = 'WHERE ' . $data['table']['rowKey'] . '=?';
         $sSql = implode("\r\n", $aSql);
         $data['sql']['param'][] = $value;
         return $this->fetch($sSql, $data['sql']['param']);
@@ -72,7 +72,7 @@ class TableCrud extends PDO
     private function fetchAllSelect($data)
     {
         $aSelect = array();
-        foreach ($data['columns'] as $column) {
+        foreach ($data['table']['columns'] as $column) {
             if (!isset($column['dataIndex'])) {
                 continue;
             }
@@ -140,7 +140,7 @@ class TableCrud extends PDO
     {
         $data['sql']['param'] = array();
         $filters = isset($_GET['filters']) ? json_decode($_GET['filters'], true) : array();
-        foreach ($data['columns'] as $column) {
+        foreach ($data['table']['columns'] as $column) {
             if (!isset($column['dataIndex'])) {
                 continue;
             }
@@ -153,11 +153,12 @@ class TableCrud extends PDO
         }
         $data['sql']['sorter'] = isset($_GET['sorter']) ? json_decode($_GET['sorter'], true) : array();
         $pagination = isset($_GET['pagination']) ? json_decode($_GET['pagination'], true) : array();
-        $pageSize = isset($pagination['pageSize']) ? $pagination['pageSize'] : 20;
+        $pageSizeDefault = isset($data['table']['pagination']['pageSizeDefault']) ? $data['table']['pagination']['pageSizeDefault'] : 20;
+        $pageSize = isset($pagination['pageSize']) ? $pagination['pageSize'] : $pageSizeDefault;
         if ($pageSize < 1) {
             $pageSize = 1;
         }
-        $pageMax = isset($data['info']['pageMax']) ? $data['info']['pageMax'] : 100;
+        $pageMax = isset($data['table']['pagination']['pageSizeMax']) ? $data['table']['pagination']['pageSizeMax'] : 100;
         if ($pageSize > $pageMax) {
             $pageSize = $pageMax;
         }
@@ -173,14 +174,14 @@ class TableCrud extends PDO
         }
         $data['sql']['limit'] = $pageSize;
         $data['sql']['offset'] = ($current - 1) * $pageSize;
-        $rows = $this->fetchAllSelect($data);
+        $dataSource = $this->fetchAllSelect($data);
 
-        foreach ($data['columns'] as $column) {
+        foreach ($data['table']['columns'] as $column) {
             if (!isset($column['dataIndex'])) {
                 continue;
             }
             if (isset($column['valueFunc'])) {
-                foreach ($rows as &$row) {
+                foreach ($dataSource as &$row) {
                     // 对数据进行二次处理
                     $row[$column['dataIndex']] = $column['valueFunc']($row[$column['dataIndex']]);
                 }
@@ -193,7 +194,7 @@ class TableCrud extends PDO
                 'current' => $current,
                 'pageSize' => $pageSize,
             ],
-            'rows' => $rows,
+            'dataSource' => $dataSource,
         ];
     }
 
@@ -202,19 +203,23 @@ class TableCrud extends PDO
         $action = isset($_GET['action']) ? $_GET['action'] : '';
 
         if ($action === 'init') {
-            $data = array_merge($data, $this->table_action_list($data));
+            $data['table'] = array_merge_recursive($data['table'], $this->table_action_list($data));
             unset($data['sql']);
-            foreach ($data['columns'] as &$column) {
+            foreach ($data['table']['columns'] as &$column) {
                 unset($column['sql_select']);
+            }
+            if (isset($data['table']['pagination'])) {
+                unset($data['table']['pagination']['pageSizeDefault']);
+                unset($data['table']['pagination']['pageSizeMax']);
             }
             return $data;
         }
 
         if (in_array($action, ['view', 'edit'])) {
-            if (!isset($data['info']['rowKey'])) {
+            if (!isset($data['table']['rowKey'])) {
                 return;
             }
-            $rowKey = $data['info']['rowKey'];
+            $rowKey = $data['table']['rowKey'];
             if (!isset($_GET[$rowKey])) {
                 return;
             }
@@ -225,7 +230,9 @@ class TableCrud extends PDO
         }
 
         if ($action === 'list') {
-            return $this->table_action_list($data);
+            return [
+                'table' => $this->table_action_list($data),
+            ];
         }
     }
 }

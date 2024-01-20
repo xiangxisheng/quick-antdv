@@ -1,4 +1,5 @@
 const { fetchDataByPathname, deepCloneObject, filterNullItem, tryParseJSON } = firadio;
+const { array_set_recursive } = firadio;
 const { ref, reactive, watch, onMounted } = Vue;
 const { Space, Table, Input, Button, Popconfirm, Drawer } = antd;
 const { Form, FormItem, Row, Col, Textarea, DatePicker, Select, SelectOption } = antd;
@@ -27,12 +28,15 @@ export default async () => ({
   setup() {
     const router = useRouter();
     const route = useRoute();
-    const PageData = {
-      path: route.path,
-      columns: [],
+    const pageData = {
+      table: {
+        columns: [],
+      },
     };
     const pageState = reactive({
       loading: false,
+      path: route.path,
+      buttons: [],
       handleButton: async (button) => {
         if (button.type === 'add') {
           drawerState.action = 'add';
@@ -41,7 +45,7 @@ export default async () => ({
           drawerState.open = true;
           drawerState.model = {};
           drawerState.formItems.length = 0;
-          const formItems = deepCloneObject(PageData.columns);
+          const formItems = deepCloneObject(pageData.table.columns);
           for (const formItem of formItems) {
             if (!formItem.form) {
               continue;
@@ -63,8 +67,7 @@ export default async () => ({
       },
     });
     const tableState = reactive({
-      info: {},
-      buttons: [],
+      rowKey: 'id',
       columns: [],
       dataSource: [],
       rowSelection: null,
@@ -72,6 +75,23 @@ export default async () => ({
         total: 0,
         current: 1,
         pageSize: 20,
+        showTotal: (total, range) => {
+          if (!pageData.table) {
+            return;
+          }
+          if (!pageData.table.pagination) {
+            return;
+          }
+          var str = pageData.table.pagination.showTotalTemplate;
+          if (!str) {
+            return;
+          }
+          str = str.replaceAll('{total}', total);
+          str = str.replaceAll('{begin}', range[0]);
+          str = str.replaceAll('{end}', range[1]);
+          return str;
+        },
+        pageSizeOptions: ['10', '20', '30', '50', '100', '200'],
       },
       handleSearch: (confirm) => {
         confirm();
@@ -97,9 +117,14 @@ export default async () => ({
       const param = deepCloneObject(route.query);
       param.action = 'init';
       const data = await fetchData_api(path, param);
-      PageData.columns = data.columns;
-      tableState.info = data.info;
-      if (data.info.rowSelection) {
+      const tableData = pageData.table = data.table;
+      if (tableData.pagination) {
+        array_set_recursive(tableState.pagination, tableData.pagination);
+      }
+      if (tableData.rowKey) {
+        tableState.rowKey = tableData.rowKey;
+      }
+      if (tableData.rowSelection) {
         tableState.rowSelection = {
           selectedRowKeys: [],
         };
@@ -109,15 +134,23 @@ export default async () => ({
       }
       tableState.columns.length = 0;
       if (data.buttons) {
-        tableState.buttons = data.buttons;
+        pageState.buttons = data.buttons;
       }
       drawerState.rules = {};
-      for (const column of data.columns) {
+      for (const column of tableData.columns) {
         if (column.rules) {
           drawerState.rules[column.dataIndex] = column.rules;
         }
         if (!column.width) {
           continue;
+        }
+        if (column.type === 'sequence') {
+          column.customRender = (o) => {
+            const tableData = pageData.table;
+            var iRet = o.index + 1;
+            iRet += (tableData.pagination.current - 1) * tableData.pagination.pageSize
+            return iRet;
+          }
         }
         column.search_dayjs = [];
         column.customFilterDropdown = column.sql_where ? true : false;
@@ -130,9 +163,9 @@ export default async () => ({
         };
         tableState.columns.push(column);
       }
-      tableReaderList(data);
+      tableReaderList(tableData);
     }
-    const tableReaderList = (data) => {
+    const tableReaderList = (tableData) => {
       const query = route.query;
       const oQueryFilters = tryParseJSON(query.filters);
       const oQuerySorter = tryParseJSON(query.sorter);
@@ -154,11 +187,11 @@ export default async () => ({
           delete column.sortOrder;
         }
       }
-      if (data.pagination) {
-        tableState.pagination = data.pagination;
+      if (tableData.pagination) {
+        array_set_recursive(tableState.pagination, tableData.pagination);
       }
-      if (data.rows) {
-        tableState.dataSource = data.rows;
+      if (tableData.dataSource) {
+        tableState.dataSource = tableData.dataSource;
       }
     }
     const fetchData_list = async () => {
@@ -166,7 +199,8 @@ export default async () => ({
       const param = deepCloneObject(route.query);
       param.action = 'list';
       const data = await fetchData_api(path, param);
-      tableReaderList(data);
+      array_set_recursive(pageData, data);
+      tableReaderList(pageData.table);
     };
     tableState.change = async (pagination, filters, sorter) => {
       const query = {};
@@ -184,47 +218,50 @@ export default async () => ({
       const path = `api${route.path}.php`;
       const action = mAction.action;
       const param = { action };
-      param[tableState.info.rowKey] = record[tableState.info.rowKey];
+      param[pageData.table.rowKey] = record[pageData.table.rowKey];
       const data = await fetchData_api(path, param);
-      if (data.formModel) {
-        drawerState.model = data.formModel;
-        drawerState.action = action;
-        drawerState.buttons = mAction.buttons;
-        drawerState.title = mAction.title;
-        drawerState.formItems.length = 0;
-        const formItems = deepCloneObject(PageData.columns);
-        for (const formItem of formItems) {
-          if (!formItem.form) {
-            continue;
-          }
-          if (!data.formModel.hasOwnProperty(formItem.dataIndex)) {
-            continue;
-          }
-          if (action !== 'edit') {
-            formItem.readonly = true;
-          }
-          const formValue = data.formModel[formItem.dataIndex];
-          if (formItem.form === 'date-picker') {
-            formItem.value_date = formValue ? dayjs(formValue, formItem.format) : null;
-          }
-          if (formItem.form === 'select') {
-            if (formItem.readonly) {
-              const options = [];
-              for (const option of formItem.options) {
-                if (option.value === formValue) {
-                  options.push(option);
-                }
-              }
-              formItem.options = options;
-            }
-          }
-          drawerState.formItems.push(formItem);
-        }
-        drawerState.maskClosable = action === 'view';
-        drawerState.open = true;
+      if (!data) {
+        return;
       }
+      if (!data.formModel) {
+        return;
+      }
+      drawerState.model = data.formModel;
+      drawerState.action = action;
+      drawerState.buttons = mAction.buttons;
+      drawerState.title = mAction.title;
+      drawerState.formItems.length = 0;
+      const formItems = deepCloneObject(pageData.table.columns);
+      for (const formItem of formItems) {
+        if (!formItem.form) {
+          continue;
+        }
+        if (!data.formModel.hasOwnProperty(formItem.dataIndex)) {
+          continue;
+        }
+        if (action !== 'edit') {
+          formItem.readonly = true;
+        }
+        const formValue = data.formModel[formItem.dataIndex];
+        if (formItem.form === 'date-picker') {
+          formItem.value_date = formValue ? dayjs(formValue, formItem.format) : null;
+        }
+        if (formItem.form === 'select') {
+          if (formItem.readonly) {
+            const options = [];
+            for (const option of formItem.options) {
+              if (option.value === formValue) {
+                options.push(option);
+              }
+            }
+            formItem.options = options;
+          }
+        }
+        drawerState.formItems.push(formItem);
+      }
+      drawerState.maskClosable = action === 'view';
+      drawerState.open = true;
     };
-
 
     const drawerState = reactive({
       open: false,
@@ -233,24 +270,27 @@ export default async () => ({
       rules: {},
       model: {},
       formItems: [],
+      finish: async () => {
+        drawerState.open = false;
+      },
+      finishFailed: (errorInfo) => {
+        messageApi.error(errorInfo.errorFields[0].errors[0], 1);
+      },
     });
-    drawerState.finish = async () => {
-      drawerState.open = false;
-    }
-    drawerState.finishFailed = (errorInfo) => {
-      messageApi.error(errorInfo.errorFields[0].errors[0], 1);
-    };
+
     onMounted(async () => {
       await fetchData_init();
     });
+
     watch(
       route,
       async (to) => {
-        if (PageData.path === to.path) {
+        if (pageState.path === to.path) {
           fetchData_list();
         }
       }
     );
+
     return {
       pageState,
       tableState,

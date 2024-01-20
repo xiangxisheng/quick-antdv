@@ -2,21 +2,13 @@
 
 require_once dirname(__DIR__) . '/quick.php';
 
-$data = array();
-$data['info'] = array();
-$data['info']['pageMax'] = 100;
-$data['info']['rowSelection'] = false;
-$data['info']['rowKey'] = 'event_id';
-$data['sql'] = array();
-$data['sql']['from'] = 'tb_event';
-$data['sql']['where'] = array();
-$data['sql']['where'][] = "event_name = 'acs.acs.eventType.successFace'";
-$data['sql']['where'][] = 'job_number IS NOT NULL';
-$data['sql']['group'] = 'job_number,event_time::date';
-$data['sql']['order'] = 'event_date DESC,event_time';
-$data['buttons'] = array();
-$data['columns'] = array();
-$data['columns'][] = array(
+$columns = array();
+$columns[] = array(
+    'title' => '序号',
+    'width' => 80,
+    'type' => 'sequence',
+);
+$columns[] = array(
     'title' => 'event_id',
     'dataIndex' => 'event_id',
     'sql_select' => 'MIN(event_id)',
@@ -24,7 +16,7 @@ $data['columns'][] = array(
     'disabled' => true,
     'readonly' => true,
 );
-$data['columns'][] = array(
+$columns[] = array(
     'title' => 'Date',
     'dataIndex' => 'event_date',
     'width' => 110,
@@ -36,7 +28,7 @@ $data['columns'][] = array(
     'sql_where' => 'event_time::date = ?',
     'form' => 'date-picker',
 );
-$data['columns'][] = array(
+$columns[] = array(
     'title' => 'Time',
     'dataIndex' => 'event_time',
     'width' => 90,
@@ -45,7 +37,7 @@ $data['columns'][] = array(
     'sql_select' => "to_char(TO_TIMESTAMP(MIN(utc_event_time)/1000),'HH24:MI:SS')",
     'form' => 'input',
 );
-$data['columns'][] = array(
+$columns[] = array(
     'title' => 'Number',
     'dataIndex' => 'job_number',
     'width' => 100,
@@ -53,7 +45,7 @@ $data['columns'][] = array(
     'sql_where' => 'job_number LIKE ?',
     'form' => 'input',
 );
-$data['columns'][] = array(
+$columns[] = array(
     'title' => 'Name',
     'dataIndex' => 'person_name',
     'width' => 160,
@@ -62,12 +54,37 @@ $data['columns'][] = array(
     'sql_where' => 'person_name LIKE ?',
     'form' => 'input',
 );
-$data['columns'][] = array(
+$columns[] = array(
     'title' => 'Action',
     'fixed' => 'right',
     'width' => 80,
     'actions' => [
-        ['action' => 'view', 'title' => '查看'],
+        [
+            'action' => 'view', 'title' => '查看',
+        ],
     ]
 );
+$data = [
+    'buttons' => [],
+    'sql' => [
+        'from' => 'tb_event',
+        'where' => [
+            "event_name = 'acs.acs.eventType.successFace'",
+            'job_number IS NOT NULL',
+        ],
+        'group' => 'job_number,event_time::date',
+        'order' => 'event_date DESC,event_time',
+    ],
+    'table' => [
+        'columns' => $columns,
+        'pagination' => [
+            'pageSizeDefault' => 20,
+            'pageSizeMax' => 1000,
+            'pageSizeOptions' => ['10', '20', '50', '100', '200', '500', '1000'],
+            'showTotalTemplate' => 'Showing {begin} to {end} of {total} items',
+        ],
+        'rowKey' => 'event_id',
+        'rowSelection' => false,
+    ],
+];
 echo json_encode($_C->db('acs_acsdb')->tableReader($data));

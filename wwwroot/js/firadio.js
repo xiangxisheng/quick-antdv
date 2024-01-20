@@ -234,6 +234,32 @@ window.firadio = (() => {
     return target;
   }
 
+  function array_set_recursive(target, source) {
+    if (typeof target !== typeof source) {
+      return source;
+    }
+    if (typeof source !== 'object' || source === null) {
+      return source;
+    }
+    if (Array.isArray(source)) {
+      return deepCloneObject(source);
+    }
+    Object.keys(source).forEach((key) => {
+      target[key] = array_set_recursive(target[key], source[key]);
+    });
+    return target;
+  }
+
+  function array_merge_recursive() {
+    const argsArray = Array.from(arguments);
+    const argvFirst = argsArray.shift();
+    const target = Array.isArray(argvFirst) ? [] : {};
+    for (const argvOne of argsArray) {
+      array_set_recursive(target, argvOne);
+    }
+    return target;
+  }
+
   function filterNullItem(items) {
     for (const k in items) {
       const item = items[k];
@@ -257,6 +283,8 @@ window.firadio = (() => {
   firadio.stateStorage = stateStorage;
   firadio.main = main;
   firadio.deepCloneObject = deepCloneObject;
+  firadio.array_set_recursive = array_set_recursive;
+  firadio.array_merge_recursive = array_merge_recursive;
   firadio.filterNullItem = filterNullItem;
   firadio.tryParseJSON = tryParseJSON;
   return firadio;

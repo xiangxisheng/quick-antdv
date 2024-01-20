@@ -38,7 +38,7 @@
   </template>
 </a-drawer>
 <a-space wrap :size="20" style="margin: 10px;">
-  <div v-for="button of tableState.buttons">
+  <div v-for="button of pageState.buttons">
     <div v-if="0"></div>
     <a-popconfirm :title="button.popconfirm.title" :ok-text="button.popconfirm.okText"
       :cancel-text="button.popconfirm.cancelText" @confirm="pageState.handleButton(button)"
@@ -69,7 +69,7 @@
 </a-space>
 <a-table :dataSource="tableState.dataSource" :columns="tableState.columns" :pagination="tableState.pagination"
   :loading="pageState.loading" @change="tableState.change" :scroll="{ x: 500 }" :rowSelection="tableState.rowSelection"
-  :rowKey="tableState.info ? tableState.info.rowKey : 'name'">
+  :rowKey="tableState.rowKey">
   <template #customFilterDropdown="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }">
     <a-space direction="vertical" :size="12" style="padding: 8px;">
       <div v-if="0"></div>
@@ -97,7 +97,7 @@
         <span v-for="action of column.actions">
           <span v-if="0"></span>
           <a-popconfirm :title="action.popconfirm.title" :ok-text="action.popconfirm.okText"
-            :cancel-text="action.popconfirm.cancelText" @confirm="tableState.action(action.action,record)"
+            :cancel-text="action.popconfirm.cancelText" @confirm="tableState.action(action,record)"
             v-else-if="action.popconfirm">
             <a>{{action.title}}</a>
           </a-popconfirm>
