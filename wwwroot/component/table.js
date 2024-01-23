@@ -7,7 +7,7 @@ const [messageApi, contextHolder] = antd.message.useMessage();
 const { useRouter, useRoute } = VueRouter;
 
 export default async () => ({
-  template: await (await fetch('./page/panel/table.htm')).text(),
+  template: await (await fetch('./component/table.htm')).text(),
   components: {
     ASpace: Space,
     ATable: Table,

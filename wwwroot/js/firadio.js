@@ -106,7 +106,7 @@ window.firadio = (() => {
       }
       if (mRoute.component) {
         // 路由懒加载(https://router.vuejs.org/zh/guide/advanced/lazy-loading.html)
-        item.component = async () => (await import(`/page/${mRoute.component}.js`)).default(mRoute);
+        item.component = async () => (await import(`/${mRoute.component}.js`)).default(mRoute);
       }
       if (mRoute.alias) {
         item.alias = mRoute.alias;
