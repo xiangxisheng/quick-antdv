@@ -4,38 +4,46 @@ namespace QuickPHP;
 
 class PDO extends \PDO
 {
-    private $db;
 
     public function conn($dsn, $user, $pass)
     {
-        $this->db = new PDO($dsn, $user, $pass);
-        $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        parent::__construct($dsn, $user, $pass);
+        $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    }
+
+    public function begin()
+    {
+        $this->beginTransaction();
+    }
+
+    public function execute($sql, $param)
+    {
+        $stmt = $this->prepare($sql);
+        $stmt->execute($param);
+        return $stmt;
     }
 
     public function fetchAll($sql, $param)
     {
-        $this->db->beginTransaction();
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute($param);
-        $this->db->rollBack();
+        $this->begin();
+        $stmt = $this->execute($sql, $param);
+        $this->rollBack();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function fetch($sql, $param)
     {
-        $this->db->beginTransaction();
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute($param);
-        $this->db->rollBack();
+        $this->begin();
+        $stmt = $this->execute($sql, $param);
+        $this->rollBack();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function fetchNum($sql, $param)
     {
-        $this->db->beginTransaction();
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute($param);
-        $this->db->rollBack();
+        $this->begin();
+        $stmt = $this->execute($sql, $param);
+        $this->rollBack();
         return $stmt->fetch(PDO::FETCH_NUM);
     }
 }

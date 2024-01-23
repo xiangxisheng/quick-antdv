@@ -1,4 +1,4 @@
-const { fetchDataByPathname, deepCloneObject, filterNullItem, tryParseJSON } = firadio;
+const { backendApi, deepCloneObject, filterNullItem, tryParseJSON } = firadio;
 const { array_set_recursive } = firadio;
 const { ref, reactive, watch, onMounted } = Vue;
 const { Space, Table, Input, Button, Popconfirm, Drawer } = antd;
@@ -65,7 +65,7 @@ export default async () => ({
           return;
         }
         if (button.type === 'delete') {
-          messageApi.info(JSON.stringify(tableState.rowSelection.selectedRowKeys));
+          Api.delete(tableState.rowSelection.selectedRowKeys);
           return;
         }
       },
@@ -156,70 +156,43 @@ export default async () => ({
     // 5：API相关
     const searchInput = ref('');
     const Api = (() => {
-      const fetchAction = async (action, param, post) => {
+      const apiAction = async (action, param, post) => {
         param.action = action;
         const path = `api${route.path}.php`;
         if (pageState.loading) {
           return;
         }
         pageState.loading = true;
-        const data = await fetchDataByPathname(path, param, post);
+        const dataType = 'json';
+        const data = await backendApi({ path, param, post, dataType });
+        array_set_recursive(pageData, data);
+        if (data.message) {
+          messageApi.open(data.message);
+        }
+        if (data.table) {
+          tableReaderList(data.table);
+        }
         pageState.loading = false;
         return data;
       };
       const tableReaderList = (tableData) => {
-        const query = route.query;
-        const oQueryFilters = tryParseJSON(query.filters);
-        const oQuerySorter = tryParseJSON(query.sorter);
-        for (const column of tableState.columns) {
-          if (oQueryFilters[column.dataIndex]) {
-            column.filteredValue = oQueryFilters[column.dataIndex];
-            if (column.type === 'date') {
-              for (var i = 0; i < column.filteredValue.length; i++) {
-                column.search_dayjs[i] = dayjs(column.filteredValue[i], column.format);
-              }
-            }
-          } else {
-            delete column.filteredValue;
-            column.search_dayjs = [];
-          }
-          if (oQuerySorter['field'] === column.dataIndex && oQuerySorter['order']) {
-            column.sortOrder = oQuerySorter['order'];
-          } else {
-            delete column.sortOrder;
-          }
-        }
         if (tableData.pagination) {
           array_set_recursive(tableState.pagination, tableData.pagination);
         }
-        if (tableData.dataSource) {
-          tableState.dataSource = tableData.dataSource;
+        if (tableData.rowKey) {
+          tableState.rowKey = tableData.rowKey;
         }
-      }
-      return ({
-        init: async () => {
-          const param = deepCloneObject(route.query);
-          const data = await fetchAction('init', param);
-          const tableData = pageData.table = data.table;
-          if (tableData.pagination) {
-            array_set_recursive(tableState.pagination, tableData.pagination);
-          }
-          if (tableData.rowKey) {
-            tableState.rowKey = tableData.rowKey;
-          }
-          if (tableData.rowSelection) {
-            tableState.rowSelection = {
-              selectedRowKeys: [],
-            };
-            tableState.rowSelection.onChange = (selectedRowKeys) => {
-              tableState.rowSelection.selectedRowKeys = selectedRowKeys;
-            };
-          }
-          tableState.columns.length = 0;
-          if (data.buttons) {
-            pageState.buttons = data.buttons;
-          }
+        if (tableData.rowSelection) {
+          tableState.rowSelection = {
+            selectedRowKeys: [],
+          };
+          tableState.rowSelection.onChange = (selectedRowKeys) => {
+            tableState.rowSelection.selectedRowKeys = selectedRowKeys;
+          };
+        }
+        if (tableData.columns) {
           drawerState.rules = {};
+          tableState.columns.length = 0;
           for (const column of tableData.columns) {
             if (column.rules) {
               drawerState.rules[column.dataIndex] = column.rules;
@@ -246,17 +219,52 @@ export default async () => ({
             };
             tableState.columns.push(column);
           }
-          tableReaderList(tableData);
+        }
+        const query = route.query;
+        const oQueryFilters = tryParseJSON(query.filters);
+        const oQuerySorter = tryParseJSON(query.sorter);
+        if (oQueryFilters && oQuerySorter) {
+          for (const column of tableState.columns) {
+            if (oQueryFilters[column.dataIndex]) {
+              column.filteredValue = oQueryFilters[column.dataIndex];
+              if (column.type === 'date') {
+                for (var i = 0; i < column.filteredValue.length; i++) {
+                  column.search_dayjs[i] = dayjs(column.filteredValue[i], column.format);
+                }
+              }
+            } else {
+              delete column.filteredValue;
+              column.search_dayjs = [];
+            }
+            if (oQuerySorter['field'] === column.dataIndex && oQuerySorter['order']) {
+              column.sortOrder = oQuerySorter['order'];
+            } else {
+              delete column.sortOrder;
+            }
+          }
+        }
+        if (tableData.pagination) {
+          array_set_recursive(tableState.pagination, tableData.pagination);
+        }
+        if (tableData.dataSource) {
+          tableState.dataSource = tableData.dataSource;
+        }
+      }
+      return ({
+        init: async () => {
+          const param = deepCloneObject(route.query);
+          const data = await apiAction('init', param);
+          if (data.buttons) {
+            pageState.buttons = data.buttons;
+          }
         },
         list: async () => {
           const param = deepCloneObject(route.query);
-          const data = await fetchAction('list', param);
-          array_set_recursive(pageData, data);
-          tableReaderList(pageData.table);
+          await apiAction('list', param);
         },
         view: async (id, mAction) => {
           const action = mAction.action;
-          const data = await fetchAction('view', { id });
+          const data = await apiAction('view', { id });
           if (!data) {
             return;
           }
@@ -300,14 +308,19 @@ export default async () => ({
           drawerState.maskClosable = action === 'view';
           drawerState.open = true;
         },
-        delete: async (id) => {
-          await fetchAction('delete', { id });
+        delete: async (ids) => {
+          const param = deepCloneObject(route.query);
+          param.ids = ids;
+          await apiAction('delete', param);
         },
         create: async (post) => {
-          await fetchAction('create', {}, post);
+          const param = deepCloneObject(route.query);
+          await apiAction('create', param, post);
         },
         update: async (id, post) => {
-          await fetchAction('update', { id }, post);
+          const param = deepCloneObject(route.query);
+          param.id = id;
+          await apiAction('update', param, post);
         },
       });
     })();

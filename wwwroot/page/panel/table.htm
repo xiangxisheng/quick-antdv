@@ -41,9 +41,10 @@
   <div v-for="button of pageState.buttons">
     <div v-if="0"></div>
     <a-popconfirm :title="button.popconfirm.title" :ok-text="button.popconfirm.okText"
-      :cancel-text="button.popconfirm.cancelText" @confirm="pageState.handleButton(button)"
-      v-else-if="button.popconfirm">
-      <a-button type="primary" :danger="button.type==='delete'" :loading="pageState.loading">
+      :cancel-text="button.popconfirm.cancelText" :disabled="tableState.rowSelection.selectedRowKeys.length===0"
+      @confirm="pageState.handleButton(button)" v-else-if="button.popconfirm">
+      <a-button type="primary" :danger="button.type==='delete'" :loading="pageState.loading"
+        :disabled="tableState.rowSelection.selectedRowKeys.length===0">
         <template #icon>
           <span v-if="0"></span>
           <i v-else-if="button.type==='delete'" class="bx bx-trash"
@@ -69,7 +70,7 @@
 </a-space>
 <a-table :dataSource="tableState.dataSource" :columns="tableState.columns" :pagination="tableState.pagination"
   :loading="pageState.loading" @change="tableState.change" :scroll="{ x: 500 }" :rowSelection="tableState.rowSelection"
-  :rowKey="tableState.rowKey">
+  :rowKey="tableState.rowKey" :showSorterTooltip="false">
   <template #customFilterDropdown="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }">
     <a-space direction="vertical" :size="12" style="padding: 8px;">
       <div v-if="0"></div>

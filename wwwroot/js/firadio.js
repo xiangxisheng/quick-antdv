@@ -19,10 +19,10 @@ window.firadio = (() => {
     return pairs.join('&');
   };
 
-  async function fetchDataByPathname(_pathname, _params, _post) {
-
+  async function backendApi(options) {
+    const { path, param, post, dataType } = options;
     const url = new URL(location.href);
-    url.pathname = _pathname;
+    url.pathname = path;
 
     if (true) {
       while (url.searchParams.keys().next().value) {
@@ -30,23 +30,30 @@ window.firadio = (() => {
       }
     }
 
-    if (_params) {
-      Object.keys(_params).forEach(key => {
-        url.searchParams.set(key, _params[key]);
+    if (param) {
+      Object.keys(param).forEach(key => {
+        url.searchParams.set(key, param[key]);
       });
     }
 
     const reqOption = {
-      method: _post ? 'POST' : 'GET',
+      method: post ? 'POST' : 'GET',
       headers: {
       },
     };
-    if (_post) {
-      const formData = new FormData();
-      for (const [key, value] of Object.entries(_post)) {
-        formData.append(key, value);
-      }
-      reqOption.body = formData;
+    if (post) {
+      reqOption.body = (() => {
+        if (dataType === 'json') {
+          return JSON.stringify(post);
+        }
+        else {
+          const formData = new FormData();
+          for (const [key, value] of Object.entries(post)) {
+            formData.append(key, value);
+          }
+          return formData;
+        }
+      })();
     }
     const request = new Request(url, reqOption);
 
@@ -86,7 +93,7 @@ window.firadio = (() => {
   async function VueCreateApp(Vue, VueRouter) {
     const { createApp } = Vue;
     const { createRouter, createWebHistory } = VueRouter;
-    const children = await fetchDataByPathname('/api/public/route.php');
+    const children = await backendApi({ path: '/api/public/route.php' });
     const oTopRoute = { children }
     const routes = (await routes_filter(oTopRoute, async (sParent, mRoute) => {
       const item = {};
@@ -285,7 +292,7 @@ window.firadio = (() => {
   };
 
   const firadio = {};
-  firadio.fetchDataByPathname = fetchDataByPathname;
+  firadio.backendApi = backendApi;
   firadio.routes_filter = routes_filter;
   firadio.delay = delay;
   firadio.stateStorage = stateStorage;

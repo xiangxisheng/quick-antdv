@@ -69,7 +69,15 @@ class TableCrud extends PDO
         return $this->fetch($sSql, $data['sql']['param']);
     }
 
-    private function fetchAllSelect($data)
+    private function buildSqlCreate($pageConfig, $mParam)
+    {
+        $aParam = [];
+        $aSql = [];
+        $sSql = implode("\r\n", $aSql);
+        return array($sSql, $aParam);
+    }
+
+    private function buildSqlSelect($data)
     {
         $aSelect = array();
         foreach ($data['table']['columns'] as $column) {
@@ -99,8 +107,39 @@ class TableCrud extends PDO
         if ($data['sql']['offset']) {
             $aSql[] = 'OFFSET ' . $data['sql']['offset'];
         }
+        return implode("\r\n", $aSql);
+    }
+
+    private function buildSqlUpdate($pageConfig, $mParam, $id)
+    {
+        $aParam = [];
+        $aSql = [];
+        $aSql[] = 'UPDATE ' . $pageConfig['sql']['from'];
+        $aSets = [];
+        foreach ($pageConfig['table']['columns'] as $column) {
+            if (!isset($column['form'])) {
+                continue;
+            }
+            if (isset($column['disabled']) && $column['disabled']) {
+                continue;
+            }
+            if (isset($column['readonly']) && $column['readonly']) {
+                continue;
+            }
+            if (array_key_exists($column['dataIndex'], $mParam)) {
+                $aSets[] = $column['dataIndex'] . '=?';
+                $aParam[] = $mParam[$column['dataIndex']];
+            }
+        }
+        $aSql[] = 'SET ' . implode(',', $aSets);
+        $aSql[] = 'WHERE ' . $pageConfig['table']['rowKey'] . '=?';
+        $aParam[] = $id;
         $sSql = implode("\r\n", $aSql);
-        return $this->fetchAll($sSql, $data['sql']['param']);
+        return array($sSql, $aParam);
+    }
+
+    private function buildSqlDelete($pageConfig, $ids)
+    {
     }
 
     private function getRecordTotal($data)
@@ -174,7 +213,8 @@ class TableCrud extends PDO
         }
         $data['sql']['limit'] = $pageSize;
         $data['sql']['offset'] = ($current - 1) * $pageSize;
-        $dataSource = $this->fetchAllSelect($data);
+        $sSql = $this->buildSqlSelect($data);
+        $dataSource =  $this->fetchAll($sSql, $data['sql']['param']);
 
         foreach ($data['table']['columns'] as $column) {
             if (!isset($column['dataIndex'])) {
@@ -198,21 +238,21 @@ class TableCrud extends PDO
         ];
     }
 
-    public function tableReader($data)
+    public function tableReader($pageConfig)
     {
         $action = isset($_GET['action']) ? $_GET['action'] : '';
 
         if ($action === 'init') {
-            $data['table'] = array_merge_recursive($data['table'], $this->table_action_list($data));
-            unset($data['sql']);
-            foreach ($data['table']['columns'] as &$column) {
+            $pageConfig['table'] = array_merge_recursive($pageConfig['table'], $this->table_action_list($pageConfig));
+            unset($pageConfig['sql']);
+            foreach ($pageConfig['table']['columns'] as &$column) {
                 unset($column['sql_select']);
             }
-            if (isset($data['table']['pagination'])) {
-                unset($data['table']['pagination']['pageSizeDefault']);
-                unset($data['table']['pagination']['pageSizeMax']);
+            if (isset($pageConfig['table']['pagination'])) {
+                unset($pageConfig['table']['pagination']['pageSizeDefault']);
+                unset($pageConfig['table']['pagination']['pageSizeMax']);
             }
-            return $data;
+            return $pageConfig;
         }
 
         if (in_array($action, ['view', 'edit'])) {
@@ -220,7 +260,7 @@ class TableCrud extends PDO
                 return;
             }
             $id = $_GET['id'];
-            $formModel = $this->fetchOne($data, $id);
+            $formModel = $this->fetchOne($pageConfig, $id);
             return [
                 'formModel' => $formModel,
             ];
@@ -228,7 +268,66 @@ class TableCrud extends PDO
 
         if ($action === 'list') {
             return [
-                'table' => $this->table_action_list($data),
+                'table' => $this->table_action_list($pageConfig),
+            ];
+        }
+
+        if ($action === 'create') {
+            $data = file_get_contents('php://input');
+            $decodedData = json_decode($data, true);
+            list($sSql, $aParam) = $this->buildSqlCreate($pageConfig, $decodedData);
+            $this->begin();
+            $this->execute($sSql, $aParam);
+            $this->commit();
+            return [
+                'message' => ['type' => 'success', 'content' => 'Create successful'],
+                'table' => $this->table_action_list($pageConfig),
+            ];
+        }
+
+        if ($action === 'update') {
+            $id = isset($_GET['id']) ? $_GET['id'] : '';
+            $data = file_get_contents('php://input');
+            $decodedData = json_decode($data, true);
+            if (empty($decodedData)) {
+                return [
+                    'message' => ['type' => 'error', 'content' => 'post cant empty'],
+                ];
+            }
+            list($sSql, $aParam) = $this->buildSqlUpdate($pageConfig, $decodedData, $id);
+            $this->begin();
+            $this->execute($sSql, $aParam);
+            $this->commit();
+            return [
+                'message' => ['type' => 'success', 'content' => 'Update successful'],
+                'table' => $this->table_action_list($pageConfig),
+            ];
+        }
+
+        if ($action === 'delete') {
+            $ids = call_user_func(function () {
+                $ids = isset($_GET['ids']) ? explode(',', $_GET['ids']) : '';
+                $mId = [];
+                foreach ($ids as $id) {
+                    if ($id === '') {
+                        continue;
+                    }
+                    $mId[$id] = 1;
+                }
+                return array_keys($mId);
+            });
+            if (count($ids) === 0) {
+                return [
+                    'message' => ['type' => 'error', 'content' => '[ids] cant empty'],
+                ];
+            }
+            list($sSql, $aParam) =  $this->buildSqlDelete($pageConfig, $ids);
+            $this->begin();
+            $this->execute($sSql, $aParam);
+            $this->commit();
+            return [
+                'message' => ['type' => 'success', 'content' => 'Delete successful'],
+                'table' => $this->table_action_list($pageConfig),
             ];
         }
     }
