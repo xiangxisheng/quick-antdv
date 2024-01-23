@@ -1,5 +1,6 @@
 const { backendApi, deepCloneObject, filterNullItem, tryParseJSON } = firadio;
 const { array_set_recursive } = firadio;
+const { fGetTransResult } = i18n;
 const { ref, reactive, watch, onMounted } = Vue;
 const { Space, Table, Input, Button, Popconfirm, Drawer } = antd;
 const { Form, FormItem, Row, Col, Textarea, DatePicker, Select, SelectOption } = antd;
@@ -44,7 +45,7 @@ export default async () => ({
       handleButton: async (button) => {
         if (button.type === 'add') {
           drawerState.action = 'add';
-          drawerState.title = button.title;
+          drawerState.title = await fGetTransResult(button.title);
           drawerState.buttons = button.buttons;
           drawerState.open = true;
           drawerState.model = {};
@@ -114,14 +115,8 @@ export default async () => ({
           if (!pageData.table.pagination) {
             return;
           }
-          var str = pageData.table.pagination.showTotalTemplate;
-          if (!str) {
-            return;
-          }
-          str = str.replaceAll('{total}', total);
-          str = str.replaceAll('{begin}', range[0]);
-          str = str.replaceAll('{end}', range[1]);
-          return str;
+          const param = { total, begin: range[0], end: range[1] };
+          return fGetTransResult(pageData.table.pagination.showTotalTemplate, param);
         },
         pageSizeOptions: ['10', '20', '30', '50', '100', '200'],
       },
@@ -197,6 +192,7 @@ export default async () => ({
           drawerState.rules = {};
           tableState.columns.length = 0;
           for (const column of tableData.columns) {
+            column.title = fGetTransResult(column.title);
             if (column.rules) {
               drawerState.rules[column.dataIndex] = column.rules;
             }
@@ -278,7 +274,7 @@ export default async () => ({
           drawerState.model = data.formModel;
           drawerState.action = action;
           drawerState.buttons = mAction.buttons;
-          drawerState.title = mAction.title;
+          drawerState.title = await fGetTransResult(mAction.title);
           drawerState.formItems.length = 0;
           const formItems = deepCloneObject(pageData.table.columns);
           for (const formItem of formItems) {
@@ -341,8 +337,13 @@ export default async () => ({
       }
     );
 
+    function GTR(_formatpath, _param) {
+      return fGetTransResult(_formatpath, _param);
+    };
+
     // 7：返回页面
     return {
+      GTR,
       pageState,
       tableState,
       drawerState,

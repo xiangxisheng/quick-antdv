@@ -66,17 +66,17 @@ $columns[] = [
     'width' => 140,
     'actions' => [
         [
-            'action' => 'view', 'title' => '查看',
+            'action' => 'view', 'title' => 'table.view',
         ],
         [
-            'action' => 'edit', 'title' => '编辑',
+            'action' => 'edit', 'title' => 'table.edit',
             'buttons' => [
-                ['title' => '取消'],
-                ['title' => '保存', 'type' => 'primary'],
+                ['title' => 'table.cancel'],
+                ['title' => 'table.save', 'type' => 'primary'],
             ],
         ],
         [
-            'action' => 'delete', 'title' => '删除',
+            'action' => 'delete', 'title' => 'table.delete',
             'popconfirm' => ['title' => 'Are you sure delete?', 'okText' => 'Yes', 'cancelText' => 'Cancel'],
         ],
     ]
@@ -84,14 +84,14 @@ $columns[] = [
 $data = [
     'buttons' => [
         [
-            'type' => 'add', 'title' => '添加',
+            'type' => 'add', 'title' => 'table.add',
             'buttons' => [
-                ['title' => '取消'],
-                ['title' => '添加', 'type' => 'primary'],
+                ['title' => 'table.cancel'],
+                ['title' => 'table.add', 'type' => 'primary'],
             ],
         ],
         [
-            'type' => 'delete', 'title' => '删除',
+            'type' => 'delete', 'title' => 'table.delete',
             'popconfirm' => ['title' => '确定要批量删除这些吗？', 'okText' => '确定', 'cancelText' => '取消'],
         ],
     ],
@@ -106,7 +106,7 @@ $data = [
             'pageSizeDefault' => 18,
             'pageSizeMax' => 100,
             'pageSizeOptions' => ['10', '20', '50', '100'],
-            'showTotalTemplate' => 'Showing {begin} to {end} of {total} items',
+            'showTotalTemplate' => 'table.showTotalTemplate',
         ],
         'rowKey' => 'id',
         'rowSelection' => true,

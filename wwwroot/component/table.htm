@@ -13,7 +13,7 @@
         :addon-before="formItem.addonBefore" :addon-after="formItem.addonAfter" style="width: 100%" />
       <a-select v-else-if="formItem.form=='select'" :disabled="formItem.disabled"
         v-model:value="drawerState.model[formItem.dataIndex]" :placeholder="formItem.placeholder">
-        <a-select-option v-for="option of formItem.options" :value="option.value">{{option.title}}</a-select-option>
+        <a-select-option v-for="option of formItem.options" :value="option.value">{{GTR(option.title)}}</a-select-option>
       </a-select>
       <div v-else-if="formItem.form=='date-picker'">
         <a-input v-if="formItem.readonly" :readonly="formItem.readonly"
@@ -31,8 +31,9 @@
     <a-space>
       <span v-for="button of drawerState.buttons">
         <a-button v-if="button.type==='primary'" :type="button.type" :loading="pageState.loading"
-          @click="async()=>{ try { await $refs.drawerForm.validate(); drawerState.finish(); } catch (e) { drawerState.finishFailed(e); } }">{{button.title}}</a-button>
-        <a-button v-else @click="$refs.drawerForm.clearValidate();drawerState.open=false;">{{button.title}}</a-button>
+          @click="async()=>{ try { await $refs.drawerForm.validate(); drawerState.finish(); } catch (e) { drawerState.finishFailed(e); } }">{{GTR(button.title)}}</a-button>
+        <a-button v-else
+          @click="$refs.drawerForm.clearValidate();drawerState.open=false;">{{GTR(button.title)}}</a-button>
       </span>
     </a-space>
   </template>
@@ -52,7 +53,7 @@
           <i v-else-if="button.type==='add'" class="bx bx-plus-circle"
             style="font-size: 16px; vertical-align: -2px; margin-right: 4px;"></i>
         </template>
-        {{button.title}}
+        {{GTR(button.title)}}
       </a-button>
     </a-popconfirm>
     <a-button type="primary" :danger="button.type==='delete'" :loading="pageState.loading"
@@ -64,7 +65,7 @@
         <i v-else-if="button.type==='add'" class="bx bx-plus-circle"
           style="font-size: 16px; vertical-align: -2px; margin-right: 4px;"></i>
       </template>
-      {{button.title}}
+      {{GTR(button.title)}}
     </a-button>
   </div>
 </a-space>
@@ -100,9 +101,9 @@
           <a-popconfirm :title="action.popconfirm.title" :ok-text="action.popconfirm.okText"
             :cancel-text="action.popconfirm.cancelText" @confirm="tableState.action(action,record)"
             v-else-if="action.popconfirm">
-            <a>{{action.title}}</a>
+            <a>{{GTR(action.title)}}</a>
           </a-popconfirm>
-          <a v-else v-on:click="tableState.action(action,record)">{{action.title}}</a>
+          <a v-else v-on:click="tableState.action(action,record)">{{GTR(action.title)}}</a>
         </span>
       </a-space>
     </template>

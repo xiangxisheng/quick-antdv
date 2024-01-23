@@ -124,7 +124,7 @@ $data = [
             'pageSizeDefault' => 18,
             'pageSizeMax' => 100,
             'pageSizeOptions' => ['10', '20', '50', '100'],
-            'showTotalTemplate' => 'Showing {begin} to {end} of {total} items',
+            'showTotalTemplate' => 'table.showTotalTemplate',
         ],
         'rowKey' => 'person_key',
         'rowSelection' => true,

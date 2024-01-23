@@ -81,7 +81,7 @@ $data = [
             'pageSizeDefault' => 20,
             'pageSizeMax' => 1000,
             'pageSizeOptions' => ['10', '20', '50', '100', '200', '500', '1000'],
-            'showTotalTemplate' => 'Showing {begin} to {end} of {total} items',
+            'showTotalTemplate' => 'table.showTotalTemplate',
         ],
         'rowKey' => 'event_id',
         'rowSelection' => false,

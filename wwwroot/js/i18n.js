@@ -2,6 +2,12 @@ window.i18n = (() => {
 
     const oI18nState = firadio.stateStorage('i18n');
     const mCacheData = {};
+    async function fGetI18nData(locale) {
+        const jsonPath = `data/lang/${locale}.json`;
+        mCacheData[locale] = await (await fetch(jsonPath)).json();
+    }
+    fGetI18nData('en_us');
+    fGetI18nData('zh_cn');
 
     const i18n_locales = [
         {
@@ -42,7 +48,6 @@ window.i18n = (() => {
         if (aParam) {
             var out = sFormatValue;
             for (const k in aParam) {
-                console.log(out);
                 out = replaceAll(out, '\\{' + k + '\\}', aParam[k]);
             }
             return out;
@@ -50,16 +55,7 @@ window.i18n = (() => {
         return sFormatValue;
     }
 
-    async function fGetI18nData(locale) {
-        if (mCacheData.hasOwnProperty(locale)) {
-            return mCacheData[locale];
-        }
-        const jsonPath = `data/lang/${locale}.json`;
-        mCacheData[locale] = await (await fetch(jsonPath)).json();
-        return mCacheData[locale];
-    }
-
-    async function fGetTransResult(sFormatPath, aParam) {
+    function fGetTransResult(sFormatPath, aParam) {
         const locale = fGetCurrentLocale();
         if (!locale) {
             return '-';
@@ -68,14 +64,14 @@ window.i18n = (() => {
             return '-';
         }
         const aFormatPath = sFormatPath.split('.');
-        const i18nDataByGroupName = await fGetI18nData(locale);
+        const i18nDataByGroupName = mCacheData[locale];
         const iLocaleIndex = mConfLocale[locale];
         if (!i18nDataByGroupName.hasOwnProperty(aFormatPath[0])) {
-            return sFormatPath;
+            return fGetFormatString(sFormatPath, aParam);
         }
         const i18nDataByFormatKey = i18nDataByGroupName[aFormatPath[0]];
         if (!i18nDataByFormatKey.hasOwnProperty(aFormatPath[1])) {
-            return sFormatPath;
+            return fGetFormatString(sFormatPath, aParam);
         }
         const sFormatValue = i18nDataByFormatKey[aFormatPath[1]];
         return fGetFormatString(sFormatValue, aParam);
