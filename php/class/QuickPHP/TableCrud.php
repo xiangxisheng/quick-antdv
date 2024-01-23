@@ -73,6 +73,26 @@ class TableCrud extends PDO
     {
         $aParam = [];
         $aSql = [];
+        $aSql[] = 'INSERT INTO ' . $pageConfig['sql']['from'];
+        $aFields = [];
+        $aValues = [];
+        foreach ($pageConfig['table']['columns'] as $column) {
+            if (!isset($column['form'])) {
+                continue;
+            }
+            if (isset($column['disabled']) && $column['disabled']) {
+                continue;
+            }
+            if (isset($column['readonly']) && $column['readonly']) {
+                continue;
+            }
+            if (array_key_exists($column['dataIndex'], $mParam)) {
+                $aFields[] = $column['dataIndex'];
+                $aValues[] = '?';
+                $aParam[] = $mParam[$column['dataIndex']];
+            }
+        }
+        $aSql[] = '(' . implode(',', $aFields) . ')VALUES(' . implode(',', $aValues) . ')';
         $sSql = implode("\r\n", $aSql);
         return array($sSql, $aParam);
     }
@@ -140,6 +160,12 @@ class TableCrud extends PDO
 
     private function buildSqlDelete($pageConfig, $ids)
     {
+        $aSql = [];
+        $aSql[] = 'DELETE FROM ' . $pageConfig['sql']['from'];
+        $aIns = array_fill(0, count($ids), '?');
+        $aSql[] = 'WHERE ' . $pageConfig['table']['rowKey'] . ' IN(' . implode(',', $aIns) . ')';
+        $sSql = implode("\r\n", $aSql);
+        return array($sSql, $ids);
     }
 
     private function getRecordTotal($data)

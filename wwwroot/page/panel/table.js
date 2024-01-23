@@ -54,6 +54,9 @@ export default async () => ({
             if (!formItem.form) {
               continue;
             }
+            if (formItem.hasOwnProperty('default')) {
+              drawerState.model[formItem.dataIndex] = formItem.default;
+            }
             if (formItem.disabled) {
               continue;
             }
