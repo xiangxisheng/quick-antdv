@@ -58,12 +58,12 @@ class TableCrud extends PDO
             if (!isset($column['dataIndex'])) {
                 continue;
             }
-            $aSelect[] = (isset($column['sql_selone']) ? $column['sql_selone'] . ' ' : '') . $column['dataIndex'];
+            $aSelect[] = (isset($column['sql_selone']) ? $column['sql_selone'] . ' ' : '') . $this->fieldQuote($column['dataIndex']);
         }
         $aSql = array();
         $aSql[] = 'SELECT ' . implode(',', $aSelect);
         $aSql[] = 'FROM ' . $data['sql']['from'];
-        $aSql[] = 'WHERE ' . $data['table']['rowKey'] . '=?';
+        $aSql[] = 'WHERE ' . $this->fieldQuote($data['table']['rowKey']) . '=?';
         $sSql = implode("\r\n", $aSql);
         $data['sql']['param'][] = $value;
         return $this->fetch($sSql, $data['sql']['param']);
@@ -87,7 +87,7 @@ class TableCrud extends PDO
                 continue;
             }
             if (array_key_exists($column['dataIndex'], $mParam)) {
-                $aFields[] = $column['dataIndex'];
+                $aFields[] = $this->fieldQuote($column['dataIndex']);
                 $aValues[] = '?';
                 $aParam[] = $mParam[$column['dataIndex']];
             }
@@ -104,7 +104,7 @@ class TableCrud extends PDO
             if (!isset($column['dataIndex'])) {
                 continue;
             }
-            $aSelect[] = (isset($column['sql_select']) ? $column['sql_select'] . ' ' : '') . $column['dataIndex'];
+            $aSelect[] = (isset($column['sql_select']) ? $column['sql_select'] . ' ' : '') . $this->fieldQuote($column['dataIndex']);
         }
         $aSql = array();
         $aSql[] = 'SELECT ' . implode(',', $aSelect);
@@ -147,12 +147,12 @@ class TableCrud extends PDO
                 continue;
             }
             if (array_key_exists($column['dataIndex'], $mParam)) {
-                $aSets[] = $column['dataIndex'] . '=?';
+                $aSets[] = $this->fieldQuote($column['dataIndex']) . '=?';
                 $aParam[] = $mParam[$column['dataIndex']];
             }
         }
         $aSql[] = 'SET ' . implode(',', $aSets);
-        $aSql[] = 'WHERE ' . $pageConfig['table']['rowKey'] . '=?';
+        $aSql[] = 'WHERE ' . $this->fieldQuote($pageConfig['table']['rowKey']) . '=?';
         $aParam[] = $id;
         $sSql = implode("\r\n", $aSql);
         return array($sSql, $aParam);
@@ -163,7 +163,7 @@ class TableCrud extends PDO
         $aSql = [];
         $aSql[] = 'DELETE FROM ' . $pageConfig['sql']['from'];
         $aIns = array_fill(0, count($ids), '?');
-        $aSql[] = 'WHERE ' . $pageConfig['table']['rowKey'] . ' IN(' . implode(',', $aIns) . ')';
+        $aSql[] = 'WHERE ' . $this->fieldQuote($pageConfig['table']['rowKey']) . ' IN(' . implode(',', $aIns) . ')';
         $sSql = implode("\r\n", $aSql);
         return array($sSql, $ids);
     }

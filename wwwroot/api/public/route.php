@@ -28,6 +28,12 @@ $route['children'] = array(
         'component' => 'panel/table',
         'role' => 'user',
       ),
+      array(
+        'name' => 'system_i18n_data',
+        'label' => 'system_i18n_data',
+        'component' => 'panel/table',
+        'role' => 'user',
+      ),
     ),
   ),
 );

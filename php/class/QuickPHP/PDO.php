@@ -46,4 +46,9 @@ class PDO extends \PDO
         $this->rollBack();
         return $stmt->fetch(PDO::FETCH_NUM);
     }
+
+    public function fieldQuote($name)
+    {
+        return "\"{$name}\"";
+    }
 }
