@@ -4,20 +4,30 @@ require_once dirname(__DIR__) . '/quick.php';
 
 $columns = [];
 $columns[] = [
+    'title' => 'id',
+    'dataIndex' => 'id',
+    'width' => 80,
+    'sorter' => true,
+    'sql_where' => '`id`=?',
+    'form' => 'input',
+    'disabled' => true,
+    'readonly' => true,
+];
+$columns[] = [
     'title' => 'group',
     'dataIndex' => 'group',
     'width' => 80,
     'sorter' => true,
     'form' => 'input',
     'rules' => [['required' => true, 'message' => 'Please enter group']],
-    'sql_where' => '"group" LIKE ?',
+    'sql_where' => '`group` LIKE ?',
 ];
 $columns[] = [
     'title' => 'name',
     'dataIndex' => 'name',
-    'width' => 160,
+    'width' => 100,
     'sorter' => true,
-    'sql_where' => '"name" LIKE ?',
+    'sql_where' => '`name` LIKE ?',
     'form' => 'input',
     'placeholder' => 'please enter name',
     'rules' => [['required' => true, 'message' => 'Please enter name']],
@@ -98,8 +108,8 @@ $data = [
             'pageSizeOptions' => ['10', '20', '50', '100'],
             'showTotalTemplate' => 'Showing {begin} to {end} of {total} items',
         ],
-        'rowKey' => 'name',
+        'rowKey' => 'id',
         'rowSelection' => true,
     ],
 ];
-echo json_encode($_C->db('kaoqin')->tableReader($data));
+echo json_encode($_C->db('asiafort')->tableReader($data));

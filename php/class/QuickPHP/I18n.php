@@ -12,19 +12,22 @@ class I18n
         $this->config = $config;
     }
 
-    public function generateLangpack($langPath)
+    public function generateLangpack($langPath, $dbName)
     {
+        $json_flags = 0;
+        $json_flags |= JSON_UNESCAPED_UNICODE;
+        $json_flags |= JSON_PRETTY_PRINT;
         echo 'Reading Langpack from Database ...';
         $this->createDirectory($langPath);
         $sql = 'SELECT * FROM system_i18n_data';
-        $rows = $this->config->db('kaoqin')->fetchAll($sql, []);
+        $rows = $this->config->db($dbName)->fetchAll($sql, []);
         echo ' Done!';
         $locales = $this->get_locales($rows);
         foreach ($locales as $locale) {
             $lp = $this->get_langpack($rows, $locale);
             $path = $langPath . '/' . $locale . '.json';
             echo "\r\nwrite langpack to {$path} ...";
-            file_put_contents($path, json_encode($lp));
+            file_put_contents($path, json_encode($lp, $json_flags));
             echo ' Done!';
         }
         echo "\r\nFinished!\r\n";
