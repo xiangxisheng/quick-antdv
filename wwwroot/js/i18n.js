@@ -1,13 +1,29 @@
 window.i18n = (() => {
 
     const oI18nState = firadio.stateStorage('i18n');
+    const mCacheData = {};
+
+    const i18n_locales = [
+        {
+            "name": "en_us",
+            "title": "English"
+        },
+        {
+            "name": "zh_cn",
+            "title": "简体中文"
+        },
+        {
+            "name": "km_kh",
+            "title": "ខ្មែរ"
+        }
+    ];
 
     function fGetLocaleMap(mConfLocale, mConfLang) {
-        for (const iIndex in window.config.i18n.locales) {
-            const mLocale = window.config.i18n.locales[iIndex];
-            mConfLocale[mLocale.locale] = iIndex;
-            const sLang = mLocale.locale.split('-')[0];
-            mConfLang[sLang] = mLocale.locale;
+        for (const iIndex in i18n_locales) {
+            const mLocale = i18n_locales[iIndex];
+            mConfLocale[mLocale.name] = iIndex;
+            const sLang = mLocale.name.split('_')[0];
+            mConfLang[sLang] = mLocale.name;
         }
     }
     const mConfLocale = {};
@@ -15,7 +31,7 @@ window.i18n = (() => {
     fGetLocaleMap(mConfLocale, mConfLang);
 
     function fGetLocales() {
-        return window.config.i18n.locales;
+        return i18n_locales;
     }
 
     function replaceAll(s0, s1, s2) {
@@ -34,7 +50,16 @@ window.i18n = (() => {
         return sFormatValue;
     }
 
-    function fGetTransResult(sFormatPath, aParam) {
+    async function fGetI18nData(locale) {
+        if (mCacheData.hasOwnProperty(locale)) {
+            return mCacheData[locale];
+        }
+        const jsonPath = `data/lang/${locale}.json`;
+        mCacheData[locale] = await (await fetch(jsonPath)).json();
+        return mCacheData[locale];
+    }
+
+    async function fGetTransResult(sFormatPath, aParam) {
         const locale = fGetCurrentLocale();
         if (!locale) {
             return '-';
@@ -43,7 +68,7 @@ window.i18n = (() => {
             return '-';
         }
         const aFormatPath = sFormatPath.split('.');
-        const i18nDataByGroupName = window.config.i18n.data;
+        const i18nDataByGroupName = await fGetI18nData(locale);
         const iLocaleIndex = mConfLocale[locale];
         if (!i18nDataByGroupName.hasOwnProperty(aFormatPath[0])) {
             return sFormatPath;
@@ -52,8 +77,7 @@ window.i18n = (() => {
         if (!i18nDataByFormatKey.hasOwnProperty(aFormatPath[1])) {
             return sFormatPath;
         }
-        const aFormatValueByLocaleIndex = i18nDataByFormatKey[aFormatPath[1]];
-        const sFormatValue = aFormatValueByLocaleIndex[iLocaleIndex];
+        const sFormatValue = i18nDataByFormatKey[aFormatPath[1]];
         return fGetFormatString(sFormatValue, aParam);
     }
 
@@ -86,32 +110,11 @@ window.i18n = (() => {
         oI18nState.del('locale');
     }
 
-    function fLoad() {
-        // 为tabBar重新加载语言
-        if (0 && pages.globalStyle) {
-            if (pages.globalStyle.navigationBarTitleText) {
-                const title = fGetTransResult(pages.globalStyle.navigationBarTitleText);
-                pages.globalStyle.navigationBarTitleText = title;
-            }
-        }
-        if (pages.tabBar && pages.tabBar.list) {
-            for (const index in pages.tabBar.list) {
-                const item = pages.tabBar.list[index];
-                const tabBarOptions = {
-                    index: parseFloat(index),
-                    text: fGetTransResult(item.text),
-                }
-                uni.setTabBarItem(tabBarOptions);
-            }
-        }
-    }
-
     const i18n = {};
     i18n.fGetLocales = fGetLocales;
     i18n.fGetTransResult = fGetTransResult;
     i18n.fGetCurrentLocale = fGetCurrentLocale;
     i18n.fSetCurrentLocale = fSetCurrentLocale;
     i18n.fRemoveCurrentLocale = fRemoveCurrentLocale;
-    i18n.fGetLocales = fGetLocales;
     return i18n;
-});
+})();

@@ -12,25 +12,25 @@ $route['children'] = array(
   array(
     'name' => 'console',
     'alias' => '/',
-    'label' => '控制台',
+    'label' => 'menu.console',
     'component' => 'page/panel',
     'role' => 'user',
     'children' => array(
       array(
         'name' => 'tb_event',
-        'label' => '签到查询',
+        'label' => 'menu.signin_records',
         'component' => 'component/table',
         'role' => 'user',
       ),
       array(
         'name' => 'tb_person',
-        'label' => 'person',
+        'label' => 'menu.person_list',
         'component' => 'component/table',
         'role' => 'user',
       ),
       array(
         'name' => 'system_i18n_data',
-        'label' => 'system_i18n_data',
+        'label' => 'menu.language_setting',
         'component' => 'component/table',
         'role' => 'user',
       ),

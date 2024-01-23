@@ -1,4 +1,5 @@
 const { routes_filter, stateStorage } = firadio;
+const { fGetTransResult } = i18n;
 const { ref, reactive, watch, h } = Vue;
 const { useRouter, useRoute } = VueRouter;
 const { Layout, LayoutContent, LayoutFooter, LayoutSider, Menu, Breadcrumb, BreadcrumbItem } = antd;
@@ -48,7 +49,7 @@ export default async (oTopRoute) => ({
             return {};
           }
         });
-        mRet.label = mRoute.label;
+        mRet.label = await fGetTransResult(mRoute.label);
         return mRet;
       })).children;
     })();

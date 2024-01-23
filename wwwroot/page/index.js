@@ -1,4 +1,5 @@
-const { ref, watch } = Vue;
+const { fGetTransResult } = i18n;
+const { ref, watch, onMounted } = Vue;
 const { useRouter, useRoute } = VueRouter;
 const { Layout, LayoutHeader, LayoutContent, Menu } = antd;
 export default async (oTopRoute) => ({
@@ -13,15 +14,6 @@ export default async (oTopRoute) => ({
     const router = useRouter();
     const route = useRoute();
     const items = ref([]);
-    for (const mRoute of oTopRoute.children) {
-      if (!mRoute.label) {
-        continue;
-      }
-      const item = {};
-      item.key = mRoute.name;
-      item.label = mRoute.label;
-      items.value.push(item);
-    }
     const selectedKeys = ref();
     if (route.name) {
       const cur = route.name.split('/')[1];
@@ -30,6 +22,17 @@ export default async (oTopRoute) => ({
     const handleClick = (e) => {
       router.push('/' + e.key);
     };
+    onMounted(async () => {
+      for (const mRoute of oTopRoute.children) {
+        if (!mRoute.label) {
+          continue;
+        }
+        const item = {};
+        item.key = mRoute.name;
+        item.label = await fGetTransResult(mRoute.label);
+        items.value.push(item);
+      }
+    });
     watch(
       () => route.name,
       (v) => {

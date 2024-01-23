@@ -216,7 +216,11 @@ window.firadio = (() => {
 
     const VueGlobalFile = isDev() ? 'https://unpkg.com/vue@3/dist/vue.global.js' : './js/vue/vue.global.prod.js';
     await loadJS([VueGlobalFile, './js/antd/dayjs.min.js', './js/antd/dayjs-plugin.min.js']);
-    await loadJS(['./js/vue/vue-router.global.prod.js', './js/antd/antd.min.js']);
+    const loadjs2 = [];
+    loadjs2.push('./js/vue/vue-router.global.prod.js');
+    loadjs2.push('./js/antd/antd.min.js');
+    loadjs2.push('./js/i18n.js');
+    await loadJS(loadjs2);
     const { router } = await VueCreateApp(Vue, VueRouter);
 
     firadio.router = router;
