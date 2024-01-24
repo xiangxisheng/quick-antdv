@@ -98,6 +98,10 @@ window.firadio = (() => {
     const oTopRoute = { children }
     const routes = (await routes_filter(oTopRoute, async (sParent, mRoute) => {
       const item = {};
+      item.meta = {};
+      if (typeof (mRoute.label) === 'string') {
+        item.meta.label = mRoute.label;
+      }
       if (typeof (mRoute.path) === 'string') {
         item.path = mRoute.path;
       }
