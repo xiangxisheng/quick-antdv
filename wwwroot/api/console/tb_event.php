@@ -46,7 +46,7 @@ $columns[] = array(
     'form' => 'input',
 );
 $columns[] = array(
-    'title' => 'table.personname',
+    'title' => 'table.person_name',
     'dataIndex' => 'person_name',
     'width' => 160,
     'sorter' => true,

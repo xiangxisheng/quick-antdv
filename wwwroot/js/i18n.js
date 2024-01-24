@@ -7,7 +7,7 @@ window.i18n = (() => {
         mCacheData[locale] = await (await fetch(jsonPath)).json();
     }
     fGetI18nData('en_us');
-    fGetI18nData('zh_cn');
+    //fGetI18nData('zh_cn');
 
     const i18n_locales = [
         {
@@ -24,17 +24,28 @@ window.i18n = (() => {
         }
     ];
 
-    function fGetLocaleMap(mConfLocale, mConfLang) {
-        for (const iIndex in i18n_locales) {
-            const mLocale = i18n_locales[iIndex];
-            mConfLocale[mLocale.name] = iIndex;
-            const sLang = mLocale.name.split('_')[0];
-            mConfLang[sLang] = mLocale.name;
-        }
+    function formatLocale(str) {
+        return str.toLowerCase().replace('-', '_');
     }
-    const mConfLocale = {};
-    const mConfLang = {};
-    fGetLocaleMap(mConfLocale, mConfLang);
+
+    function fGetLocaleMap(aLocales) {
+        const mRet = {};
+        for (const mLocaleOne of aLocales) {
+            mRet[mLocaleOne.name] = mLocaleOne;
+        }
+        return mRet;
+    }
+
+    function fGetLangMap(mLocaleMap) {
+        const mRet = {};
+        for (const sLocale in mLocaleMap) {
+            const sLang = sLocale.split('_')[0];
+            mRet[sLang] = mLocaleMap[sLocale];
+        }
+        return mRet;
+    }
+
+    const mConfLocale = fGetLocaleMap(i18n_locales);
 
     function fGetLocales() {
         return i18n_locales;
@@ -56,48 +67,56 @@ window.i18n = (() => {
     }
 
     function fGetTransResult(sFormatPath, aParam) {
-        const locale = fGetCurrentLocale();
-        if (!locale) {
-            return '-';
-        }
-        if (!mConfLocale.hasOwnProperty(locale)) {
-            return '-';
-        }
         if (sFormatPath === null) {
             return sFormatPath;
         }
-        if (typeof (sFormatPath) === 'number') {
+        if (typeof (sFormatPath) !== 'string') {
+            // 只处理[数据类型]为[字符串]，其他类型直接返回，例如：数字型和逻辑型
+            return sFormatPath;
+        }
+        const locale = fGetCurrentLocale(mCacheData);
+        if (!locale) {
+            // 没有匹配到语言包
             return sFormatPath;
         }
         const aFormatPath = sFormatPath.split('.');
         const i18nDataByGroupName = mCacheData[locale];
-        const iLocaleIndex = mConfLocale[locale];
         if (!i18nDataByGroupName.hasOwnProperty(aFormatPath[0])) {
+            // 匹配不到语言组的情况下，直接对字符串进行处理
             return fGetFormatString(sFormatPath, aParam);
         }
         const i18nDataByFormatKey = i18nDataByGroupName[aFormatPath[0]];
         if (!i18nDataByFormatKey.hasOwnProperty(aFormatPath[1])) {
+            // 匹配不到语言项的情况下，直接对字符串进行处理
             return fGetFormatString(sFormatPath, aParam);
         }
         const sFormatValue = i18nDataByFormatKey[aFormatPath[1]];
         return fGetFormatString(sFormatValue, aParam);
     }
 
-    function fGetCurrentLocale() {
+    function fGetCurrentLocale(mLocale) {
+        if (mLocale === undefined) {
+            mLocale = mConfLocale;
+        }
         // locale = lang code(iso639) + country code(iso3166)
         const locale = oI18nState.get('locale');
-        if (locale && mConfLocale.hasOwnProperty(locale)) {
+        if (locale && mLocale.hasOwnProperty(locale)) {
             return locale;
         }
-        var navLang = navigator.language || navigator.userLanguage;
-        if (mConfLocale.hasOwnProperty(navLang)) {
-            return navLang;
+        const navLang = navigator.language || navigator.userLanguage;
+        // 1：首先尝试匹配完整的locale
+        const LocaleFormatted = formatLocale(navLang);
+        if (mLocale.hasOwnProperty(LocaleFormatted)) {
+            return LocaleFormatted;
         }
         const locale0 = navLang.split('-')[0];
-        if (mConfLang.hasOwnProperty(locale0)) {
-            return mConfLang[locale0];
+        // 2：如果完整的匹配不到的情况下可以只匹配lang
+        const mLangMap = fGetLangMap(mLocale);
+        if (mLangMap.hasOwnProperty(locale0)) {
+            return mLangMap[locale0].name;
         }
-        for (const k in mConfLocale) {
+        // 3：都匹配不到的情况下随便选一个
+        for (const k in mLocale) {
             return k;
         }
     }

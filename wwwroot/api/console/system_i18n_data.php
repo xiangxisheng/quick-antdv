@@ -33,7 +33,7 @@ $columns[] = [
     'rules' => [['required' => true, 'message' => 'Please enter name']],
 ];
 $columns[] = [
-    'title' => 'locale_en_us',
+    'title' => 'lang.en_us',
     'dataIndex' => 'locale_en_us',
     'width' => 160,
     'sorter' => true,
@@ -43,7 +43,7 @@ $columns[] = [
     'rules' => [['required' => true, 'message' => 'Please enter locale_en_us']],
 ];
 $columns[] = [
-    'title' => 'locale_zh_cn',
+    'title' => 'lang.zh_cn',
     'dataIndex' => 'locale_zh_cn',
     'width' => 160,
     'sorter' => true,
@@ -52,7 +52,7 @@ $columns[] = [
     'placeholder' => 'please enter locale_zh_cn',
 ];
 $columns[] = [
-    'title' => 'locale_km_kh',
+    'title' => 'lang.km_kh',
     'dataIndex' => 'locale_km_kh',
     'width' => 160,
     'sorter' => true,

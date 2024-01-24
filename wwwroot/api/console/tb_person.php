@@ -4,7 +4,7 @@ require_once dirname(__DIR__) . '/quick.php';
 
 $columns = array();
 $columns[] = array(
-    'title' => '工号',
+    'title' => 'person_key',
     'dataIndex' => 'person_key',
     'width' => 80,
     'sorter' => true,
@@ -13,7 +13,7 @@ $columns[] = array(
     'sql_where' => 'person_key LIKE ?',
 );
 $columns[] = array(
-    'title' => '姓名',
+    'title' => 'table.person_name',
     'dataIndex' => 'person_name',
     'width' => 160,
     'sorter' => true,
@@ -23,7 +23,7 @@ $columns[] = array(
     'rules' => [['required' => true, 'message' => 'Please enter person_name']],
 );
 $columns[] = array(
-    'title' => '性别',
+    'title' => 'table.person_gender',
     'dataIndex' => 'sex',
     'width' => 80,
     'sorter' => true,
@@ -45,7 +45,7 @@ $columns[] = array(
     'sql_where' => 'sex=?',
 );
 $columns[] = array(
-    'title' => '生日',
+    'title' => 'table.birth_date',
     'dataIndex' => 'birthday',
     'width' => 160,
     'sorter' => true,
