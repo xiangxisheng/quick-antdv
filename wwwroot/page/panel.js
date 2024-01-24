@@ -1,6 +1,5 @@
 const { routes_filter, stateStorage } = firadio;
-const { fGetTransResult } = i18n;
-const { ref, reactive, watch, h } = Vue;
+const { ref, reactive, watch, h, inject } = Vue;
 const { useRouter, useRoute } = VueRouter;
 const { Layout, LayoutContent, LayoutFooter, LayoutSider, Menu, Breadcrumb, BreadcrumbItem } = antd;
 export default async (oTopRoute) => ({
@@ -17,6 +16,11 @@ export default async (oTopRoute) => ({
   setup() {
     const router = useRouter();
     const route = useRoute();
+    const i18n = inject('i18n')();
+    i18n.$subscribe((mutation, state) => {
+      ReloadTrans();
+    });
+
     const oMenuState = stateStorage('menu');
     const menuState = reactive({
       collapsed: false,
@@ -39,6 +43,13 @@ export default async (oTopRoute) => ({
       menuState.collapsed = menuState.fIsMobile();
     };
     menuState.selectedKeys = [route.name];
+
+    const ReloadTrans = async () => {
+      for (const item of menuState.items) {
+        item.label = await i18n.fGetTransResult(item.label_tpl);
+      }
+    };
+
     (async () => {
       menuState.items = (await routes_filter(oTopRoute, async (sParent, mRoute) => {
         const mRet = {};
@@ -49,10 +60,12 @@ export default async (oTopRoute) => ({
             return {};
           }
         });
-        mRet.label = await fGetTransResult(mRoute.label);
+        mRet.label_tpl = mRoute.label;
         return mRet;
       })).children;
+      ReloadTrans();
     })();
+
     watch(
       () => route.name,
       (v) => {
@@ -61,6 +74,7 @@ export default async (oTopRoute) => ({
         }
       }
     );
+
     watch(
       () => menuState.collapsed,
       (v) => {
@@ -68,6 +82,7 @@ export default async (oTopRoute) => ({
         oMenuState.save();
       }
     );
+
     return {
       menuState,
     };

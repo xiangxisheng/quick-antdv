@@ -1,7 +1,6 @@
 const { backendApi, deepCloneObject, filterNullItem, tryParseJSON } = firadio;
 const { array_set_recursive } = firadio;
-const { fGetTransResult } = i18n;
-const { ref, reactive, watch, onMounted } = Vue;
+const { ref, reactive, watch, onMounted, inject } = Vue;
 const { Space, Table, Input, Button, Popconfirm, Drawer } = antd;
 const { Form, FormItem, Row, Col, Textarea, DatePicker, Select, SelectOption } = antd;
 const [messageApi, contextHolder] = antd.message.useMessage();
@@ -31,9 +30,24 @@ export default async () => ({
     // 1：路由及页面数据定义
     const router = useRouter();
     const route = useRoute();
+    const i18n = inject('i18n')();
+
+    i18n.$subscribe((mutation, state) => {
+      ReloadTrans_dataSource();
+    });
+
+    const ReloadTrans_dataSource = async () => {
+      for (const kRow in pageData.table.dataSource) {
+        for (const kCol in pageData.table.dataSource[kRow]) {
+          tableState.dataSource[kRow][kCol] = await i18n.fGetTransResult(pageData.table.dataSource[kRow][kCol]);
+        }
+      }
+    };
+
     const pageData = {
       table: {
         columns: [],
+        dataSource: {},
       },
     };
 
@@ -45,7 +59,7 @@ export default async () => ({
       handleButton: async (button) => {
         if (button.type === 'add') {
           drawerState.action = 'add';
-          drawerState.title = await fGetTransResult(button.title);
+          drawerState.title = await i18n.fGetTransResult(button.title);
           drawerState.buttons = button.buttons;
           drawerState.open = true;
           drawerState.model = {};
@@ -116,7 +130,7 @@ export default async () => ({
             return;
           }
           const param = { total, begin: range[0], end: range[1] };
-          return fGetTransResult(pageData.table.pagination.showTotalTemplate, param);
+          return i18n.fGetTransResult(pageData.table.pagination.showTotalTemplate, param);
         },
         pageSizeOptions: ['10', '20', '30', '50', '100', '200'],
       },
@@ -192,7 +206,7 @@ export default async () => ({
           drawerState.rules = {};
           tableState.columns.length = 0;
           for (const column of tableData.columns) {
-            column.title = await fGetTransResult(column.title);
+            column.title = await i18n.fGetTransResult(column.title);
             if (column.rules) {
               drawerState.rules[column.dataIndex] = column.rules;
             }
@@ -246,12 +260,8 @@ export default async () => ({
           array_set_recursive(tableState.pagination, tableData.pagination);
         }
         if (tableData.dataSource) {
-          for (const row of tableData.dataSource) {
-            for (const k in row) {
-              row[k] = await fGetTransResult(row[k]);
-            }
-          }
           tableState.dataSource = tableData.dataSource;
+          ReloadTrans_dataSource();
         }
       }
       return ({
@@ -279,7 +289,7 @@ export default async () => ({
           drawerState.model = data.formModel;
           drawerState.action = action;
           drawerState.buttons = mAction.buttons;
-          drawerState.title = await fGetTransResult(mAction.title);
+          drawerState.title = await i18n.fGetTransResult(mAction.title);
           drawerState.formItems.length = 0;
           const formItems = deepCloneObject(pageData.table.columns);
           for (const formItem of formItems) {
@@ -343,7 +353,7 @@ export default async () => ({
     );
 
     function GTR(_formatpath, _param) {
-      return fGetTransResult(_formatpath, _param);
+      return i18n.fGetTransResult(_formatpath, _param);
     };
 
     // 7：返回页面

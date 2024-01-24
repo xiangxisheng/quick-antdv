@@ -93,6 +93,7 @@ window.firadio = (() => {
   async function VueCreateApp(Vue, VueRouter) {
     const { createApp } = Vue;
     const { createRouter, createWebHistory } = VueRouter;
+    const { createPinia } = Pinia;
     const children = await backendApi({ path: '/api/public/route.php' });
     const oTopRoute = { children }
     const routes = (await routes_filter(oTopRoute, async (sParent, mRoute) => {
@@ -118,9 +119,12 @@ window.firadio = (() => {
       history: createWebHistory(),
       routes, // `routes: routes` 的缩写
     });
+    const pinia = createPinia();
     const app = createApp();
     app.use(router);
+    app.use(pinia);
     app.mount('#app');
+    app.provide('i18n', i18n());
     return { app, router };
   }
 
@@ -216,11 +220,15 @@ window.firadio = (() => {
 
     const VueGlobalFile = isDev() ? 'https://unpkg.com/vue@3/dist/vue.global.js' : './js/vue/vue.global.prod.js';
     await loadJS([VueGlobalFile, './js/antd/dayjs.min.js', './js/antd/dayjs-plugin.min.js']);
-    const loadjs2 = [];
-    loadjs2.push('./js/vue/vue-router.global.prod.js');
-    loadjs2.push('./js/antd/antd.min.js');
-    loadjs2.push('./js/i18n.js');
-    await loadJS(loadjs2);
+    await loadJS([
+      './js/antd/antd.min.js',
+      './js/i18n.js',
+      './js/vue/vue-demi.iife.js',
+      './js/vue/vue-router.global.prod.js',
+    ]);
+    await loadJS([
+      './js/vue/pinia.iife.prod.js',
+    ]);
     const { router } = await VueCreateApp(Vue, VueRouter);
 
     firadio.router = router;
