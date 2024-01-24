@@ -156,7 +156,7 @@ export default async () => ({
     const Api = (() => {
       const apiAction = async (action, param, post) => {
         param.action = action;
-        const path = `api${route.path}.php`;
+        const path = `api${route.name}.php`;
         if (pageState.loading) {
           return;
         }

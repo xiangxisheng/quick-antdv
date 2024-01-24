@@ -17,6 +17,7 @@ $route['children'] = array(
     'role' => 'user',
     'children' => array(
       array(
+        'alias' => '/console',
         'name' => 'tb_event',
         'label' => 'menu.signin_records',
         'component' => 'component/table',

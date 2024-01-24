@@ -21,8 +21,8 @@ export default async (oTopRoute) => ({
     const menuState = reactive({
       collapsed: false,
       openKeys: ref(['/console/data']),
-      selectedKeys: ref([]),
-      items: ref([]),
+      selectedKeys: [],
+      items: [],
       handleClick: (e) => {
         router.push(e.key);
       },
@@ -57,7 +57,7 @@ export default async (oTopRoute) => ({
       () => route.name,
       (v) => {
         if (v) {
-          menuState.selectedKeys.value = [v];
+          menuState.selectedKeys = [v];
         }
       }
     );
@@ -72,4 +72,4 @@ export default async (oTopRoute) => ({
       menuState,
     };
   },
-})
+});
