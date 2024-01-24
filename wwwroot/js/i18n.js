@@ -7,7 +7,7 @@ window.i18n = (() => {
         mCacheData[locale] = await (await fetch(jsonPath)).json();
     }
     fGetI18nData('en_us');
-    //fGetI18nData('zh_cn');
+    fGetI18nData('zh_cn');
 
     const i18n_locales = [
         {
@@ -124,11 +124,13 @@ window.i18n = (() => {
     function fSetCurrentLocale(val) {
         // 设置语言
         oI18nState.set('locale', val);
+        oI18nState.save();
     }
 
     function fRemoveCurrentLocale() {
         // 恢复默认语言
         oI18nState.del('locale');
+        oI18nState.save();
     }
 
     const i18n = {};

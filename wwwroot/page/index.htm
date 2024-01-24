@@ -1,12 +1,21 @@
 <a-layout style="min-height:100vh">
   <a-layout-header style="padding-inline: 0px;">
+
     <div style="float: left;">
       <router-link to="/">
         <img height="64" src="img/logo.svg" />
       </router-link>
     </div>
-    <a-menu v-model:selectedKeys="selectedKeys" mode="horizontal" :items="items" theme="dark"
-      @click="handleClick"></a-menu>
+
+    <div style="float: right; padding-inline: 20px; color: #999;">
+      <a @click="localeState.set('en_us')">English</a>
+      |
+      <a @click="localeState.set('zh_cn')">中文</a>
+    </div>
+
+    <a-menu v-model:selectedKeys="menuState.selectedKeys" mode="horizontal" :items="menuState.items" theme="dark"
+      @click="menuState.handleClick"></a-menu>
+
   </a-layout-header>
   <a-layout-content>
     <router-view></router-view>

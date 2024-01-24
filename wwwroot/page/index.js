@@ -1,5 +1,5 @@
-const { fGetTransResult } = i18n;
-const { ref, watch, onMounted } = Vue;
+const { fGetTransResult, fSetCurrentLocale } = i18n;
+const { reactive, watch, onMounted } = Vue;
 const { useRouter, useRoute } = VueRouter;
 const { Layout, LayoutHeader, LayoutContent, Menu } = antd;
 export default async (oTopRoute) => ({
@@ -13,15 +13,34 @@ export default async (oTopRoute) => ({
   setup() {
     const router = useRouter();
     const route = useRoute();
-    const items = ref([]);
-    const selectedKeys = ref();
+
+    const localeState = reactive({
+      set: async (locale) => {
+        fSetCurrentLocale(locale);
+        ReloadTrans();
+      },
+    });
+
+    const menuState = reactive({
+      items: [],
+      selectedKeys: [],
+      handleClick: (e) => {
+        router.push('/' + e.key);
+      },
+    });
+
     if (route.name) {
       const cur = route.name.split('/')[1];
-      selectedKeys.value = [cur];
+      menuState.selectedKeys = [cur];
     }
-    const handleClick = (e) => {
-      router.push('/' + e.key);
+
+    const ReloadTrans = async () => {
+      document.title = await fGetTransResult('site.title');
+      for (const item of menuState.items) {
+        item.label = await fGetTransResult(item.label_tpl);
+      }
     };
+
     onMounted(async () => {
       for (const mRoute of oTopRoute.children) {
         if (!mRoute.label) {
@@ -29,23 +48,25 @@ export default async (oTopRoute) => ({
         }
         const item = {};
         item.key = mRoute.name;
-        item.label = await fGetTransResult(mRoute.label);
-        items.value.push(item);
+        item.label_tpl = mRoute.label;
+        menuState.items.push(item);
       }
+      ReloadTrans();
     });
+
     watch(
       () => route.name,
       (v) => {
         if (v) {
           const cur = v.split('/')[1];
-          selectedKeys.value = [cur];
+          menuState.selectedKeys = [cur];
         }
       }
     );
+
     return {
-      items,
-      selectedKeys,
-      handleClick,
+      localeState,
+      menuState,
     };
   },
-})
+});
