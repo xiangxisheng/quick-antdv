@@ -61,10 +61,10 @@ $columns[] = [
     'placeholder' => 'please enter locale_km_kh',
 ];
 $columns[] = [
-    'title' => 'Action',
+    'title' => 'table.operates',
     'fixed' => 'right',
     'width' => 140,
-    'actions' => [
+    'operates' => [
         [
             'action' => 'view', 'title' => 'table.view',
         ],
@@ -77,7 +77,7 @@ $columns[] = [
         ],
         [
             'action' => 'delete', 'title' => 'table.delete',
-            'popconfirm' => ['title' => 'Are you sure delete?', 'okText' => 'Yes', 'cancelText' => 'Cancel'],
+            'popconfirm' => ['title' => 'table.popconfirm_delete', 'okText' => 'table.delete', 'cancelText' => 'table.cancel'],
         ],
     ]
 ];
@@ -92,7 +92,7 @@ $data = [
         ],
         [
             'type' => 'delete', 'title' => 'table.delete',
-            'popconfirm' => ['title' => '确定要批量删除这些吗？', 'okText' => '确定', 'cancelText' => '取消'],
+            'popconfirm' => ['title' => 'table.popconfirm_delete_batch', 'okText' => 'table.delete', 'cancelText' => 'table.cancel'],
         ],
     ],
     'sql' => [

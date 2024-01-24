@@ -6,14 +6,15 @@
     @finish="drawerState.finish" @finishFailed="drawerState.finishFailed" autocomplete="off">
     <button type="submit" style="display: none;"></button>
 
-    <a-form-item v-for="formItem of drawerState.formItems" :label="formItem.title" :name="formItem.dataIndex">
+    <a-form-item v-for="formItem of drawerState.formItems" :label="GTR(formItem.title)" :name="formItem.dataIndex">
       <div v-if="0"></div>
       <a-input v-else-if="formItem.form=='input'" :disabled="formItem.disabled" :readonly="formItem.readonly"
         v-model:value="drawerState.model[formItem.dataIndex]" :placeholder="formItem.placeholder"
         :addon-before="formItem.addonBefore" :addon-after="formItem.addonAfter" style="width: 100%" />
       <a-select v-else-if="formItem.form=='select'" :disabled="formItem.disabled"
         v-model:value="drawerState.model[formItem.dataIndex]" :placeholder="formItem.placeholder">
-        <a-select-option v-for="option of formItem.options" :value="option.value">{{GTR(option.title)}}</a-select-option>
+        <a-select-option v-for="option of formItem.options"
+          :value="option.value">{{GTR(option.title)}}</a-select-option>
       </a-select>
       <div v-else-if="formItem.form=='date-picker'">
         <a-input v-if="formItem.readonly" :readonly="formItem.readonly"
@@ -41,8 +42,8 @@
 <a-space wrap :size="20" style="margin: 10px;">
   <div v-for="button of pageState.buttons">
     <div v-if="0"></div>
-    <a-popconfirm :title="button.popconfirm.title" :ok-text="button.popconfirm.okText"
-      :cancel-text="button.popconfirm.cancelText" :disabled="tableState.rowSelection.selectedRowKeys.length===0"
+    <a-popconfirm :title="GTR(button.popconfirm.title)" :ok-text="GTR(button.popconfirm.okText)"
+      :cancel-text="GTR(button.popconfirm.cancelText)" :disabled="tableState.rowSelection.selectedRowKeys.length===0"
       @confirm="pageState.handleButton(button)" v-else-if="button.popconfirm">
       <a-button type="primary" :danger="button.type==='delete'" :loading="pageState.loading"
         :disabled="tableState.rowSelection.selectedRowKeys.length===0">
@@ -94,16 +95,16 @@
     </a-space>
   </template>
   <template #bodyCell="{ column, record }">
-    <template v-if="column.actions">
+    <template v-if="column.operates">
       <a-space direction="horizontal">
-        <span v-for="action of column.actions">
+        <span v-for="operate of column.operates">
           <span v-if="0"></span>
-          <a-popconfirm :title="action.popconfirm.title" :ok-text="action.popconfirm.okText"
-            :cancel-text="action.popconfirm.cancelText" @confirm="tableState.action(action,record)"
-            v-else-if="action.popconfirm">
-            <a>{{GTR(action.title)}}</a>
+          <a-popconfirm :title="GTR(operate.popconfirm.title)" :ok-text="GTR(operate.popconfirm.okText)"
+            :cancel-text="GTR(operate.popconfirm.cancelText)" @confirm="tableState.action(operate,record)"
+            v-else-if="operate.popconfirm">
+            <a>{{GTR(operate.title)}}</a>
           </a-popconfirm>
-          <a v-else v-on:click="tableState.action(action,record)">{{GTR(action.title)}}</a>
+          <a v-else v-on:click="tableState.action(operate,record)">{{GTR(operate.title)}}</a>
         </span>
       </a-space>
     </template>

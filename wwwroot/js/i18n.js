@@ -63,6 +63,12 @@ window.i18n = (() => {
         if (!mConfLocale.hasOwnProperty(locale)) {
             return '-';
         }
+        if (sFormatPath === null) {
+            return sFormatPath;
+        }
+        if (typeof (sFormatPath) === 'number') {
+            return sFormatPath;
+        }
         const aFormatPath = sFormatPath.split('.');
         const i18nDataByGroupName = mCacheData[locale];
         const iLocaleIndex = mConfLocale[locale];

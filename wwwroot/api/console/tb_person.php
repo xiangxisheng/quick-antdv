@@ -29,16 +29,16 @@ $columns[] = array(
     'sorter' => true,
     'valueFunc' => function ($v) {
         if ($v === 1) {
-            return '男';
+            return 'table.male';
         }
         if ($v === 2) {
-            return '女';
+            return 'table.female';
         }
     },
     'form' => 'select',
     'options' => [
-        ['value' => 1, 'title' => '男'],
-        ['value' => 2, 'title' => '女'],
+        ['value' => 1, 'title' => 'table.male'],
+        ['value' => 2, 'title' => 'table.female'],
     ],
     'placeholder' => "Please choose the sex",
     'rules' => [['required' => true, 'message' => 'Please choose the sex']],
@@ -57,58 +57,58 @@ $columns[] = array(
     'rules' => [['required' => false, 'message' => 'Please enter birthday']],
 );
 $columns[] = [
-    'title' => '状态',
+    'title' => 'table.status',
     'dataIndex' => 'status',
     'width' => 80,
     'default' => 0,
     'valueFunc' => function ($v) {
         if ($v === -1) {
-            return '停用';
+            return 'table.disabled';
         }
         if ($v === 0) {
-            return '正常';
+            return 'table.normal';
         }
     },
     'form' => 'select',
     'options' => [
-        ['value' => -1, 'title' => '停用'],
-        ['value' => 0, 'title' => '正常'],
+        ['value' => -1, 'title' => 'table.disabled'],
+        ['value' => 0, 'title' => 'table.normal'],
     ],
     'sql_where' => 'status=?',
 ];
 $columns[] = array(
-    'title' => 'Action',
+    'title' => 'table.operates',
     'fixed' => 'right',
     'width' => 140,
-    'actions' => [
+    'operates' => [
         [
-            'action' => 'view', 'title' => '查看',
+            'action' => 'view', 'title' => 'table.view',
         ],
         [
-            'action' => 'edit', 'title' => '编辑',
+            'action' => 'edit', 'title' => 'table.edit',
             'buttons' => [
-                ['title' => '取消'],
-                ['title' => '保存', 'type' => 'primary'],
+                ['title' => 'table.cancel'],
+                ['title' => 'table.save', 'type' => 'primary'],
             ],
         ],
         [
-            'action' => 'delete', 'title' => '删除',
-            'popconfirm' => ['title' => 'Are you sure delete?', 'okText' => 'Yes', 'cancelText' => 'Cancel'],
+            'action' => 'delete', 'title' => 'table.delete',
+            'popconfirm' => ['title' => 'table.popconfirm_delete', 'okText' => 'table.delete', 'cancelText' => 'table.cancel'],
         ],
     ]
 );
 $data = [
     'buttons' => [
         [
-            'type' => 'add', 'title' => '添加',
+            'type' => 'add', 'title' => 'table.add',
             'buttons' => [
-                ['title' => '取消'],
-                ['title' => '添加', 'type' => 'primary'],
+                ['title' => 'table.cancel'],
+                ['title' => 'table.add', 'type' => 'primary'],
             ],
         ],
         [
-            'type' => 'delete', 'title' => '删除',
-            'popconfirm' => ['title' => '确定要批量删除这些吗？', 'okText' => '确定', 'cancelText' => '取消'],
+            'type' => 'delete', 'title' => 'table.delete',
+            'popconfirm' => ['title' => 'table.popconfirm_delete_batch', 'okText' => 'table.delete', 'cancelText' => 'table.cancel'],
         ],
     ],
     'sql' => [

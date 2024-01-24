@@ -4,7 +4,7 @@ require_once dirname(__DIR__) . '/quick.php';
 
 $columns = array();
 $columns[] = array(
-    'title' => '序号',
+    'title' => 'table.sequence',
     'width' => 80,
     'type' => 'sequence',
 );
@@ -17,7 +17,7 @@ $columns[] = array(
     'readonly' => true,
 );
 $columns[] = array(
-    'title' => 'Date',
+    'title' => 'table.date',
     'dataIndex' => 'event_date',
     'width' => 110,
     'type' => 'date',
@@ -29,7 +29,7 @@ $columns[] = array(
     'form' => 'date-picker',
 );
 $columns[] = array(
-    'title' => 'Time',
+    'title' => 'table.time',
     'dataIndex' => 'event_time',
     'width' => 90,
     'sorter' => true,
@@ -46,7 +46,7 @@ $columns[] = array(
     'form' => 'input',
 );
 $columns[] = array(
-    'title' => 'Name',
+    'title' => 'table.personname',
     'dataIndex' => 'person_name',
     'width' => 160,
     'sorter' => true,
@@ -55,12 +55,12 @@ $columns[] = array(
     'form' => 'input',
 );
 $columns[] = array(
-    'title' => 'Action',
+    'title' => 'table.operates',
     'fixed' => 'right',
     'width' => 80,
-    'actions' => [
+    'operates' => [
         [
-            'action' => 'view', 'title' => '查看',
+            'action' => 'view', 'title' => 'table.view',
         ],
     ]
 );

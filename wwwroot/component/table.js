@@ -173,7 +173,7 @@ export default async () => ({
         pageState.loading = false;
         return data;
       };
-      const tableReaderList = (tableData) => {
+      const tableReaderList = async (tableData) => {
         if (tableData.pagination) {
           array_set_recursive(tableState.pagination, tableData.pagination);
         }
@@ -192,7 +192,7 @@ export default async () => ({
           drawerState.rules = {};
           tableState.columns.length = 0;
           for (const column of tableData.columns) {
-            column.title = fGetTransResult(column.title);
+            column.title = await fGetTransResult(column.title);
             if (column.rules) {
               drawerState.rules[column.dataIndex] = column.rules;
             }
@@ -246,6 +246,11 @@ export default async () => ({
           array_set_recursive(tableState.pagination, tableData.pagination);
         }
         if (tableData.dataSource) {
+          for (const row of tableData.dataSource) {
+            for (const k in row) {
+              row[k] = await fGetTransResult(row[k]);
+            }
+          }
           tableState.dataSource = tableData.dataSource;
         }
       }
