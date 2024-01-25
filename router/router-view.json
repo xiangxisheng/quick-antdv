@@ -1,71 +1,71 @@
 {
-  "path": "/",
-  "component": "index",
-  "role": "public",
-  "children": [
-    {
-      "path": "/:pathMatch(.*)",
-      "component": "404"
-    },
-    {
-      "name": "home",
-      "alias": "/",
-      "label": "首页",
-      "component": "home",
-      "role": "public"
-    },
-    {
-      "name": "console",
-      "label": "控制台",
-      "component": "panel",
-      "role": "user",
-      "children": [
-        {
-          "name": "index",
-          "alias": "/console",
-          "label": "面板首页",
-          "component": "panel/index",
-          "role": "user"
-        },
-        {
-          "name": "index2",
-          "label": "面板首页index2",
-          "component": "panel/index",
-          "role": "user"
-        },
-        {
-          "name": "data",
-          "label": "数据查询",
-          "component": "data",
-          "role": "user",
-          "children": [
-            {
-              "name": "table1",
-              "label": "测试表1",
-              "component": "panel/table",
-              "role": "user"
-            },
-            {
-              "name": "table2",
-              "label": "测试表2",
-              "component": "panel/table",
-              "role": "user"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "sign-up",
-      "label": "注册",
-      "component": "sign",
-      "role": "public"
-    },
-    {
-      "name": "sign-in",
-      "label": "登录",
-      "component": "sign",
-      "role": "public"
-    }
-  ]
+	"path": "/",
+	"component": "index",
+	"role": "public",
+	"children": [
+		{
+			"path": "/:pathMatch(.*)",
+			"component": "404"
+		},
+		{
+			"name": "home",
+			"alias": "/",
+			"label": "首页",
+			"component": "home",
+			"role": "public"
+		},
+		{
+			"name": "console",
+			"label": "控制台",
+			"component": "panel",
+			"role": "user",
+			"children": [
+				{
+					"name": "index",
+					"alias": "/console",
+					"label": "面板首页",
+					"component": "panel/index",
+					"role": "user"
+				},
+				{
+					"name": "index2",
+					"label": "面板首页index2",
+					"component": "panel/index",
+					"role": "user"
+				},
+				{
+					"name": "data",
+					"label": "数据查询",
+					"component": "data",
+					"role": "user",
+					"children": [
+						{
+							"name": "table1",
+							"label": "测试表1",
+							"component": "panel/table",
+							"role": "user"
+						},
+						{
+							"name": "table2",
+							"label": "测试表2",
+							"component": "panel/table",
+							"role": "user"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "sign-up",
+			"label": "注册",
+			"component": "sign",
+			"role": "public"
+		},
+		{
+			"name": "sign-in",
+			"label": "登录",
+			"component": "sign",
+			"role": "public"
+		}
+	]
 }
