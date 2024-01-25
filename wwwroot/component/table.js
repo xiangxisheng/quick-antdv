@@ -39,7 +39,7 @@ export default async () => ({
 		const ReloadTrans_dataSource = async () => {
 			// 翻译表头title
 			for (const column of tableState.columns) {
-				if (column.title) {
+				if (column.title_tpl) {
 					column.title = await i18n.fGetTransResult(column.title_tpl);
 				}
 				if (column.rules) {
