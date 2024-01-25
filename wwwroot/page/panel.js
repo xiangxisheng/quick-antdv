@@ -1,5 +1,5 @@
 const { routes_filter, stateStorage } = firadio;
-const { ref, reactive, watch, h, inject } = Vue;
+const { reactive, watch, h, inject } = Vue;
 const { useRouter, useRoute } = VueRouter;
 const { Layout, LayoutContent, LayoutFooter, LayoutSider, Menu, Breadcrumb, BreadcrumbItem } = antd;
 export default async (oTopRoute) => ({
@@ -18,14 +18,14 @@ export default async (oTopRoute) => ({
 		const route = useRoute();
 		const i18n = inject('i18n')();
 		i18n.$subscribe((mutation, state) => {
-			menuState.ReloadTrans();
+			menuState.ReloadTrans(menuState.items);
 			breadcrumbState.ReloadTrans();
 		});
 
 		const oMenuState = stateStorage('menu');
 		const menuState = reactive({
 			collapsed: false,
-			openKeys: ref(['/console/data']),
+			openKeys: [],
 			selectedKeys: [],
 			items: [],
 			handleClick: (e) => {
@@ -34,9 +34,12 @@ export default async (oTopRoute) => ({
 			fIsMobile: () => {
 				return window.innerWidth < 700;
 			},
-			ReloadTrans() {
-				for (const item of menuState.items) {
+			ReloadTrans(items) {
+				for (const item of items) {
 					item.label = i18n.fGetTransResult(item.label_tpl);
+					if (item.children) {
+						menuState.ReloadTrans(item.children);
+					}
 				}
 			},
 			async init() {
@@ -61,7 +64,20 @@ export default async (oTopRoute) => ({
 					mRet.label_tpl = mRoute.label;
 					return mRet;
 				})).children;
-				menuState.ReloadTrans();
+				for (const match of route.matched) {
+					if (!match.name) {
+						continue;
+					}
+					if (!match.children) {
+						continue;
+					}
+					if (match.children.length === 0) {
+						continue;
+					}
+					// 当加载页面时，自动展开菜单所在父项
+					menuState.openKeys.push(match.name);
+				}
+				menuState.ReloadTrans(menuState.items);
 			},
 		});
 

@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(__DIR__) . '/quick.php';
+require_once dirname(__DIR__) . '/../quick.php';
 
 $columns = [];
 $columns[] = [
