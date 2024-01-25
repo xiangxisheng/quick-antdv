@@ -121,11 +121,18 @@ window.i18n = (() => {
 	return defineStore('i18n', {
 		state: () => {
 			return {
-				locale: '',
+				locale: fGetCurrentLocale(mCacheData),
+				mConfLocale: mConfLocale,
 			}
 		},
 		actions: {
 			fGetTransResult,
+			// fSetCurrentLocale(val) {
+			// 	// 设置语言
+			// 	this.locale = val;
+			// 	oI18nState.set('locale', val);
+			// 	oI18nState.save();
+			// },
 			fSetCurrentLocale(val) {
 				// 设置语言
 				this.locale = val;

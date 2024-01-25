@@ -1,6 +1,6 @@
 const { reactive, watch, onMounted, inject } = Vue;
 const { useRouter, useRoute } = VueRouter;
-const { Layout, LayoutHeader, LayoutContent, Menu } = antd;
+const { Layout, LayoutHeader, LayoutContent, Menu, MenuItem, Dropdown } = antd;
 
 export default async (oTopRoute) => ({
 	template: await (await fetch('./page/index.htm')).text(),
@@ -9,6 +9,8 @@ export default async (oTopRoute) => ({
 		ALayoutContent: LayoutContent,
 		ALayoutHeader: LayoutHeader,
 		AMenu: Menu,
+		AMenuItem: MenuItem,
+		ADropdown: Dropdown,
 	},
 	setup() {
 		const router = useRouter();
@@ -22,6 +24,12 @@ export default async (oTopRoute) => ({
 		const localeState = reactive({
 			set: async (locale) => {
 				i18n.fSetCurrentLocale(locale);
+			},
+			get: () => {
+				return i18n.mConfLocale;
+			},
+			getCurrent: () => {
+				return i18n.mConfLocale[i18n.locale].title;
 			},
 		});
 
