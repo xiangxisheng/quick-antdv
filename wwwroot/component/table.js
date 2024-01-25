@@ -37,6 +37,19 @@ export default async () => ({
 		});
 
 		const ReloadTrans_dataSource = async () => {
+			// 翻译表头title
+			for (const column of tableState.columns) {
+				if (column.title) {
+					column.title = await i18n.fGetTransResult(column.title_tpl);
+				}
+				if (column.rules) {
+					const rules = drawerState.rules[column.dataIndex] = deepCloneObject(column.rules);
+					for (const rule of rules) {
+						rule.message = await i18n.fGetTransResult(rule.message, column);
+					}
+				}
+			}
+			// 翻译表数据records
 			for (const kRow in pageData.table.dataSource) {
 				for (const kCol in pageData.table.dataSource[kRow]) {
 					tableState.dataSource[kRow][kCol] = await i18n.fGetTransResult(pageData.table.dataSource[kRow][kCol]);
@@ -59,6 +72,7 @@ export default async () => ({
 			handleButton: async (button) => {
 				if (button.type === 'add') {
 					drawerState.action = 'add';
+					// 每当drawer开启时都会触发翻译
 					drawerState.title = await i18n.fGetTransResult(button.title);
 					drawerState.buttons = button.buttons;
 					drawerState.open = true;
@@ -130,6 +144,7 @@ export default async () => ({
 						return;
 					}
 					const param = { total, begin: range[0], end: range[1] };
+					// 显示页面统计，例如：当前显示从 1 到 18，共 329 条记录
 					return i18n.fGetTransResult(pageData.table.pagination.showTotalTemplate, param);
 				},
 				pageSizeOptions: ['10', '20', '30', '50', '100', '200'],
@@ -176,16 +191,26 @@ export default async () => ({
 				}
 				pageState.loading = true;
 				const dataType = 'json';
-				const data = await backendApi({ path, param, post, dataType });
-				array_set_recursive(pageData, data);
-				if (data.message) {
-					messageApi.open(data.message);
-				}
-				if (data.table) {
-					tableReaderList(data.table);
-				}
-				pageState.loading = false;
-				return data;
+				return await backendApi({ path, param, post, dataType }).then((data) => {
+					array_set_recursive(pageData, data);
+					if (data.message) {
+						messageApi.open(data.message);
+					}
+					if (data.table) {
+						tableReaderList(data.table);
+					}
+					return data;
+				}).catch((ex) => {
+					if (ex.text) {
+						messageApi.error(ex.text);
+						return {};
+					}
+					messageApi.error(ex.toString());
+					return {};
+				}).then((data) => {
+					pageState.loading = false;
+					return data;
+				});
 			};
 			const tableReaderList = async (tableData) => {
 				if (tableData.pagination) {
@@ -206,10 +231,7 @@ export default async () => ({
 					drawerState.rules = {};
 					tableState.columns.length = 0;
 					for (const column of tableData.columns) {
-						column.title = await i18n.fGetTransResult(column.title);
-						if (column.rules) {
-							drawerState.rules[column.dataIndex] = column.rules;
-						}
+						column.title_tpl = column.title;
 						if (!column.width) {
 							continue;
 						}
@@ -289,6 +311,7 @@ export default async () => ({
 					drawerState.model = data.formModel;
 					drawerState.action = action;
 					drawerState.buttons = mAction.buttons;
+					// 每当drawer开启时都会触发翻译
 					drawerState.title = await i18n.fGetTransResult(mAction.title);
 					drawerState.formItems.length = 0;
 					const formItems = deepCloneObject(pageData.table.columns);
@@ -353,7 +376,10 @@ export default async () => ({
 		);
 
 		function GTR(_formatpath, _param) {
-			return i18n.fGetTransResult(_formatpath, _param);
+			if (_formatpath === undefined) {
+				return '';
+			}
+			return i18n.fGetTransResult(_formatpath, _param, i18n.locale);
 		};
 
 		// 7：返回页面

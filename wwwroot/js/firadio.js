@@ -57,19 +57,23 @@ window.firadio = (() => {
 		}
 		const request = new Request(url, reqOption);
 
-		try {
-			const oResponse = await fetch(request);
-			if (oResponse.status !== 200) {
-				return { message: oResponse.statusText };
-			}
-			if (location.hostname === '127.0.0.2') {
-				await delay(500);
-			}
-			return await oResponse.json();
-		} catch (e) {
-			return e;
+		const oResponse = await fetch(request);
+		if (oResponse.status !== 200) {
+			const ex = `HTTP Status: ${oResponse.statusText}`;
+			ex.res = oResponse;
+			throw ex;
 		}
-
+		if (location.hostname === '127.0.0.2') {
+			await delay(500);
+		}
+		const text = await oResponse.text();
+		try {
+			return JSON.parse(text);
+		} catch (ex) {
+			// JSON解析失败时把解析前的文本放进去
+			ex.text = text;
+			throw ex;
+		}
 	};
 
 	async function routes_filter(route, func, parent = '') {

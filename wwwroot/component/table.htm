@@ -8,10 +8,10 @@
 		<a-form-item v-for="formItem of drawerState.formItems" :label="GTR(formItem.title)" :name="formItem.dataIndex">
 			<div v-if="0"></div>
 			<a-input v-else-if="formItem.form=='input'" :disabled="formItem.disabled" :readonly="formItem.readonly"
-				v-model:value="drawerState.model[formItem.dataIndex]" :placeholder="formItem.placeholder" :addon-before="formItem.addonBefore"
-				:addon-after="formItem.addonAfter" style="width: 100%" />
+				v-model:value="drawerState.model[formItem.dataIndex]" :placeholder="`${GTR(formItem.placeholder,{title:GTR(formItem.title)})}`"
+				:addon-before="formItem.addonBefore" :addon-after="formItem.addonAfter" style="width: 100%" />
 			<a-select v-else-if="formItem.form=='select'" :disabled="formItem.disabled" v-model:value="drawerState.model[formItem.dataIndex]"
-				:placeholder="formItem.placeholder">
+				:placeholder="GTR(formItem.placeholder,{title:GTR(formItem.title)})">
 				<a-select-option v-for="option of formItem.options" :value="option.value">{{GTR(option.title)}}</a-select-option>
 			</a-select>
 			<div v-else-if="formItem.form=='date-picker'">
@@ -21,7 +21,8 @@
 					:get-popup-container="trigger => trigger.parentElement" />
 			</div>
 			<a-textarea v-else-if="formItem.form=='textarea'" :disabled="formItem.disabled" :readonly="formItem.readonly"
-				v-model:value="drawerState.model[formItem.dataIndex]" :rows="4" :placeholder="formItem.placeholder" />
+				v-model:value="drawerState.model[formItem.dataIndex]" :rows="4"
+				:placeholder="GTR(formItem.placeholder,{title:GTR(formItem.title)})" />
 		</a-form-item>
 
 	</a-form>
@@ -68,17 +69,18 @@
 			<div v-if="0"></div>
 			<a-date-picker ref="searchInput" v-else-if="column.type==='date'" v-model:value="column.search_dayjs[0]" :format="column.format"
 				@change="e => setSelectedKeys(e?[e.format(column.format)]:[])" style=" width: 188px;" />
-			<a-input v-else ref="searchInput" :placeholder="`Search ${column.dataIndex}`" :value="selectedKeys[0]" style="width: 188px;"
-				@change="e => setSelectedKeys(e.target.value ? [e.target.value] : [])" @pressEnter="tableState.handleSearch(confirm)" />
+			<a-input v-else ref="searchInput" :placeholder="`${GTR('table.search_placeholder',column)}`" :value="selectedKeys[0]"
+				style="width: 188px;" @change="e => setSelectedKeys(e.target.value ? [e.target.value] : [])"
+				@pressEnter="tableState.handleSearch(confirm)" />
 			<a-space direction="horizontal">
 				<a-button type="primary" size="small" style="width:90px;" @click="tableState.handleSearch(confirm)">
 					<template #icon>
 						<i class="bx bx-search" style="vertical-align: -2px; margin-right: 4px;"></i>
 					</template>
-					Search
+					{{GTR('table.search')}}
 				</a-button>
 				<a-button size="small" style="width:90px;" @click="tableState.handleReset(clearFilters)">
-					Reset
+					{{GTR('table.reset')}}
 				</a-button>
 			</a-space>
 		</a-space>

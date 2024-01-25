@@ -14,51 +14,53 @@ $columns[] = [
 	'readonly' => true,
 ];
 $columns[] = [
-	'title' => 'group',
-	'dataIndex' => 'group',
+	'title' => 'table.title',
+	'dataIndex' => 'title',
 	'width' => 80,
 	'sorter' => true,
 	'form' => 'input',
 	'rules' => [['required' => true, 'message' => 'table.please_enter']],
-	'sql_where' => '`group` LIKE ?',
+	'sql_where' => '`title` LIKE ?',
 ];
 $columns[] = [
-	'title' => 'name',
-	'dataIndex' => 'name',
+	'title' => 'table.remark',
+	'dataIndex' => 'remark',
 	'width' => 100,
 	'sorter' => true,
-	'sql_where' => '`name` LIKE ?',
+	'sql_where' => '`remark` LIKE ?',
 	'form' => 'input',
 	'placeholder' => 'table.please_enter',
 	'rules' => [['required' => true, 'message' => 'table.please_enter']],
 ];
 $columns[] = [
-	'title' => 'lang.en_us',
-	'dataIndex' => 'locale_en_us',
-	'width' => 160,
+	'title' => 'table.sequence',
+	'dataIndex' => 'orderNo',
+	'width' => 100,
 	'sorter' => true,
-	'sql_where' => 'locale_en_us LIKE ?',
+	'sql_where' => '`orderNo` LIKE ?',
 	'form' => 'input',
 	'placeholder' => 'table.please_enter',
 	'rules' => [['required' => true, 'message' => 'table.please_enter']],
 ];
 $columns[] = [
-	'title' => 'lang.zh_cn',
-	'dataIndex' => 'locale_zh_cn',
-	'width' => 160,
-	'sorter' => true,
-	'sql_where' => 'locale_zh_cn LIKE ?',
-	'form' => 'input',
-	'placeholder' => 'table.please_enter',
-];
-$columns[] = [
-	'title' => 'lang.km_kh',
-	'dataIndex' => 'locale_km_kh',
-	'width' => 160,
-	'sorter' => true,
-	'sql_where' => 'locale_km_kh LIKE ?',
-	'form' => 'input',
-	'placeholder' => 'table.please_enter',
+	'title' => 'table.status',
+	'dataIndex' => 'status',
+	'width' => 80,
+	'default' => 0,
+	'valueFunc' => function ($v) {
+		if ($v === -1) {
+			return 'table.disabled';
+		}
+		if ($v === 0) {
+			return 'table.normal';
+		}
+	},
+	'form' => 'select',
+	'options' => [
+		['value' => -1, 'title' => 'table.disabled'],
+		['value' => 0, 'title' => 'table.normal'],
+	],
+	'sql_where' => 'status=?',
 ];
 $columns[] = [
 	'title' => 'table.operates',
@@ -96,7 +98,7 @@ $data = [
 		],
 	],
 	'sql' => [
-		'from' => 'system_i18n_data',
+		'from' => 'system_roles',
 		'where' => [],
 		'order' => '',
 	],

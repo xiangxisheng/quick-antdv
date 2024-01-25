@@ -9,7 +9,7 @@ $columns[] = array(
 	'width' => 80,
 	'sorter' => true,
 	'form' => 'input',
-	'rules' => [['required' => true, 'message' => 'Please enter person_key']],
+	'rules' => [['required' => true, 'message' => 'table.please_enter']],
 	'sql_where' => 'person_key LIKE ?',
 );
 $columns[] = array(
@@ -19,8 +19,8 @@ $columns[] = array(
 	'sorter' => true,
 	'sql_where' => 'person_name LIKE ?',
 	'form' => 'input',
-	'placeholder' => 'please enter person_name',
-	'rules' => [['required' => true, 'message' => 'Please enter person_name']],
+	'placeholder' => 'table.please_enter',
+	'rules' => [['required' => true, 'message' => 'table.please_enter']],
 );
 $columns[] = array(
 	'title' => 'table.person_gender',
@@ -40,8 +40,8 @@ $columns[] = array(
 		['value' => 1, 'title' => 'table.male'],
 		['value' => 2, 'title' => 'table.female'],
 	],
-	'placeholder' => "Please choose the sex",
-	'rules' => [['required' => true, 'message' => 'Please choose the sex']],
+	'placeholder' => "table.please_choose",
+	'rules' => [['required' => true, 'message' => 'table.please_choose']],
 	'sql_where' => 'sex=?',
 );
 $columns[] = array(
@@ -53,8 +53,8 @@ $columns[] = array(
 	'form' => 'date-picker',
 	'type' => 'date',
 	'format' => 'YYYY-MM-DD',
-	'placeholder' => 'please enter birthday',
-	'rules' => [['required' => false, 'message' => 'Please enter birthday']],
+	'placeholder' => 'table.please_enter',
+	'rules' => [['required' => false, 'message' => 'table.please_enter']],
 );
 $columns[] = [
 	'title' => 'table.status',

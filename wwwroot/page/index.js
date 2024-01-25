@@ -16,20 +16,17 @@ export default async (oTopRoute) => ({
 		const router = useRouter();
 		const route = useRoute();
 		const i18n = inject('i18n')();
-
 		i18n.$subscribe((mutation, state) => {
 			ReloadTrans();
 		});
 
 		const localeState = reactive({
+			current: '',
 			set: async (locale) => {
-				i18n.fSetCurrentLocale(locale);
+				await i18n.fSetCurrentLocale(locale);
 			},
 			get: () => {
 				return i18n.mConfLocale;
-			},
-			getCurrent: () => {
-				return i18n.mConfLocale[i18n.locale].title;
 			},
 		});
 
@@ -47,6 +44,7 @@ export default async (oTopRoute) => ({
 		}
 
 		const ReloadTrans = async () => {
+			localeState.current = i18n.mConfLocale[i18n.locale].title;
 			document.title = await i18n.fGetTransResult('site.title');
 			for (const item of menuState.items) {
 				item.label = await i18n.fGetTransResult(item.label_tpl);
@@ -63,7 +61,7 @@ export default async (oTopRoute) => ({
 				item.label_tpl = mRoute.label;
 				menuState.items.push(item);
 			}
-			ReloadTrans();
+			await i18n.fLoadData();
 		});
 
 		watch(

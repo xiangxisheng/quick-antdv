@@ -1,28 +1,6 @@
 window.i18n = (() => {
 
 	const oI18nState = firadio.stateStorage('i18n');
-	const mCacheData = {};
-	async function fGetI18nData(locale) {
-		const jsonPath = `data/lang/${locale}.json`;
-		mCacheData[locale] = await (await fetch(jsonPath)).json();
-	}
-	fGetI18nData('en_us');
-	fGetI18nData('zh_cn');
-
-	const i18n_locales = [
-		{
-			"name": "en_us",
-			"title": "English"
-		},
-		{
-			"name": "zh_cn",
-			"title": "简体中文"
-		},
-		{
-			"name": "km_kh",
-			"title": "ខ្មែរ"
-		}
-	];
 
 	function formatLocale(str) {
 		return str.toLowerCase().replace('-', '_');
@@ -45,8 +23,6 @@ window.i18n = (() => {
 		return mRet;
 	}
 
-	const mConfLocale = fGetLocaleMap(i18n_locales);
-
 	function replaceAll(s0, s1, s2) {
 		return s0.replace(new RegExp(s1, "gm"), s2);
 	}
@@ -60,34 +36,6 @@ window.i18n = (() => {
 			return out;
 		}
 		return sFormatValue;
-	}
-
-	function fGetTransResult(sFormatPath, aParam) {
-		if (sFormatPath === null) {
-			return sFormatPath;
-		}
-		if (typeof (sFormatPath) !== 'string') {
-			// 只处理[数据类型]为[字符串]，其他类型直接返回，例如：数字型和逻辑型
-			return sFormatPath;
-		}
-		const locale = fGetCurrentLocale(mCacheData);
-		if (!locale) {
-			// 没有匹配到语言包
-			return sFormatPath;
-		}
-		const aFormatPath = sFormatPath.split('.');
-		const i18nDataByGroupName = mCacheData[locale];
-		if (!i18nDataByGroupName.hasOwnProperty(aFormatPath[0])) {
-			// 匹配不到语言组的情况下，直接对字符串进行处理
-			return fGetFormatString(sFormatPath, aParam);
-		}
-		const i18nDataByFormatKey = i18nDataByGroupName[aFormatPath[0]];
-		if (!i18nDataByFormatKey.hasOwnProperty(aFormatPath[1])) {
-			// 匹配不到语言项的情况下，直接对字符串进行处理
-			return fGetFormatString(sFormatPath, aParam);
-		}
-		const sFormatValue = i18nDataByFormatKey[aFormatPath[1]];
-		return fGetFormatString(sFormatValue, aParam);
 	}
 
 	function fGetCurrentLocale(mLocale) {
@@ -121,23 +69,71 @@ window.i18n = (() => {
 	return defineStore('i18n', {
 		state: () => {
 			return {
-				locale: fGetCurrentLocale(mCacheData),
-				mConfLocale: mConfLocale,
+				locale: '',
+				i18n_locales: [
+					{
+						"name": "en_us",
+						"title": "English"
+					},
+					{
+						"name": "zh_cn",
+						"title": "简体中文"
+					},
+					{
+						"name": "km_kh",
+						"title": "ខ្មែរ"
+					}
+				],
+				mConfLocale: {},
+				mCacheData: {},
 			}
 		},
 		actions: {
-			fGetTransResult,
-			// fSetCurrentLocale(val) {
-			// 	// 设置语言
-			// 	this.locale = val;
-			// 	oI18nState.set('locale', val);
-			// 	oI18nState.save();
-			// },
-			fSetCurrentLocale(val) {
+			async fGetI18nData(locale) {
+				if (this.mCacheData.hasOwnProperty(locale)) {
+					return;
+				}
+				const jsonPath = `data/lang/${locale}.json`;
+				this.mCacheData[locale] = await (await fetch(jsonPath)).json();
+			},
+			async fLoadData() {
+				this.mConfLocale = fGetLocaleMap(this.i18n_locales);
+				const locale = this.locale = fGetCurrentLocale(this.mConfLocale);
+				await this.fGetI18nData(locale);
+			},
+			fGetTransResult(sFormatPath, aParam) {
+				if (sFormatPath === null) {
+					return sFormatPath;
+				}
+				if (typeof (sFormatPath) !== 'string') {
+					// 只处理[数据类型]为[字符串]，其他类型直接返回，例如：数字型和逻辑型
+					return sFormatPath;
+				}
+				const locale = fGetCurrentLocale(this.mCacheData);
+				if (!locale) {
+					// 没有匹配到语言包
+					return sFormatPath;
+				}
+				const aFormatPath = sFormatPath.split('.');
+				const i18nDataByGroupName = this.mCacheData[locale];
+				if (!i18nDataByGroupName.hasOwnProperty(aFormatPath[0])) {
+					// 匹配不到语言组的情况下，直接对字符串进行处理
+					return fGetFormatString(sFormatPath, aParam);
+				}
+				const i18nDataByFormatKey = i18nDataByGroupName[aFormatPath[0]];
+				if (!i18nDataByFormatKey.hasOwnProperty(aFormatPath[1])) {
+					// 匹配不到语言项的情况下，直接对字符串进行处理
+					return fGetFormatString(sFormatPath, aParam);
+				}
+				const sFormatValue = i18nDataByFormatKey[aFormatPath[1]];
+				return fGetFormatString(sFormatValue, aParam);
+			},
+			async fSetCurrentLocale(locale) {
 				// 设置语言
-				this.locale = val;
-				oI18nState.set('locale', val);
+				await this.fGetI18nData(locale);
+				oI18nState.set('locale', locale);
 				oI18nState.save();
+				this.locale = locale;
 			},
 			fRemoveCurrentLocale() {
 				// 恢复默认语言
