@@ -1,0 +1,70 @@
+{
+    "workbench.editor.enablePreviewFromQuickOpen": false,
+    "git.ignoreWindowsGit27Warning": true,
+    "workbench.startupEditor": "none",
+    "workbench.colorTheme": "Atom One Dark",
+    "workbench.iconTheme": "material-icon-theme",
+    "terminal.integrated.defaultProfile.windows": "Command Prompt",
+    "explorer.confirmDragAndDrop": false,
+    "javascript.validate.enable": false,
+    "markdown.preview.lineHeight": 1.4,
+    "editor.fontFamily": "'JetBrains Mono',Consolas, 'Courier New', monospace",
+    "editor.multiCursorModifier": "ctrlCmd",
+    "editor.wordWrap": "on",
+    "editor.lineHeight": 30,
+    "editor.largeFileOptimizations": false,
+    "editor.linkedEditing": true,
+    "editor.renderWhitespace": "all",
+    "editor.parameterHints.enabled": false,
+    "editor.tabSize": 4,
+    "editor.detectIndentation": false,
+    "editor.formatOnSave": true,
+    "editor.codeLens": false,
+    "editor.insertSpaces": false,
+    "prettier.tabWidth": 4,
+    "prettier.singleQuote": false,
+    "[css]": {
+        "editor.defaultFormatter": "vscode.css-language-features"
+    },
+    "[html]": {
+        "editor.defaultFormatter": "vscode.html-language-features"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[vue]": {
+        "editor.defaultFormatter": "Vue.volar"
+    },
+    "emmet.showAbbreviationSuggestions": true,
+    "emmet.showExpandedAbbreviation": "always",
+    "emmet.includeLanguages": {
+        "vue-html": "html",
+        "vue": "html",
+        "javascript": "javascriptreact"
+    },
+    "zenMode.centerLayout": false,
+    "editor.mouseWheelZoom": true,
+    "blade.format.enable": true,
+    "html.format.wrapLineLength": 150,
+    "bladeFormatter.format.wrapLineLength": 150,
+    "material-icon-theme.folders.theme": "classic",
+    "window.commandCenter": true,
+    "editor.accessibilitySupport": "off",
+    "[python]": {
+        "editor.formatOnType": true
+    },
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+            {
+                "scope": "keyword.other.dotenv",
+                "settings": {
+                    "foreground": "#FF000000"
+                }
+            }
+        ]
+    },
+    "bootstrapIntelliSense.version": "Bootstrap v5.1",
+    "html.autoClosingTags": false,
+    "workbench.activityBar.location": "hidden",
+    "breadcrumbs.enabled": false,
+}
