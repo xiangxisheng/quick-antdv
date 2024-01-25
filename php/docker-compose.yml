@@ -13,5 +13,4 @@ services:
       - ../:/var/www/root
     environment:
       - APACHE_LOG_DIR=/root/log
-    entrypoint: ["sh", "/root/script/start.sh"]
-
+    entrypoint: [ "sh", "/root/script/start.sh" ]
