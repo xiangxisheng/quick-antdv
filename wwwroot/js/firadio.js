@@ -227,7 +227,12 @@ window.firadio = (() => {
 		loadCSS('./css/boxicons.min.css');
 
 		const VueGlobalFile = isDev() ? 'https://unpkg.com/vue@3/dist/vue.global.js' : './js/vue/vue.global.prod.js';
-		await loadJS([VueGlobalFile, './js/antd/dayjs.min.js', './js/antd/dayjs-plugin.min.js']);
+		await loadJS([
+			VueGlobalFile,
+			'./js/antd/dayjs.min.js',
+			'./js/antd/dayjs-plugin.min.js',
+			'./js/sheetjs/xlsx.full.min.js',
+		]);
 		await loadJS([
 			'./js/antd/antd.min.js',
 			'./js/i18n.js',

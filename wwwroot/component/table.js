@@ -6,7 +6,7 @@ const { Form, FormItem, Row, Col, Textarea, DatePicker, Select, SelectOption } =
 const [messageApi, contextHolder] = antd.message.useMessage();
 const { useRouter, useRoute } = VueRouter;
 
-export default async () => ({
+export default async (oTopRoute) => ({
 	template: await (await fetch('./component/table.htm')).text(),
 	components: {
 		ASpace: Space,
@@ -100,6 +100,40 @@ export default async () => ({
 					Api.delete(tableState.rowSelection.selectedRowKeys);
 					return;
 				}
+				if (button.type === 'export') {
+					const aoa = [];
+					const col = [];
+					const aDataIndex = [];
+					for (const column of pageData.table.columns) {
+						if (!column.dataIndex) {
+							continue;
+						}
+						if (!column.width) {
+							continue;
+						}
+						aDataIndex.push(column.dataIndex);
+						col.push(await i18n.fGetTransResult(column.title));
+					}
+					aoa.push(col);
+					for (const row of pageData.table.dataSource) {
+						const col = [];
+						for (const sDataIndex of aDataIndex) {
+							col.push(await i18n.fGetTransResult(row[sDataIndex]));
+						}
+						aoa.push(col);
+					}
+					const jsonWorkSheet = XLSX.utils.aoa_to_sheet(aoa);
+					const sheetName = await i18n.fGetTransResult(oTopRoute.label);
+					const workBook = {
+						SheetNames: [sheetName],
+						Sheets: {
+							[sheetName]: jsonWorkSheet,
+						}
+					};
+					await XLSX.writeFile(workBook, `${sheetName}.xlsx`);
+					return;
+				}
+				console.log('pageState.handleButton', button);
 			},
 		});
 

@@ -65,7 +65,11 @@ $columns[] = array(
 	]
 );
 $data = [
-	'buttons' => [],
+	'buttons' => [
+		[
+			'type' => 'export', 'title' => 'table.export',
+		],
+	],
 	'sql' => [
 		'from' => 'tb_event',
 		'where' => [
