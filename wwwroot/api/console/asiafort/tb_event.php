@@ -55,6 +55,15 @@ $columns[] = array(
 	'form' => 'input',
 );
 $columns[] = array(
+	'title' => 'table.dept_name',
+	'dataIndex' => 'dept_name',
+	'width' => 160,
+	'sorter' => true,
+	'sql_select' => "MIN(dept_name)",
+	'sql_where' => 'dept_name LIKE ?',
+	'form' => 'input',
+);
+$columns[] = array(
 	'title' => 'table.operates',
 	'fixed' => 'right',
 	'width' => 80,
