@@ -23,18 +23,9 @@ $columns[] = [
 	'sql_where' => '`title` LIKE ?',
 ];
 $columns[] = [
-	'title' => 'table.remark',
-	'dataIndex' => 'remark',
-	'width' => 100,
-	'sorter' => true,
-	'sql_where' => '`remark` LIKE ?',
-	'form' => 'input',
-	'placeholder' => 'table.please_enter',
-	'rules' => [['required' => true, 'message' => 'table.please_enter']],
-];
-$columns[] = [
 	'title' => 'table.sequence',
 	'dataIndex' => 'orderNo',
+	'default' => 100,
 	'width' => 100,
 	'sorter' => true,
 	'sql_where' => '`orderNo` LIKE ?',
@@ -61,6 +52,16 @@ $columns[] = [
 		['value' => 0, 'title' => 'table.normal'],
 	],
 	'sql_where' => 'status=?',
+];
+$columns[] = [
+	'title' => 'table.remark',
+	'dataIndex' => 'remark',
+	'width' => 100,
+	'sorter' => true,
+	'sql_where' => '`remark` LIKE ?',
+	'form' => 'input',
+	'placeholder' => 'table.please_enter',
+	'rules' => [['required' => false, 'message' => 'table.please_enter']],
 ];
 $columns[] = [
 	'title' => 'table.operates',

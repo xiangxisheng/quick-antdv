@@ -39,10 +39,14 @@ export default async (oTopRoute) => ({
 		const ReloadTrans_dataSource = async () => {
 			// 翻译表头title
 			for (const column of tableState.columns) {
+				// 对当前显示的表头进行翻译
 				if (column.title_tpl) {
 					column.title = await i18n.fGetTransResult(column.title_tpl);
 				}
+			}
+			for (const column of pageData.table.columns) {
 				if (column.rules) {
+					// 对全部有含rules的列进行翻译
 					const rules = drawerState.rules[column.dataIndex] = deepCloneObject(column.rules);
 					for (const rule of rules) {
 						rule.message = await i18n.fGetTransResult(rule.message, column);
@@ -333,6 +337,8 @@ export default async (oTopRoute) => ({
 					await apiAction('list', param);
 				},
 				view: async (id, mAction) => {
+					// 在表格的操作栏中点查看或编辑时
+					drawerState.open = true;
 					const action = mAction.action;
 					const data = await apiAction('view', { id });
 					if (!data) {
@@ -357,6 +363,7 @@ export default async (oTopRoute) => ({
 							continue;
 						}
 						if (action !== 'edit') {
+							// 如果是点【查看】进去的，将所有输入框都设为只读
 							formItem.readonly = true;
 						}
 						const formValue = data.formModel[formItem.dataIndex];
@@ -377,7 +384,6 @@ export default async (oTopRoute) => ({
 						drawerState.formItems.push(formItem);
 					}
 					drawerState.maskClosable = action === 'view';
-					drawerState.open = true;
 				},
 				delete: async (ids) => {
 					const param = deepCloneObject(route.query);
