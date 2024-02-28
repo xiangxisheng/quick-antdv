@@ -15,7 +15,7 @@
 				</a>
 				<template #overlay>
 					<a-menu>
-						<a-menu-item v-for="locale in localeState.get()" key="0">
+						<a-menu-item v-for="locale in localeState.get()" :key="locale.name">
 							<a @click="localeState.set(locale.name)">{{ locale.title }}</a>
 						</a-menu-item>
 						<!-- <a-menu-item key="1">
