@@ -191,29 +191,37 @@ window.QADV = (() => {
 	const loadJS_one = (file, cb) => {
 		const script = document.createElement('script');
 		script.src = file;
-		script.onload = () => {
+		script.onerror = (event) => {
 			if (typeof (cb) === 'function') {
-				cb();
+				cb(event);
+			}
+		}
+		script.onload = (event) => {
+			if (typeof (cb) === 'function') {
+				cb(event);
 			}
 		};
 		document.head.appendChild(script);
 	};
 
-	const loadJS_all = (files, cb) => {
+	const loadJS_all = async (files, resolve, reject) => {
 		let c = 0;
 		for (const file of files) {
-			loadJS_one(file, () => {
+			loadJS_one(file, (event) => {
+				if (event.type === "error") {
+					reject(`Oops! The file failed to load.<br>${file}`);
+				}
 				c++;
 				if (c === files.length) {
-					if (typeof (cb) === 'function') {
-						cb();
+					if (typeof (resolve) === 'function') {
+						resolve();
 					}
 				}
 			});
 		}
 	};
 
-	const loadJS = files => new Promise((resolve) => loadJS_all(files, resolve));
+	const loadJS = files => new Promise((resolve, reject) => loadJS_all(files, resolve, reject));
 
 	const isDev = () => {
 		const devHost = [];
@@ -223,7 +231,17 @@ window.QADV = (() => {
 	};
 
 	const main = async (config) => {
+		try {
+			await main_do(config);
+		} catch (ex) {
+			document.getElementById('loader').style.display = 'none';
+			document.getElementsByClassName('browser-upgrade')[0].style.display = '';
+			document.getElementById('logo').src = config.assets_dir + "/img/logo.svg";
+			document.getElementsByClassName('browser-upgrade__text')[0].innerHTML = ex;
+		}
+	}
 
+	const main_do = async (config) => {
 		loadCSS(`${config.assets_dir}/css/reset.min.css`);
 		loadCSS(`${config.assets_dir}/css/boxicons.min.css`);
 
