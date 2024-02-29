@@ -3,7 +3,7 @@ const { useRouter, useRoute } = VueRouter;
 const { Layout, LayoutHeader, LayoutContent, Menu, MenuItem, Dropdown } = antd;
 
 export default async (oTopRoute) => ({
-	template: await (await fetch('./page/index.htm')).text(),
+	template: await (await fetch(`${oTopRoute.config.static_dir}/${oTopRoute.component}.htm`)).text(),
 	components: {
 		ALayout: Layout,
 		ALayoutContent: LayoutContent,
@@ -13,6 +13,7 @@ export default async (oTopRoute) => ({
 		ADropdown: Dropdown,
 	},
 	setup() {
+		const config = oTopRoute.config;
 		const router = useRouter();
 		const route = useRoute();
 		const i18n = inject('i18n')();
@@ -75,6 +76,7 @@ export default async (oTopRoute) => ({
 		);
 
 		return {
+			config,
 			localeState,
 			menuState,
 		};

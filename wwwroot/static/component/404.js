@@ -1,7 +1,7 @@
 const { useRoute } = VueRouter;
 const { LayoutContent, Result, Button } = antd;
 export default async () => ({
-	template: await (await fetch('./component/404.htm')).text(),
+	template: await (await fetch(`${oTopRoute.config.static_dir}/${oTopRoute.component}.htm`)).text(),
 	components: {
 		ALayoutContent: LayoutContent,
 		AResult: Result,

@@ -1,6 +1,6 @@
-window.i18n = (() => {
+window.i18n = ((config) => {
 
-	const oI18nState = firadio.stateStorage('i18n');
+	const oI18nState = QADV.stateStorage('i18n');
 
 	function formatLocale(str) {
 		return str.toLowerCase().replace('-', '_');
@@ -93,7 +93,7 @@ window.i18n = (() => {
 				if (this.mCacheData.hasOwnProperty(locale)) {
 					return;
 				}
-				const jsonPath = `data/lang/${locale}.json`;
+				const jsonPath = `${config.static_dir}/data/lang/${locale}.json`;
 				this.mCacheData[locale] = await (await fetch(jsonPath)).json();
 			},
 			async fLoadData() {

@@ -1,5 +1,5 @@
-const { backendApi, deepCloneObject, filterNullItem, tryParseJSON } = firadio;
-const { array_set_recursive } = firadio;
+const { backendApi, deepCloneObject, filterNullItem, tryParseJSON } = QADV;
+const { array_set_recursive } = QADV;
 const { ref, reactive, watch, onMounted, inject } = Vue;
 const { Space, Table, Input, Button, Popconfirm, Drawer } = antd;
 const { Form, FormItem, Row, Col, Textarea, DatePicker, Select, SelectOption } = antd;
@@ -7,7 +7,7 @@ const [messageApi, contextHolder] = antd.message.useMessage();
 const { useRouter, useRoute } = VueRouter;
 
 export default async (oTopRoute) => ({
-	template: await (await fetch('./component/table.htm')).text(),
+	template: await (await fetch(`${oTopRoute.config.static_dir}/${oTopRoute.component}.htm`)).text(),
 	components: {
 		ASpace: Space,
 		ATable: Table,

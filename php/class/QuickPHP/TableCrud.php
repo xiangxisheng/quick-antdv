@@ -38,7 +38,7 @@ class TableCrud extends PDO
 		if (!$mColumn['sorter']) {
 			return;
 		}
-		$sField = $mColumn['dataIndex'];
+		$sField = $this->fieldQuote($mColumn['dataIndex']);
 		$mOrderDict = array(
 			'ascend' => 'ASC',
 			'descend' => 'DESC',

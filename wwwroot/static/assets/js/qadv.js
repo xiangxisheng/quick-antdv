@@ -1,4 +1,4 @@
-window.firadio = (() => {
+window.QADV = (() => {
 	function stringifyQuery(queryObj) {
 		if (!queryObj) {
 			return '';
@@ -115,7 +115,8 @@ window.firadio = (() => {
 			}
 			if (mRoute.component) {
 				// 路由懒加载(https://router.vuejs.org/zh/guide/advanced/lazy-loading.html)
-				item.component = async () => (await import(`/${mRoute.component}.js`)).default(mRoute);
+				mRoute.config = config;
+				item.component = async () => (await import(`${config.static_dir}/${mRoute.component}.js`)).default(mRoute);
 			}
 			if (mRoute.alias) {
 				item.alias = mRoute.alias;
@@ -132,7 +133,7 @@ window.firadio = (() => {
 		app.use(router);
 		app.use(pinia);
 		app.mount('#app');
-		app.provide('i18n', i18n());
+		app.provide('i18n', i18n(config));
 		return { app, router };
 	}
 
@@ -221,26 +222,26 @@ window.firadio = (() => {
 		return devHost.indexOf(location.hostname) !== -1;
 	};
 
-	const main = async () => {
+	const main = async (config) => {
 
-		loadCSS('./css/reset.min.css');
-		loadCSS('./css/boxicons.min.css');
+		loadCSS(`${config.assets_dir}/css/reset.min.css`);
+		loadCSS(`${config.assets_dir}/css/boxicons.min.css`);
 
-		const VueGlobalFile = isDev() ? 'https://unpkg.com/vue@3/dist/vue.global.js' : './js/vue/vue.global.prod.js';
+		const VueGlobalFile = isDev() ? 'https://unpkg.com/vue@3/dist/vue.global.js' : `${config.assets_dir}/js/vue/vue.global.prod.js`;
 		await loadJS([
 			VueGlobalFile,
-			'./js/antd/dayjs.min.js',
-			'./js/antd/dayjs-plugin.min.js',
-			'./js/sheetjs/xlsx.full.min.js',
+			`${config.assets_dir}/js/antd/dayjs.min.js`,
+			`${config.assets_dir}/js/antd/dayjs-plugin.min.js`,
+			`${config.assets_dir}/js/sheetjs/xlsx.full.min.js`,
 		]);
 		await loadJS([
-			'./js/antd/antd.min.js',
-			'./js/i18n.js',
-			'./js/vue/vue-demi.iife.js',
-			'./js/vue/vue-router.global.prod.js',
+			`${config.assets_dir}/js/antd/antd.min.js`,
+			`${config.assets_dir}/js/i18n.js`,
+			`${config.assets_dir}/js/vue/vue-demi.iife.js`,
+			`${config.assets_dir}/js/vue/vue-router.global.prod.js`,
 		]);
 		await loadJS([
-			'./js/vue/pinia.iife.prod.js',
+			`${config.assets_dir}/js/vue/pinia.iife.prod.js`,
 		]);
 		const { router } = await VueCreateApp(Vue, VueRouter);
 
@@ -257,7 +258,7 @@ window.firadio = (() => {
 			}
 			router.push({ query });
 		}
-
+		document.getElementById('loader').style.display = 'none';
 	};
 
 	function deepCloneObject(source) {

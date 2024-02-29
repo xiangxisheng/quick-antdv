@@ -1,7 +1,7 @@
 const { computed } = Vue;
 const { useRouter, useRoute } = VueRouter;
 export default async () => ({
-	template: await (await fetch('./page/panel/index.htm')).text(),
+	template: await (await fetch(`${oTopRoute.config.static_dir}/${oTopRoute.component}.htm`)).text(),
 	setup() {
 		const router = useRouter();
 		const route = useRoute();
