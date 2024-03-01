@@ -67,13 +67,26 @@ $route = [
 				],
 			],
 		],
+		[
+			"name" => "sign-up",
+			"label" => "sign_up",
+			"component" => "page/sign",
+			"role" => "public"
+		],
+		[
+			"name" => "sign-in",
+			"label" => "sign_in",
+			"component" => "page/sign",
+			"role" => "public"
+		],
 	],
 ];
 $setting = [
+	'isDev' => false,
 	'title' => 'AsiaFort',
 	'static_dir' => '/static',
 ];
 return [
 	'setting' => $setting,
-	'route' => $route,
+	'routes' => [$route],
 ];

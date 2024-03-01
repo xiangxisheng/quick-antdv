@@ -98,7 +98,7 @@ window.QADV = (() => {
 		const { createApp } = Vue;
 		const { createRouter, createWebHistory } = VueRouter;
 		const { createPinia } = Pinia;
-		const children = [config.route];
+		const children = config.routes;
 		const oTopRoute = { children }
 		const routes = (await routes_filter(oTopRoute, async (sParent, mRoute) => {
 			const item = {};
@@ -224,6 +224,9 @@ window.QADV = (() => {
 	const loadJS = files => new Promise((resolve, reject) => loadJS_all(files, resolve, reject));
 
 	const isDev = () => {
+		if (config.setting.isDev) {
+			return true;
+		}
 		const devHost = [];
 		devHost.push('localhost');
 		devHost.push('127.0.0.1');

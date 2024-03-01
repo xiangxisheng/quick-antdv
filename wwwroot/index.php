@@ -31,7 +31,7 @@ function isLocal($host_name)
 	if ($long === false) {
 		return false;
 	}
-	return ip2long('127.0.0.1') < $long && $long < ip2long('127.255.255.255');
+	return ip2long('127.0.0.1') <= $long && $long <= ip2long('127.255.255.255');
 }
 
 function isCached($target, $cache_timeout = -1)
