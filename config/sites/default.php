@@ -2,7 +2,7 @@
 
 $route = [
 	'path' => '/',
-	'component' => 'page/index',
+	'component' => 'common/index',
 	'role' => 'public',
 	'children' => [
 		[
@@ -13,14 +13,14 @@ $route = [
 			"name" => "home",
 			"alias" => "/",
 			"label" => "首页",
-			"component" => "page/home",
+			"component" => "common/home",
 			"role" => "public"
 		],
 		[
 			'name' => 'console',
 			'alias' => '/',
 			'label' => 'menu.console',
-			'component' => 'page/panel',
+			'component' => 'common/panel',
 			'role' => 'user',
 			'children' => [
 				[
@@ -30,19 +30,19 @@ $route = [
 						[
 							'name' => 'i18n_data',
 							'label' => 'menu.language_setting',
-							'component' => 'component/table',
+							'component' => 'common/table',
 							'role' => 'sysadmin',
 						],
 						[
 							'name' => 'roles',
 							'label' => 'menu.roles',
-							'component' => 'component/table',
+							'component' => 'common/table',
 							'role' => 'sysadmin',
 						],
 						[
 							'name' => 'users',
 							'label' => 'menu.users',
-							'component' => 'component/table',
+							'component' => 'common/table',
 							'role' => 'sysadmin',
 						],
 					],
@@ -63,10 +63,14 @@ $route = [
 		],
 	],
 ];
+$static_dir = '/static';
 $setting = [
+	'assets_dir' => $static_dir . '/assets',
+	'component_dir' => $static_dir . '/component',
+	'component_ext' => '.vue.js',
 	'isDev' => false,
+	'static_dir' => $static_dir,
 	'title' => 'Quick Antdv',
-	'static_dir' => '/static',
 ];
 return [
 	'setting' => $setting,

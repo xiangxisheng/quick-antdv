@@ -116,7 +116,7 @@ window.QADV = (() => {
 			if (mRoute.component) {
 				// 路由懒加载(https://router.vuejs.org/zh/guide/advanced/lazy-loading.html)
 				mRoute.setting = config.setting;
-				item.component = async () => (await import(`${config.setting.static_dir}/${mRoute.component}.js`)).default(mRoute);
+				item.component = async () => (await import(`${config.setting.component_dir}/${mRoute.component}${config.setting.component_ext}`)).default(mRoute);
 			}
 			if (mRoute.alias) {
 				item.alias = mRoute.alias;
