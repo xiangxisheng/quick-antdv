@@ -3,7 +3,7 @@ const { reactive, watch, h, inject } = Vue;
 const { useRouter, useRoute } = VueRouter;
 const { Layout, LayoutContent, LayoutFooter, LayoutSider, Menu, Breadcrumb, BreadcrumbItem } = antd;
 export default async (oTopRoute) => ({
-	template: await (await fetch(`${oTopRoute.config.static_dir}/${oTopRoute.component}.htm`)).text(),
+	template: await (await fetch(`${oTopRoute.setting.static_dir}/${oTopRoute.component}.htm`)).text(),
 	components: {
 		ALayout: Layout,
 		ALayoutContent: LayoutContent,

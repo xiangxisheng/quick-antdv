@@ -69,4 +69,11 @@ $route = [
 		],
 	],
 ];
-echo json_encode([$route]);
+$setting = [
+	'title' => 'AsiaFort',
+	'static_dir' => '/static',
+];
+return [
+	'setting' => $setting,
+	'route' => $route,
+];

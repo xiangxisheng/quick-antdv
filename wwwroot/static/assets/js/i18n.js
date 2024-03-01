@@ -93,7 +93,7 @@ window.i18n = ((config) => {
 				if (this.mCacheData.hasOwnProperty(locale)) {
 					return;
 				}
-				const jsonPath = `${config.static_dir}/data/lang/${locale}.json`;
+				const jsonPath = `${config.setting.static_dir}/data/lang/${locale}.json`;
 				this.mCacheData[locale] = await (await fetch(jsonPath)).json();
 			},
 			async fLoadData() {

@@ -1,8 +1,8 @@
 const { reactive } = Vue;
 const { useRouter, useRoute } = VueRouter;
 const { Form, FormItem, Input, InputPassword, Checkbox, Space, Button } = antd;
-export default async () => ({
-	template: await (await fetch(`${oTopRoute.config.static_dir}/${oTopRoute.component}.htm`)).text(),
+export default async (oTopRoute) => ({
+	template: await (await fetch(`${oTopRoute.setting.static_dir}/${oTopRoute.component}.htm`)).text(),
 	components: {
 		AForm: Form,
 		AFormItem: FormItem,

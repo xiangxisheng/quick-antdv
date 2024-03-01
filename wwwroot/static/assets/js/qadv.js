@@ -98,7 +98,7 @@ window.QADV = (() => {
 		const { createApp } = Vue;
 		const { createRouter, createWebHistory } = VueRouter;
 		const { createPinia } = Pinia;
-		const children = await backendApi({ path: '/api/public/route.php' });
+		const children = [config.route];
 		const oTopRoute = { children }
 		const routes = (await routes_filter(oTopRoute, async (sParent, mRoute) => {
 			const item = {};
@@ -115,8 +115,8 @@ window.QADV = (() => {
 			}
 			if (mRoute.component) {
 				// 路由懒加载(https://router.vuejs.org/zh/guide/advanced/lazy-loading.html)
-				mRoute.config = config;
-				item.component = async () => (await import(`${config.static_dir}/${mRoute.component}.js`)).default(mRoute);
+				mRoute.setting = config.setting;
+				item.component = async () => (await import(`${config.setting.static_dir}/${mRoute.component}.js`)).default(mRoute);
 			}
 			if (mRoute.alias) {
 				item.alias = mRoute.alias;
@@ -236,30 +236,31 @@ window.QADV = (() => {
 		} catch (ex) {
 			document.getElementById('loader').style.display = 'none';
 			document.getElementsByClassName('browser-upgrade')[0].style.display = '';
-			document.getElementById('logo').src = config.assets_dir + "/img/logo.svg";
-			document.getElementsByClassName('browser-upgrade__text')[0].innerHTML = ex;
+			document.getElementById('logo').src = config.setting.assets_dir + "/img/logo.svg";
+			document.getElementsByClassName('browser-upgrade__text')[0].innerHTML = ex.toString();
+			console.error(ex);
 		}
 	}
 
 	const main_do = async (config) => {
-		loadCSS(`${config.assets_dir}/css/reset.min.css`);
-		loadCSS(`${config.assets_dir}/css/boxicons.min.css`);
+		loadCSS(`${config.setting.assets_dir}/css/reset.min.css`);
+		loadCSS(`${config.setting.assets_dir}/css/boxicons.min.css`);
 
-		const VueGlobalFile = isDev() ? 'https://unpkg.com/vue@3/dist/vue.global.js' : `${config.assets_dir}/js/vue/vue.global.prod.js`;
+		const VueGlobalFile = isDev() ? 'https://unpkg.com/vue@3/dist/vue.global.js' : `${config.setting.assets_dir}/js/vue/vue.global.prod.js`;
 		await loadJS([
 			VueGlobalFile,
-			`${config.assets_dir}/js/antd/dayjs.min.js`,
-			`${config.assets_dir}/js/antd/dayjs-plugin.min.js`,
-			`${config.assets_dir}/js/sheetjs/xlsx.full.min.js`,
+			`${config.setting.assets_dir}/js/antd/dayjs.min.js`,
+			`${config.setting.assets_dir}/js/antd/dayjs-plugin.min.js`,
+			`${config.setting.assets_dir}/js/sheetjs/xlsx.full.min.js`,
 		]);
 		await loadJS([
-			`${config.assets_dir}/js/antd/antd.min.js`,
-			`${config.assets_dir}/js/i18n.js`,
-			`${config.assets_dir}/js/vue/vue-demi.iife.js`,
-			`${config.assets_dir}/js/vue/vue-router.global.prod.js`,
+			`${config.setting.assets_dir}/js/antd/antd.min.js`,
+			`${config.setting.assets_dir}/js/i18n.js`,
+			`${config.setting.assets_dir}/js/vue/vue-demi.iife.js`,
+			`${config.setting.assets_dir}/js/vue/vue-router.global.prod.js`,
 		]);
 		await loadJS([
-			`${config.assets_dir}/js/vue/pinia.iife.prod.js`,
+			`${config.setting.assets_dir}/js/vue/pinia.iife.prod.js`,
 		]);
 		const { router } = await VueCreateApp(Vue, VueRouter);
 

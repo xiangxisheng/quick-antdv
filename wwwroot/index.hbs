@@ -5,6 +5,7 @@
 	<base href="/" />
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>{{title}}</title>
 	<link rel="icon" href="favicon.ico" type="image/x-icon">
 </head>
 
@@ -36,9 +37,11 @@
 </body>
 
 <script>
-	const config = {};
-	config.static_dir = '/static';
-	config.assets_dir = config.static_dir + '/assets';
+	const config = {{ config }};
+	if (!config.setting.assets_dir) {
+		config.setting.assets_dir = config.setting.static_dir + '/assets';
+	}
+
 	function isAsyncAwaitSupport() {
 		let func;
 		try {
@@ -50,11 +53,11 @@
 	}
 	const link = document.createElement('link');
 	link.rel = 'stylesheet';
-	link.href = config.assets_dir + '/css/qadv.css';
+	link.href = config.setting.assets_dir + '/css/qadv.css';
 	document.head.appendChild(link);
 	if (isAsyncAwaitSupport()) {
 		const script = document.createElement('script');
-		script.src = config.assets_dir + '/js/qadv.js';
+		script.src = config.setting.assets_dir + '/js/qadv.js';
 		script.onload = function () {
 			window.QADV.main(config);
 		};
@@ -62,7 +65,7 @@
 	} else {
 		document.getElementById('loader').style.display = 'none';
 		document.getElementsByClassName('browser-upgrade')[0].style.display = '';
-		document.getElementById('logo').src = config.assets_dir + "/img/logo.svg";
+		document.getElementById('logo').src = config.setting.assets_dir + "/img/logo.svg";
 	}
 </script>
 
