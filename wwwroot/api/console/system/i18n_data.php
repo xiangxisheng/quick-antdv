@@ -117,7 +117,7 @@ $data = [
 	],
 	'onEffected' => function () use ($i18n) {
 		$langPath = ROOT_DIR . '/wwwroot/static/data/lang';
-		$i18n->generateLangpack($langPath, 'asiafort');
+		$i18n->generateLangpack($langPath);
 	},
 ];
-echo json_encode($_C->db('asiafort')->tableReader($data));
+echo json_encode($_C->db()->tableReader($data));

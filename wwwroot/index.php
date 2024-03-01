@@ -4,29 +4,9 @@ if (!defined('DS')) {
 	define('DS', DIRECTORY_SEPARATOR);
 }
 define('ROOT_DIR', dirname(__DIR__));
+$_C = require(ROOT_DIR . DS . 'php' . DS . 'quick.php');
+
 require(__DIR__ . DS . 'component.php');
-
-function GetRequestHostName()
-{
-	$host_parts = explode(':', $_SERVER['HTTP_HOST']);
-	return $host_parts[0];
-}
-
-function GetSiteName($host_name)
-{
-	$hosts = require(ROOT_DIR . DS . 'config' . DS . 'hosts.php');
-	if (isset($hosts[$host_name])) {
-		return $hosts[$host_name];
-	}
-	return 'default';
-}
-
-function GetConfig($host_name)
-{
-	$site_name = GetSiteName($host_name);
-	$config_dir = ROOT_DIR . DS . 'config';
-	return require($config_dir . DS . 'sites' . DS . $site_name . '.php');
-}
 
 function isLocal($host_name)
 {
@@ -54,17 +34,18 @@ function isCached($target, $cache_timeout = -1)
 	return false;
 }
 
-function GetHTML($name)
+function GetHTML($_C, $name)
 {
-	$host_name = GetRequestHostName();
+	$host_name = $_C->GetRequestHostName();
 	$target = __DIR__ . DS . $name . '.html';
 	$cache_timeout = isLocal($host_name) ? 0 : -1;
 	if (isCached($target, $cache_timeout)) {
 		return file_get_contents($target);
 	}
+	// 生成HTML时也要构建组件
 	component_build();
 	$html = file_get_contents(__DIR__ . DS . $name . '.hbs');
-	$config = GetConfig($host_name);
+	$config = $_C->GetConfig();
 	$data = [
 		'title' => $config['setting']['title'],
 		'config' => json_encode($config),
@@ -76,4 +57,4 @@ function GetHTML($name)
 	return $html;
 }
 
-echo GetHTML('index');
+echo GetHTML($_C, 'index');

@@ -12,7 +12,7 @@ class I18n
 		$this->config = $config;
 	}
 
-	public function generateLangpack($langPath, $dbName, $fCallback = null)
+	public function generateLangpack($langPath, $dbName = '', $fCallback = null)
 	{
 		$json_flags = 0;
 		$json_flags |= JSON_UNESCAPED_UNICODE;
