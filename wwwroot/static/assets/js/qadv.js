@@ -1,4 +1,4 @@
-window.QADV = (() => {
+window.QADV = ((config) => {
 	function stringifyQuery(queryObj) {
 		if (!queryObj) {
 			return '';
@@ -63,8 +63,8 @@ window.QADV = (() => {
 			ex.res = oResponse;
 			throw ex;
 		}
-		if (location.hostname === '127.0.0.2') {
-			await delay(500);
+		if (config.setting.delay) {
+			await delay(config.setting.delay);
 		}
 		const text = await oResponse.text();
 		try {
@@ -233,9 +233,9 @@ window.QADV = (() => {
 		return devHost.indexOf(location.hostname) !== -1;
 	};
 
-	const main = async (config) => {
+	const main = async () => {
 		try {
-			await main_do(config);
+			await main_do();
 		} catch (ex) {
 			document.getElementById('loader').style.display = 'none';
 			document.getElementsByClassName('browser-upgrade')[0].style.display = '';
@@ -245,7 +245,7 @@ window.QADV = (() => {
 		}
 	}
 
-	const main_do = async (config) => {
+	const main_do = async () => {
 		loadCSS(`${config.setting.assets_dir}/css/reset.min.css`);
 		loadCSS(`${config.setting.assets_dir}/css/boxicons.min.css`);
 
@@ -351,4 +351,4 @@ window.QADV = (() => {
 	firadio.filterNullItem = filterNullItem;
 	firadio.tryParseJSON = tryParseJSON;
 	return firadio;
-})();
+});

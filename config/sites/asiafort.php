@@ -1,6 +1,9 @@
 <?php
 
-$config = require(__DIR__ . DIRECTORY_SEPARATOR . 'default.php');
+if (!defined('DS')) {
+	define('DS', DIRECTORY_SEPARATOR);
+}
+$config = require(__DIR__ . DS . 'default.php');
 $defaRoute = &$config['routes'][0]['children'];
 array_unshift($defaRoute[2]['children'], [
 	'name' => 'asiafort',

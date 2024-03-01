@@ -268,6 +268,12 @@ class TableCrud extends PDO
 	{
 		$action = isset($_GET['action']) ? $_GET['action'] : '';
 
+		$onEffected = function () use ($action, $pageConfig) {
+			if (isset($pageConfig['onEffected'])) {
+				$pageConfig['onEffected']($action);
+			}
+		};
+
 		if ($action === 'init') {
 			$pageConfig['table'] = array_merge_recursive($pageConfig['table'], $this->table_action_list($pageConfig));
 			unset($pageConfig['sql']);
@@ -305,6 +311,7 @@ class TableCrud extends PDO
 			$this->begin();
 			$this->execute($sSql, $aParam);
 			$this->commit();
+			$onEffected();
 			return [
 				'message' => ['type' => 'success', 'content' => 'Create successful'],
 				'table' => $this->table_action_list($pageConfig),
@@ -324,6 +331,7 @@ class TableCrud extends PDO
 			$this->begin();
 			$this->execute($sSql, $aParam);
 			$this->commit();
+			$onEffected();
 			return [
 				'message' => ['type' => 'success', 'content' => 'Update successful'],
 				'table' => $this->table_action_list($pageConfig),
@@ -351,6 +359,7 @@ class TableCrud extends PDO
 			$this->begin();
 			$this->execute($sSql, $aParam);
 			$this->commit();
+			$onEffected();
 			return [
 				'message' => ['type' => 'success', 'content' => 'Delete successful'],
 				'table' => $this->table_action_list($pageConfig),

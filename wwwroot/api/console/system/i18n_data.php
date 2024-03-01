@@ -1,6 +1,10 @@
 <?php
 
-require_once dirname(__DIR__) . '/../quick.php';
+if (!defined('DS')) {
+	define('DS', DIRECTORY_SEPARATOR);
+}
+$_C = require_once dirname(dirname(__DIR__)) . DS . 'quick.php';
+$i18n = new QuickPHP\I18n($_C);
 
 $columns = [];
 $columns[] = [
@@ -111,5 +115,9 @@ $data = [
 		'rowKey' => 'id',
 		'rowSelection' => true,
 	],
+	'onEffected' => function () use ($i18n) {
+		$langPath = ROOT_DIR . '/wwwroot/static/data/lang';
+		$i18n->generateLangpack($langPath, 'asiafort');
+	},
 ];
 echo json_encode($_C->db('asiafort')->tableReader($data));

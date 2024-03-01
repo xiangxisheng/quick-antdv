@@ -1,7 +1,10 @@
 <?php
 
-define('DS', DIRECTORY_SEPARATOR);
+if (!defined('DS')) {
+	define('DS', DIRECTORY_SEPARATOR);
+}
 define('ROOT_DIR', dirname(__DIR__));
+require(__DIR__ . DS . 'component.php');
 
 function GetRequestHostName()
 {
@@ -59,6 +62,7 @@ function GetHTML($name)
 	if (isCached($target, $cache_timeout)) {
 		return file_get_contents($target);
 	}
+	component_build();
 	$html = file_get_contents(__DIR__ . DS . $name . '.hbs');
 	$config = GetConfig($host_name);
 	$data = [

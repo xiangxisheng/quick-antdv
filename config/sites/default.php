@@ -7,7 +7,7 @@ $route = [
 	'children' => [
 		[
 			'path' => '/:pathMatch(.*)',
-			'component' => 'component/404',
+			'component' => 'common/404',
 		],
 		[
 			"name" => "home",
@@ -51,14 +51,14 @@ $route = [
 		],
 		[
 			"name" => "sign-up",
-			"label" => "sign_up",
-			"component" => "page/sign",
+			"label" => "sign.register",
+			"component" => "common/sign",
 			"role" => "public"
 		],
 		[
 			"name" => "sign-in",
-			"label" => "sign_in",
-			"component" => "page/sign",
+			"label" => "sign.login",
+			"component" => "common/sign",
 			"role" => "public"
 		],
 	],
@@ -68,6 +68,7 @@ $setting = [
 	'assets_dir' => $static_dir . '/assets',
 	'component_dir' => $static_dir . '/component',
 	'component_ext' => '.vue.js',
+	'delay' => 0,
 	'isDev' => false,
 	'static_dir' => $static_dir,
 	'title' => 'Quick Antdv',

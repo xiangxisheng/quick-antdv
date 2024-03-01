@@ -1,6 +1,9 @@
 <?php
 
-require_once dirname(__DIR__) . '/../quick.php';
+if (!defined('DS')) {
+	define('DS', DIRECTORY_SEPARATOR);
+}
+$_C = require_once dirname(dirname(__DIR__)) . DS . 'quick.php';
 
 $columns = [];
 $columns[] = [

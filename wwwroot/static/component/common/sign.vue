@@ -1,17 +1,19 @@
 <template>
-	<h1 style="text-align: center; margin: 40px;">{{ title }}</h1>
+	<h1 style="text-align: center; margin: 40px;">{{ route.name === '/sign-up' ? GTR('sign.register') : GTR('sign.login') }}</h1>
 
 	<a-form :model="formState" name="basic" :label-col="{ span: 8 }" :wrapper-col="{ span: 10 }" autocomplete="off" @finish="onFinish"
 		@finishFailed="onFinishFailed" style="text-align: center; margin: 0 40px;">
-		<a-form-item label="Username" name="username" :rules="[{ required: true, message: 'Please input your username!' }]">
+		<a-form-item :label="GTR('sign.username')" name="username"
+			:rules="[{ required: true, message: GTR('table.please_enter', { title: GTR('sign.username') }) }]">
 			<a-input v-model:value="formState.username" />
 		</a-form-item>
 
-		<a-form-item label="Password" name="password" :rules="[{ required: true, message: 'Please input your password!' }]">
+		<a-form-item :label="GTR('sign.password')" name="password"
+			:rules="[{ required: true, message: GTR('table.please_enter', { title: GTR('sign.password') }) }]">
 			<a-input-password v-model:value="formState.password" />
 		</a-form-item>
 
-		<a-form-item v-if="route.name === '/sign-up'" label="Password Confirm" name="password_confirm"
+		<a-form-item v-if="route.name === '/sign-up'" :label="GTR('sign.confirmPassword')" name="password_confirm"
 			:rules="[{ required: true, message: 'Please confirm your password!' }]">
 			<a-input-password v-model:value="formState.password_confirm" />
 		</a-form-item>
@@ -22,9 +24,9 @@
 
 		<a-form-item :wrapper-col="{ span: 24 }">
 			<a-space wrap>
-				<a-button type="link" v-on:click="router.push('/sign-up')" v-if="route.name === '/sign-in'">Register</a-button>
-				<a-button type="link" v-on:click="router.push('/sign-in')" v-if="route.name === '/sign-up'">Login</a-button>
-				<a-button type="primary" html-type="submit" span="8">Submit</a-button>
+				<a-button type="link" v-on:click="router.push('/sign-up')" v-if="route.name === '/sign-in'">{{ GTR('sign.register') }}</a-button>
+				<a-button type="link" v-on:click="router.push('/sign-in')" v-if="route.name === '/sign-up'">{{ GTR('sign.login') }}</a-button>
+				<a-button type="primary" html-type="submit" span="8">{{ GTR('sign.submit') }}</a-button>
 			</a-space>
 
 		</a-form-item>
@@ -32,7 +34,7 @@
 </template>
 
 <script define>
-const { reactive } = Vue;
+const { reactive, inject } = Vue;
 const { useRouter, useRoute } = VueRouter;
 const { Form, FormItem, Input, InputPassword, Checkbox, Space, Button } = antd;
 const components = {
@@ -47,6 +49,15 @@ const components = {
 </script>
 
 <script setup>
+const i18n = inject('i18n')();
+
+function GTR(_formatpath, _param) {
+	if (_formatpath === undefined) {
+		return '';
+	}
+	return i18n.fGetTransResult(_formatpath, _param, i18n.locale);
+};
+
 const formState = reactive({
 	username: '',
 	password: '',
@@ -62,12 +73,11 @@ const onFinishFailed = (errorInfo) => {
 
 const router = useRouter();
 const route = useRoute();
-const title = route.name === '/sign-up' ? 'Register' : 'Login';
 
 return {
+	GTR,
 	router,
 	route,
-	title,
 	formState,
 	onFinish,
 	onFinishFailed,

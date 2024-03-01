@@ -1,7 +1,18 @@
 <?php
 
-define('DS', DIRECTORY_SEPARATOR);
-define('COMPONENT_DIR', __DIR__ . DS . 'component');
+if (!defined('DS')) {
+	define('DS', DIRECTORY_SEPARATOR);
+}
+define('COMPONENT_DIR', __DIR__ . DS . 'static' . DS . 'component');
+
+if (isset($argv[1])) {
+	if ($argv[1] === 'build') {
+		$startTime = microtime(true);
+		component_build();
+		$executionTime = ceil((microtime(true) - $startTime) * 1000);
+		echo "Component file successfully generated. ({$executionTime}ms)\r\n";
+	}
+}
 
 function getstr1($strall, $str1, $str2)
 {
@@ -71,8 +82,10 @@ function getJs($vueFile)
 	return $js;
 }
 
-$vueFiles = getVueFiles(COMPONENT_DIR);
-foreach ($vueFiles as $vueFile) {
-	file_put_contents($vueFile . '.js', getJs($vueFile));
+function component_build()
+{
+	$vueFiles = getVueFiles(COMPONENT_DIR);
+	foreach ($vueFiles as $vueFile) {
+		file_put_contents($vueFile . '.js', getJs($vueFile));
+	}
 }
-echo "Component file successfully generated.\r\n";
