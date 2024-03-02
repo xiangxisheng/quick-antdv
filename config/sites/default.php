@@ -50,15 +50,15 @@ $route = [
 			],
 		],
 		[
-			"name" => "sign-up",
+			"name" => "register",
 			"label" => "sign.register",
-			"component" => "common/sign",
+			"component" => "common/form",
 			"role" => "public"
 		],
 		[
-			"name" => "sign-in",
+			"name" => "login",
 			"label" => "sign.login",
-			"component" => "common/sign",
+			"component" => "common/form",
 			"role" => "public"
 		],
 	],

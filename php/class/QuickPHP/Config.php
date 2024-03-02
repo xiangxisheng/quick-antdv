@@ -17,6 +17,12 @@ class Config
 		return new TableCrud($mDbconf);
 	}
 
+	public function form($dbName = '')
+	{
+		$mDbconf = $this->c_dbs[$dbName];
+		return new Form($mDbconf);
+	}
+
 	public function GetRequestHostName()
 	{
 		$host_parts = explode(':', $_SERVER['HTTP_HOST']);

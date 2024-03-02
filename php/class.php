@@ -2,8 +2,11 @@
 
 namespace QuickPHP;
 
-define('CLASS_DIR', __DIR__ . '/class');
+if (!defined('DS')) {
+	define('DS', DIRECTORY_SEPARATOR);
+}
+define('CLASS_DIR', __DIR__ . DS . 'class');
 spl_autoload_register(function ($class) {
-	$class = str_replace("\\", '/', $class);
-	require_once CLASS_DIR . '/' . $class . '.php';
+	$class = str_replace("\\", DS, $class);
+	require_once CLASS_DIR . DS . $class . '.php';
 });
