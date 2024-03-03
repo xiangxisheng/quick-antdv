@@ -7,6 +7,7 @@ $_C = require_once __DIR__ . DS . 'quick.php';
 
 $items = [];
 $items[] = [
+	'title' => 'sign.username',
 	'label' => 'sign.username',
 	'dataIndex' => 'username',
 	'form' => 'input',
@@ -14,6 +15,7 @@ $items[] = [
 	'rules' => [['required' => true, 'message' => 'table.please_enter']],
 ];
 $items[] = [
+	'title' => 'sign.password',
 	'label' => 'sign.password',
 	'dataIndex' => 'password',
 	'form' => 'input-password',
@@ -35,7 +37,7 @@ $items[] = [
 	],
 ];
 $data = [
-	'header' => [
+	'headers' => [
 		['type' => 'title', 'title' => 'sign.login',],
 	],
 	'items' => $items,

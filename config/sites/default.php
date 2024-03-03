@@ -1,5 +1,22 @@
 <?php
 
+function findIndexByName($children, $name)
+{
+	foreach ($children as $key => $item) {
+		if (!isset($item['name'])) {
+			continue;
+		}
+		if ($item['name'] === $name) {
+			return $key;
+		}
+	}
+}
+function &getMenu(&$config, $iRoot, $sMenuName)
+{
+	$aRootChildren = &$config['routes'][$iRoot]['children'];
+	$sMenuIndex = findIndexByName($aRootChildren, $sMenuName);
+	return $aRootChildren[$sMenuIndex];
+}
 $route = [
 	'path' => '/',
 	'component' => 'common/index',
@@ -10,15 +27,7 @@ $route = [
 			'component' => 'common/404',
 		],
 		[
-			"name" => "home",
-			"alias" => "/",
-			"label" => "首页",
-			"component" => "common/home",
-			"role" => "public"
-		],
-		[
 			'name' => 'console',
-			'alias' => '/',
 			'label' => 'menu.console',
 			'component' => 'common/panel',
 			'role' => 'user',
@@ -44,6 +53,7 @@ $route = [
 							'label' => 'menu.users',
 							'component' => 'common/table',
 							'role' => 'sysadmin',
+							'alias' => '/',
 						],
 					],
 				],

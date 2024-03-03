@@ -4,8 +4,8 @@ if (!defined('DS')) {
 	define('DS', DIRECTORY_SEPARATOR);
 }
 $config = require(__DIR__ . DS . 'default.php');
-$defaRoute = &$config['routes'][0]['children'];
-array_unshift($defaRoute[2]['children'], [
+$mMenuConsole = &getMenu($config, 0, 'console');
+array_unshift($mMenuConsole['children'], [
 	'name' => 'asiafort',
 	'label' => 'menu.asiafort',
 	'children' => [
@@ -15,6 +15,7 @@ array_unshift($defaRoute[2]['children'], [
 			'label' => 'menu.signin_records',
 			'component' => 'common/table',
 			'role' => 'user',
+			'alias' => '/',
 		],
 		[
 			'name' => 'tb_person',

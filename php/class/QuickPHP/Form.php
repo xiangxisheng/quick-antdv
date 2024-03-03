@@ -11,6 +11,12 @@ class Form extends PDO
 
 	public function reader($data)
 	{
-		return $data;
+		$action = isset($_GET['action']) ? $_GET['action'] : '';
+		if ($action === 'init') {
+			return $data;
+		}
+		return [
+			'message' => ['type' => 'error', 'content' => 'test'],
+		];
 	}
 }
