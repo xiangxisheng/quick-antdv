@@ -38,7 +38,10 @@ function GetHTML($_C, $name)
 {
 	$host_name = $_C->GetRequestHostName();
 	$target = __DIR__ . DS . $name . '.html';
-	$cache_timeout = isLocal($host_name) ? 0 : -1;
+	$cache_timeout = 1;
+	if (isLocal($host_name)) {
+		$cache_timeout = 0;
+	}
 	if (isCached($target, $cache_timeout)) {
 		return file_get_contents($target);
 	}

@@ -1,12 +1,12 @@
 version: '3.8'
 services:
-  php74:
+  apache:
     container_name: 'php-antdv'
     hostname: 'php-antdv'
-    image: 'php:7.4-apache'
+    image: 'php:8.3-apache'
     restart: unless-stopped
     ports:
-      - '80:80'
+      - '8000:80'
     volumes:
       - ./script:/root/script
       - ./log:/root/log

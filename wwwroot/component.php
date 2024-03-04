@@ -75,7 +75,7 @@ function getVueFiles($folder_path, $ext = 'vue')
 function getJs($vueFile)
 {
 	$html = file_get_contents($vueFile);
-	$template = json_encode(getstr2($html, "<template>\r\n\t", "\r\n</template>"));
+	$template = json_encode(getstr2($html, "<template>", "</template>"));
 	$script_define = getstr1($html, '<script define>', '</script>');
 	$script_setup = getstr1($html, '<script setup>', '</script>');
 	$js = "{$script_define}\r\nexport default async (oTopRoute) => ({\r\n\ttemplate: {$template},\r\n\tcomponents,\r\n\tsetup() {{$script_setup}},\r\n});";
