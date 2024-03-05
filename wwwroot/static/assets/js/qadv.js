@@ -41,7 +41,7 @@ window.QADV = ((config) => {
 			headers: {
 				clientid: (function () {
 					if (!window.localStorage.hasOwnProperty('clientid')) {
-						window.localStorage.clientid = new Date().getTime() + Math.random().toString().substring(2);
+						window.localStorage.clientid = new Date().getTime() + '.' + Math.random().toString().substring(2);
 					}
 					return window.localStorage.clientid;
 				})(),

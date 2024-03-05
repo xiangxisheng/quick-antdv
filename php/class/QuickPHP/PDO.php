@@ -69,4 +69,51 @@ class PDO extends \PDO
 		}
 		return $name;
 	}
+
+	public function insert($sFrom, $mInserts)
+	{
+		$aFields = [];
+		$aValues = [];
+		$mParam = [];
+		foreach ($mInserts as $sField => $value) {
+			$aFields[] = $this->fieldQuote($sField);
+			if (is_array($value)) {
+				$aValues[] = $value[0];
+			} else {
+				$aValues[] = ':' . $sField;
+				$mParam[$sField] = $value;
+			}
+		}
+		$sFields = implode(',', $aFields);
+		$sValues = implode(',', $aValues);
+		$sSql = "INSERT INTO {$sFrom}($sFields)VALUES($sValues)";
+		return $this->execute($sSql, $mParam);
+	}
+
+	public function update($sFrom, $mSets, $mWheres)
+	{
+		$mParam = [];
+		$aSets = [];
+		foreach ($mSets as $sField => $value) {
+			if (is_array($value)) {
+				$aSets[] = $this->fieldQuote($sField) . '=' . $value[0];
+			} else {
+				$aSets[] = $this->fieldQuote($sField) . '=:' . $sField;
+				$mParam[$sField] = $value;
+			}
+		}
+		$aWheres = [];
+		foreach ($mWheres as $sField => $value) {
+			if (is_array($value)) {
+				$aWheres[] = $this->fieldQuote($sField) . '=' . $value[0];
+			} else {
+				$aWheres[] = $this->fieldQuote($sField) . '=:' . $sField;
+				$mParam[$sField] = $value;
+			}
+		}
+		$sSets = implode(',', $aSets);
+		$sWheres = '(' . implode(')AND(', $aWheres) . ')';
+		$sSql = "UPDATE {$sFrom} SET {$sSets} WHERE {$sWheres}";
+		return $this->execute($sSql, $mParam);
+	}
 }
