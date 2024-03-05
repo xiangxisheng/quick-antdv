@@ -31,7 +31,7 @@
 				<span v-for="button of drawerState.buttons">
 					<a-button v-if="button.type === 'primary'" :type="button.type" :loading="pageState.loading"
 						@click="async () => { try { await $refs.drawerForm.validate(); drawerState.finish(); } catch (e) { drawerState.finishFailed(e); } }">{{
-							GTR(button.title) }}</a-button>
+		GTR(button.title) }}</a-button>
 					<a-button v-else @click="$refs.drawerForm.clearValidate(); drawerState.open = false;">{{ GTR(button.title) }}</a-button>
 				</span>
 			</a-space>
@@ -44,6 +44,7 @@
 				:disabled="tableState.rowSelection.selectedRowKeys.length === 0" @confirm="pageState.handleButton(button)" v-else-if="button.popconfirm">
 				<a-button type="primary" :danger="button.type === 'delete'" :loading="pageState.loading"
 					:disabled="tableState.rowSelection.selectedRowKeys.length === 0">
+
 					<template #icon>
 						<span v-if="0"></span>
 						<i v-else-if="button.type === 'delete'" class="bx bx-trash" style="font-size: 16px; vertical-align: -2px; margin-right: 4px;"></i>
@@ -53,6 +54,7 @@
 				</a-button>
 			</a-popconfirm>
 			<a-button type="primary" :danger="button.type === 'delete'" :loading="pageState.loading" @click="pageState.handleButton(button)" v-else>
+
 				<template #icon>
 					<span v-if="0"></span>
 					<i v-else-if="button.type === 'delete'" class="bx bx-trash" style="font-size: 16px; vertical-align: -2px; margin-right: 4px;"></i>
@@ -64,6 +66,7 @@
 	</a-space>
 	<a-table :dataSource="tableState.dataSource" :columns="tableState.columns" :pagination="tableState.pagination" :loading="pageState.loading"
 		@change="tableState.change" :scroll="{ x: 500 }" :rowSelection="tableState.rowSelection" :rowKey="tableState.rowKey" :showSorterTooltip="false">
+
 		<template #customFilterDropdown="{ setSelectedKeys, selectedKeys, confirm, clearFilters, column }">
 			<a-space direction="vertical" :size="12" style="padding: 8px;">
 				<div v-if="0"></div>
@@ -84,6 +87,7 @@
 				</a-space>
 			</a-space>
 		</template>
+
 		<template #bodyCell="{ column, record }">
 			<template v-if="column.operates">
 				<a-space direction="horizontal">
@@ -326,7 +330,7 @@ const searchInput = ref('');
 const Api = (() => {
 	const apiAction = async (action, param, post) => {
 		param.action = action;
-		const path = `api${route.name}.php`;
+		const path = route.name;
 		if (pageState.loading) {
 			return;
 		}

@@ -20,7 +20,6 @@ function &getMenu(&$config, $iRoot, $sMenuName)
 $route = [
 	'path' => '/',
 	'component' => 'common/index',
-	'role' => 'public',
 	'children' => [
 		[
 			'path' => '/:pathMatch(.*)',
@@ -30,7 +29,6 @@ $route = [
 			'name' => 'console',
 			'label' => 'menu.console',
 			'component' => 'common/panel',
-			'role' => 'user',
 			'children' => [
 				[
 					'name' => 'system',
@@ -75,6 +73,8 @@ $route = [
 ];
 $static_dir = '/static';
 $setting = [
+	'api_ext' => '.php',
+	'api_root' => '/api',
 	'assets_dir' => $static_dir . '/assets',
 	'component_dir' => $static_dir . '/component',
 	'component_ext' => '.vue.js',

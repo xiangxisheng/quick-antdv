@@ -4,22 +4,34 @@ namespace QuickPHP;
 
 class Config
 {
-	private $c_dbs;
+	private $mConf;
+	private $auth;
 
-	public function __construct($mConf)
+	public function __construct()
 	{
-		$this->c_dbs = $mConf['dbs'];
+		$this->mConf = $this->GetConfig();
+	}
+
+	public function auth()
+	{
+		if ($this->auth) {
+			return $this->auth;
+		}
+		$this->auth = new Auth($this->mConf);
+		return $this->auth;
 	}
 
 	public function db($dbName = '')
 	{
-		$mDbconf = $this->c_dbs[$dbName];
+		$dbs = $this->mConf['dbs'];
+		$mDbconf = $dbs[$dbName];
 		return new TableCrud($mDbconf);
 	}
 
 	public function form($dbName = '')
 	{
-		$mDbconf = $this->c_dbs[$dbName];
+		$dbs = $this->mConf['dbs'];
+		$mDbconf = $dbs[$dbName];
 		return new Form($mDbconf);
 	}
 
@@ -41,8 +53,13 @@ class Config
 
 	public function GetConfig()
 	{
+		if ($this->mConf) {
+			return $this->mConf;
+		}
 		$site_name = $this->GetSiteName();
 		$config_dir = ROOT_DIR . DS . 'config';
-		return require($config_dir . DS . 'sites' . DS . $site_name . '.php');
+		$mSiteConf = require($config_dir . DS . 'sites' . DS . $site_name . '.php');
+		$mCommonConf = require(ROOT_DIR . DS . 'config.php');
+		return array_merge($mCommonConf, $mSiteConf);
 	}
 }

@@ -19,7 +19,7 @@ window.QADV = ((config) => {
 		return pairs.join('&');
 	};
 
-	async function backendApi(options) {
+	async function backendFetch(options) {
 		const { path, param, post, dataType } = options;
 		const url = new URL(location.href);
 		url.pathname = path;
@@ -39,6 +39,12 @@ window.QADV = ((config) => {
 		const reqOption = {
 			method: post ? 'POST' : 'GET',
 			headers: {
+				clientid: (function () {
+					if (!window.localStorage.hasOwnProperty('clientid')) {
+						window.localStorage.clientid = new Date().getTime() + Math.random().toString().substring(2);
+					}
+					return window.localStorage.clientid;
+				})(),
 			},
 		};
 		if (post) {
@@ -75,6 +81,11 @@ window.QADV = ((config) => {
 			throw ex;
 		}
 	};
+
+	async function backendApi(options) {
+		options.path = `${config.setting.api_root}${options.path}${config.setting.api_ext}`;
+		return await backendFetch(options);
+	}
 
 	async function routes_filter(route, func, parent = '') {
 		const parents = [parent];

@@ -107,7 +107,7 @@ function GTR(_formatpath, _param) {
 const Api = (() => {
 	const apiAction = async (action, param, post) => {
 		param.action = action;
-		const path = `api${route.name}.php`;
+		const path = route.name;
 		if (pageState.loading) {
 			return;
 		}

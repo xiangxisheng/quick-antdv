@@ -15,6 +15,7 @@ powershell -c "Invoke-RestMethod -Uri \"https://next.antdv.com/assets/logo.1ef80
 mkdir js
 mkdir js\antd
 powershell -c "Invoke-RestMethod -Uri \"https://cdn.jsdelivr.net/npm/ant-design-vue/dist/antd.min.js\" -OutFile \"js/antd/antd.min.js\""
+powershell -c "Invoke-RestMethod -Uri \"https://cdn.jsdelivr.net/npm/ant-design-vue/dist/antd.min.js.map\" -OutFile \"js/antd/antd.min.js.map\""
 powershell -c "Invoke-RestMethod -Uri \"https://cdn.jsdelivr.net/npm/dayjs/dayjs.min.js\" -OutFile \"js/antd/dayjs.min.js\""
 powershell -c "Invoke-RestMethod -Uri \"https://unpkg.com/dayjs/plugin/customParseFormat.js\" -OutFile \"tmp-1.js\""
 powershell -c "Invoke-RestMethod -Uri \"https://unpkg.com/dayjs/plugin/weekday.js\" -OutFile \"tmp-2.js\""

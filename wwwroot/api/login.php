@@ -41,7 +41,10 @@ $data = [
 		['type' => 'title', 'title' => 'sign.login',],
 	],
 	'items' => $items,
-	'onAction' => function () {
+	'onAction' => function ($db, $action, $post) use ($_C) {
+		$response = $_C->auth()->login($db, $post);
+		$response['go'] = '/';
+		return $response;
 	},
 ];
 echo json_encode($_C->form()->reader($data));

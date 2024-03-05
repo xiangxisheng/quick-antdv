@@ -21,9 +21,15 @@ class PDO extends \PDO
 		$this->beginTransaction();
 	}
 
+	private function toQueryString($sql)
+	{
+		$sql = str_replace('{table_pre}', '', $sql);
+		return $sql;
+	}
+
 	public function execute($sql, $param)
 	{
-		$stmt = $this->prepare($sql);
+		$stmt = $this->prepare($this->toQueryString($sql));
 		$stmt->execute($param);
 		return $stmt;
 	}
