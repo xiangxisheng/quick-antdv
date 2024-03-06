@@ -47,6 +47,7 @@ i18n.$subscribe((mutation, state) => {
 });
 
 const oMenuState = stateStorage('menu');
+const user_roles = ['sysadmin', 'user', 'public'];
 const menuState = reactive({
 	collapsed: false,
 	openKeys: [],
@@ -77,6 +78,9 @@ const menuState = reactive({
 		};
 		menuState.selectedKeys = [route.name];
 		menuState.items = (await routes_filter(oTopRoute, async (sParent, mRoute) => {
+			if (mRoute.role && user_roles.indexOf(mRoute.role) === -1) {
+				return;
+			}
 			const mRet = {};
 			mRet.key = `${sParent}/${mRoute.name}`;
 			mRet.icon = () => h({

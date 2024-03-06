@@ -140,10 +140,15 @@ class Auth
 			$this->response('not found in routes', 400);
 		}
 		if ($route_role === 'public') {
+			// 登录或注册页面无需登录也能访问
 			return;
 		}
 		// 2:取得当前用户所拥有的角色
 		$user_roles = $this->user_roles();
+		if ($route_role === 'user') {
+			// 角色为user代表只要登录了就能访问
+			return;
+		}
 		if (!in_array($route_role, $user_roles)) {
 			$this->response('no permission', 403);
 		}

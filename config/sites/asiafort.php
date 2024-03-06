@@ -8,6 +8,7 @@ $mMenuConsole = &getMenu($config, 0, 'console');
 array_unshift($mMenuConsole['children'], [
 	'name' => 'asiafort',
 	'label' => 'menu.asiafort',
+	'role' => 'user',
 	'children' => [
 		[
 			'alias' => '/console',

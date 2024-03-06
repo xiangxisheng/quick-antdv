@@ -95,6 +95,7 @@ const ReloadTrans = async () => {
 };
 
 onMounted(async () => {
+	const user_roles = ['sysadmin', 'user', 'public'];
 	for (const mRoute of oTopRoute.children) {
 		if (!mRoute.label) {
 			continue;
@@ -102,7 +103,9 @@ onMounted(async () => {
 		const item = {};
 		item.key = mRoute.name;
 		item.label_tpl = mRoute.label;
-		menuState.items.push(item);
+		if (!mRoute.role || user_roles.indexOf(mRoute.role) !== -1) {
+			menuState.items.push(item);
+		}
 	}
 	await i18n.fLoadData();
 });

@@ -29,6 +29,7 @@ $route = [
 			'name' => 'console',
 			'label' => 'menu.console',
 			'component' => 'common/panel',
+			'role' => 'user',
 			'children' => [
 				[
 					'name' => 'system',

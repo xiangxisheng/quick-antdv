@@ -36,6 +36,7 @@ class Config
 	{
 		// 修改默认数据库
 		$this->mConf['setting']['db'] = $dbName;
+		return $this;
 	}
 
 	public function pdo($_sDbName = null)

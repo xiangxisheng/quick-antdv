@@ -93,6 +93,9 @@ window.QADV = ((config) => {
 			parents.push(route.name);
 		}
 		const mRet = await func(parent, route);
+		if (!mRet) {
+			return;
+		}
 		if (route.children) {
 			mRet.children = [];
 			for (const subroute of route.children) {

@@ -34,6 +34,14 @@ $columns[] = [
 	'rules' => [['required' => true, 'message' => 'table.please_enter']],
 ];
 $columns[] = [
+	'title' => 'table.roles',
+	'dataIndex' => 'roles',
+	'width' => 80,
+	'sorter' => true,
+	'form' => 'input',
+	'sql_where' => '`roles` LIKE ?',
+];
+$columns[] = [
 	'title' => 'table.nickname',
 	'dataIndex' => 'nickname',
 	'width' => 80,
