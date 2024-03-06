@@ -4,11 +4,10 @@ namespace QuickPHP;
 
 use Exception;
 
-class Form extends PDO
+class Form
 {
-	public function __construct($dbConf)
+	public function __construct()
 	{
-		$this->conn($dbConf['dsn'], $dbConf['user'], $dbConf['pass']);
 	}
 
 	public function reader($pageConfig)

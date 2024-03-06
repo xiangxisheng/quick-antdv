@@ -119,4 +119,4 @@ $data = [
 		'rowSelection' => true,
 	],
 ];
-echo json_encode($_C->db('asiafort')->tableReader($data));
+echo json_encode($_C->db('asiafort')->tableCrud()->tableReader($data));

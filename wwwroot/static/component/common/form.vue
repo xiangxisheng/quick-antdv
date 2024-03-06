@@ -114,10 +114,16 @@ const Api = (() => {
 		pageState.loading = true;
 		const dataType = 'json';
 		return await backendApi({ path, param, post, dataType }).then((data) => {
-			array_set_recursive(pageData, data);
 			if (data.message) {
 				messageApi.open(data.message);
 			}
+			if (data.router) {
+				setTimeout(() => {
+					router.push(data.router);
+				}, 1000);
+				return {};
+			}
+			array_set_recursive(pageData, data);
 			if (data.table) {
 				tableReaderList(data.table);
 			}

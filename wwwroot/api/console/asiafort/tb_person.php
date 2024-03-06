@@ -133,4 +133,4 @@ $data = [
 		'rowSelection' => true,
 	],
 ];
-echo json_encode($_C->db('kaoqin')->tableReader($data));
+echo json_encode($_C->db('kaoqin')->tableCrud()->tableReader($data));

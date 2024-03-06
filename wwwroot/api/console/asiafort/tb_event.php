@@ -103,4 +103,4 @@ $data = [
 		'rowSelection' => false,
 	],
 ];
-echo json_encode($_C->db('acs_acsdb')->tableReader($data));
+echo json_encode($_C->db('acs_acsdb')->tableCrud()->tableReader($data));

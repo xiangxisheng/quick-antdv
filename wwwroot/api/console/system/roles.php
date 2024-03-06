@@ -118,4 +118,4 @@ $data = [
 		'rowSelection' => true,
 	],
 ];
-echo json_encode($_C->db()->tableReader($data));
+echo json_encode($_C->tableCrud()->tableReader($data));

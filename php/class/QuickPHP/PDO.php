@@ -5,6 +5,11 @@ namespace QuickPHP;
 class PDO extends \PDO
 {
 	private $dsn_uri;
+
+	public function __construct()
+	{
+	}
+
 	public function conn($dsn, $user, $pass)
 	{
 		$this->dsn_uri = parse_url($dsn);

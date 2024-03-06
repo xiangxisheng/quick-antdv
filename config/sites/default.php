@@ -33,6 +33,7 @@ $route = [
 				[
 					'name' => 'system',
 					'label' => 'menu.system',
+					'role' => 'sysadmin',
 					'children' => [
 						[
 							'name' => 'i18n_data',

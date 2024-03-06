@@ -2,12 +2,14 @@
 
 namespace QuickPHP;
 
-class TableCrud extends PDO
+class TableCrud
 {
+	private $oPDO;
 
-	public function __construct($dbConf)
+	public function __construct($oPDO)
 	{
-		$this->conn($dbConf['dsn'], $dbConf['user'], $dbConf['pass']);
+		$this->oPDO = $oPDO;
+		//$this->conn($dbConf['dsn'], $dbConf['user'], $dbConf['pass']);
 	}
 
 	private function getColumnByField($aColumns, $sField)
@@ -38,7 +40,7 @@ class TableCrud extends PDO
 		if (!$mColumn['sorter']) {
 			return;
 		}
-		$sField = $this->fieldQuote($mColumn['dataIndex']);
+		$sField = $this->oPDO->fieldQuote($mColumn['dataIndex']);
 		$mOrderDict = array(
 			'ascend' => 'ASC',
 			'descend' => 'DESC',
@@ -58,15 +60,15 @@ class TableCrud extends PDO
 			if (!isset($column['dataIndex'])) {
 				continue;
 			}
-			$aSelect[] = (isset($column['sql_selone']) ? $column['sql_selone'] . ' ' : '') . $this->fieldQuote($column['dataIndex']);
+			$aSelect[] = (isset($column['sql_selone']) ? $column['sql_selone'] . ' ' : '') . $this->oPDO->fieldQuote($column['dataIndex']);
 		}
 		$aSql = array();
 		$aSql[] = 'SELECT ' . implode(',', $aSelect);
 		$aSql[] = 'FROM ' . $data['sql']['from'];
-		$aSql[] = 'WHERE ' . $this->fieldQuote($data['table']['rowKey']) . '=?';
+		$aSql[] = 'WHERE ' . $this->oPDO->fieldQuote($data['table']['rowKey']) . '=?';
 		$sSql = implode("\r\n", $aSql);
 		$data['sql']['param'][] = $value;
-		return $this->fetch($sSql, $data['sql']['param']);
+		return $this->oPDO->fetch($sSql, $data['sql']['param']);
 	}
 
 	private function buildSqlCreate($pageConfig, $mParam)
@@ -87,7 +89,7 @@ class TableCrud extends PDO
 				continue;
 			}
 			if (array_key_exists($column['dataIndex'], $mParam)) {
-				$aFields[] = $this->fieldQuote($column['dataIndex']);
+				$aFields[] = $this->oPDO->fieldQuote($column['dataIndex']);
 				$aValues[] = '?';
 				$aParam[] = $mParam[$column['dataIndex']];
 			}
@@ -104,7 +106,7 @@ class TableCrud extends PDO
 			if (!isset($column['dataIndex'])) {
 				continue;
 			}
-			$aSelect[] = (isset($column['sql_select']) ? $column['sql_select'] . ' ' : '') . $this->fieldQuote($column['dataIndex']);
+			$aSelect[] = (isset($column['sql_select']) ? $column['sql_select'] . ' ' : '') . $this->oPDO->fieldQuote($column['dataIndex']);
 		}
 		$aSql = array();
 		$aSql[] = 'SELECT ' . implode(',', $aSelect);
@@ -147,12 +149,12 @@ class TableCrud extends PDO
 				continue;
 			}
 			if (array_key_exists($column['dataIndex'], $mParam)) {
-				$aSets[] = $this->fieldQuote($column['dataIndex']) . '=?';
+				$aSets[] = $this->oPDO->fieldQuote($column['dataIndex']) . '=?';
 				$aParam[] = $mParam[$column['dataIndex']];
 			}
 		}
 		$aSql[] = 'SET ' . implode(',', $aSets);
-		$aSql[] = 'WHERE ' . $this->fieldQuote($pageConfig['table']['rowKey']) . '=?';
+		$aSql[] = 'WHERE ' . $this->oPDO->fieldQuote($pageConfig['table']['rowKey']) . '=?';
 		$aParam[] = $id;
 		$sSql = implode("\r\n", $aSql);
 		return array($sSql, $aParam);
@@ -163,7 +165,7 @@ class TableCrud extends PDO
 		$aSql = [];
 		$aSql[] = 'DELETE FROM ' . $pageConfig['sql']['from'];
 		$aIns = array_fill(0, count($ids), '?');
-		$aSql[] = 'WHERE ' . $this->fieldQuote($pageConfig['table']['rowKey']) . ' IN(' . implode(',', $aIns) . ')';
+		$aSql[] = 'WHERE ' . $this->oPDO->fieldQuote($pageConfig['table']['rowKey']) . ' IN(' . implode(',', $aIns) . ')';
 		$sSql = implode("\r\n", $aSql);
 		return array($sSql, $ids);
 	}
@@ -183,7 +185,7 @@ class TableCrud extends PDO
 		if (isset($data['sql']['group'])) {
 			$sSql = "SELECT COUNT(*) FROM ({$sSql}) table_count";
 		}
-		return $this->fetchNum($sSql, $data['sql']['param'])[0];
+		return $this->oPDO->fetchNum($sSql, $data['sql']['param'])[0];
 	}
 
 	private function getParamFromSqlAndValue($sql_where, $aValue)
@@ -240,7 +242,7 @@ class TableCrud extends PDO
 		$data['sql']['limit'] = $pageSize;
 		$data['sql']['offset'] = ($current - 1) * $pageSize;
 		$sSql = $this->buildSqlSelect($data);
-		$dataSource =  $this->fetchAll($sSql, $data['sql']['param']);
+		$dataSource =  $this->oPDO->fetchAll($sSql, $data['sql']['param']);
 
 		foreach ($data['table']['columns'] as $column) {
 			if (!isset($column['dataIndex'])) {
@@ -308,9 +310,9 @@ class TableCrud extends PDO
 			$data = file_get_contents('php://input');
 			$decodedData = json_decode($data, true);
 			list($sSql, $aParam) = $this->buildSqlCreate($pageConfig, $decodedData);
-			$this->begin();
-			$this->execute($sSql, $aParam);
-			$this->commit();
+			$this->oPDO->begin();
+			$this->oPDO->execute($sSql, $aParam);
+			$this->oPDO->commit();
 			$onEffected();
 			return [
 				'message' => ['type' => 'success', 'content' => 'Create successful'],
@@ -328,9 +330,9 @@ class TableCrud extends PDO
 				];
 			}
 			list($sSql, $aParam) = $this->buildSqlUpdate($pageConfig, $decodedData, $id);
-			$this->begin();
-			$this->execute($sSql, $aParam);
-			$this->commit();
+			$this->oPDO->begin();
+			$this->oPDO->execute($sSql, $aParam);
+			$this->oPDO->commit();
 			$onEffected();
 			return [
 				'message' => ['type' => 'success', 'content' => 'Update successful'],
@@ -356,9 +358,9 @@ class TableCrud extends PDO
 				];
 			}
 			list($sSql, $aParam) =  $this->buildSqlDelete($pageConfig, $ids);
-			$this->begin();
-			$this->execute($sSql, $aParam);
-			$this->commit();
+			$this->oPDO->begin();
+			$this->oPDO->execute($sSql, $aParam);
+			$this->oPDO->commit();
 			$onEffected();
 			return [
 				'message' => ['type' => 'success', 'content' => 'Delete successful'],

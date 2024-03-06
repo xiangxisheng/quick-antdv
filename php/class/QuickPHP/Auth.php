@@ -6,19 +6,24 @@ use Exception;
 
 class Auth
 {
-	private $mConf;
+	private $oConfig;
 
-	public function __construct($mConf)
+	public function __construct($oConfig)
 	{
-		$this->mConf = $mConf;
+		$this->oConfig = $oConfig;
+	}
+
+	private function pdo()
+	{
+		return $this->oConfig->pdo();
 	}
 
 	public function route_path()
 	{
 		// 取得当前访问的route(路由)路径
 		$path = $_SERVER['SCRIPT_NAME'];
-		$api_root = $this->mConf['setting']['api_root'];
-		$api_ext = $this->mConf['setting']['api_ext'];
+		$api_root = $this->oConfig->getSetting('api_root');
+		$api_ext = $this->oConfig->getSetting('api_ext');
 		if (substr($path, 0, strlen($api_root)) !== $api_root) {
 			return;
 		}
@@ -42,7 +47,7 @@ class Auth
 	{
 		// 取得每个route_path对应所需的role(角色)
 		$roles = [];
-		$this->routes($this->mConf['routes'], '', function ($name, $route) use (&$roles) {
+		$this->routes($this->oConfig->getRoutes(), '', function ($name, $route) use (&$roles) {
 			if (isset($route['role'])) {
 				$roles[$name] = $route['role'];
 			}
@@ -78,41 +83,61 @@ class Auth
 		return $route_roles[$route_path];
 	}
 
+	private function response($message, $errno = 0, $router_path = null)
+	{
+		$response = [
+			'errno' => $errno,
+			'message' => [
+				'type' => $errno === 0 ? 'success' : 'error',
+				'content' => $message,
+			],
+		];
+		if ($router_path) {
+			$response['router'] = ['path' => $router_path];
+		}
+		if ($errno !== 0) {
+			exit(json_encode($response));
+		}
+		return $response;
+	}
+
+	private function user_uid()
+	{
+		$sessid = $this->sessid();
+		$mRowSession = $this->pdo()->fetch('SELECT uid,status FROM {table_pre}system_sessions WHERE sessid=:sessid', ['sessid' => $sessid]);
+		if (!$mRowSession) {
+			// 用户未登录过
+			$this->response('请先登录', 401, '/login');
+		}
+		if ($mRowSession['status'] != 1) {
+			// 已退出登录
+			$this->response('您已退出登录', 401, '/login');
+		}
+		return $mRowSession['uid'];
+	}
+
 	public function user_roles()
 	{
 		// 取得当前用户所拥有的角色
-		$response = [
-			'errno' => 0,
-			'message' => [
-				'type' => 'error',
-				'content' => '',
-			],
-		];
-		if (1) {
-			$json['errno'] = 401;
-			$response['message']['content'] = '401:unauthorized';
+		$uid = $this->user_uid();
+		if (!$uid) {
+			$this->response('401:unauthorized', 401, '/login');
 		}
-		exit(json_encode($response));
-		return [];
+		$mRowUser = $this->pdo()->fetch('SELECT roles FROM {table_pre}system_users WHERE uid=:uid', ['uid' => $uid]);
+		if (!$mRowUser) {
+			$this->response('用户不存在，请重新登录', 401, '/login');
+		}
+		return explode(',', $mRowUser['roles']);
 	}
 
 	public function check()
 	{
 		// 检查当前路径是否有权限访问
-		$response = [
-			'errno' => 0,
-			'message' => [
-				'type' => 'error',
-				'content' => '',
-			],
-		];
 		// 1:检查当前路径是否在route中定义过role
 		$route_role = $this->route_role();
 		if (empty($route_role)) {
 			// 没定义role的不允许访问
-			$json['errno'] = 400;
-			$response['message']['content'] = 'not found in routes';
-			exit(json_encode($response));
+			$this->response('not found in routes', 400);
 		}
 		if ($route_role === 'public') {
 			return;
@@ -120,9 +145,7 @@ class Auth
 		// 2:取得当前用户所拥有的角色
 		$user_roles = $this->user_roles();
 		if (!in_array($route_role, $user_roles)) {
-			$json['errno'] = 403;
-			$response['message']['content'] = 'no permission';
-			exit(json_encode($response));
+			$this->response('no permission', 403);
 		}
 	}
 
@@ -133,17 +156,10 @@ class Auth
 		return $mt[1] . '.' . substr($mt[0], 2, 6) . '.' . mt_rand();
 	}
 
-	public function login($db, $post)
+	public function login($post)
 	{
-		$response = [
-			'errno' => 0,
-			'message' => [
-				'type' => 'success',
-				'content' => '',
-			],
-		];
 		// 用户登录
-		$mRowUser = $db->fetch('SELECT uid,password FROM {table_pre}system_users WHERE username=:username', ['username' => $post['username']]);
+		$mRowUser = $this->pdo()->fetch('SELECT uid,password FROM {table_pre}system_users WHERE username=:username', ['username' => $post['username']]);
 		if (empty($mRowUser)) {
 			throw new Exception("您输入的用户名【{$post['username']}】不存在");
 		}
@@ -151,12 +167,11 @@ class Auth
 		}
 		// 假如密码校验成功，开始登录
 		$ipaddr = $_SERVER['REMOTE_ADDR'];
-		$this->session_login($db, $mRowUser['uid'], $ipaddr);
-		$response['message']['content'] = '登录成功';
-		return $response;
+		$this->session_login($mRowUser['uid'], $ipaddr);
+		return $this->response('登录成功');
 	}
 
-	public function session_login($db, $uid, $ipaddr)
+	public function session_login($uid, $ipaddr)
 	{
 		$sessid = $this->sessid();
 		$token = $this->token_new();
@@ -170,14 +185,14 @@ class Auth
 			'logined' => ['CURRENT_TIMESTAMP(6)'],
 			'updated' => ['CURRENT_TIMESTAMP(6)'],
 		];
-		$mRowSession = $db->fetch('SELECT sessid FROM {table_pre}system_sessions WHERE sessid=:sessid', ['sessid' => $sessid]);
+		$mRowSession = $this->pdo()->fetch('SELECT sessid FROM {table_pre}system_sessions WHERE sessid=:sessid', ['sessid' => $sessid]);
 		if (empty($mRowSession)) {
 			$mData['sessid'] = $sessid;
 			$mData['createdAt'] = date('Y-m:d H:i:s');
 			$mData['ipaddr_first'] = $ipaddr;
-			$db->insert('{table_pre}system_sessions', $mData);
+			$this->pdo()->insert('{table_pre}system_sessions', $mData);
 		} else {
-			$db->update('{table_pre}system_sessions', $mData, ['sessid' => $sessid]);
+			$this->pdo()->update('{table_pre}system_sessions', $mData, ['sessid' => $sessid]);
 		}
 	}
 }

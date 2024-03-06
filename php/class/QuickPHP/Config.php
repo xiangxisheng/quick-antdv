@@ -4,12 +4,23 @@ namespace QuickPHP;
 
 class Config
 {
-	private $mConf;
-	private $auth;
+	private $mConf = [];
+	private $auth = null;
+	private $mPDOs = [];
 
 	public function __construct()
 	{
 		$this->mConf = $this->GetConfig();
+	}
+
+	public function getSetting($name)
+	{
+		return $this->mConf['setting'][$name];
+	}
+
+	public function getRoutes()
+	{
+		return $this->mConf['routes'];
 	}
 
 	public function auth()
@@ -17,22 +28,37 @@ class Config
 		if ($this->auth) {
 			return $this->auth;
 		}
-		$this->auth = new Auth($this->mConf);
+		$this->auth = new Auth($this);
 		return $this->auth;
 	}
 
-	public function db($dbName = '')
+	public function db($dbName)
 	{
-		$dbs = $this->mConf['dbs'];
-		$mDbconf = $dbs[$dbName];
-		return new TableCrud($mDbconf);
+		// 修改默认数据库
+		$this->mConf['setting']['db'] = $dbName;
 	}
 
-	public function form($dbName = '')
+	public function pdo($_sDbName = null)
 	{
-		$dbs = $this->mConf['dbs'];
-		$mDbconf = $dbs[$dbName];
-		return new Form($mDbconf);
+		// 可以给 $_sDbName 指定一个临时的数据库名，仅针对本次操作
+		$sDbName = $_sDbName ? $_sDbName : $this->mConf['setting']['db'];
+		if (isset($this->mPDOs[$sDbName])) {
+			return $this->mPDOs[$sDbName];
+		}
+		$dbConf = $this->mConf['dbs'][$sDbName];
+		$this->mPDOs[$sDbName] = new PDO();
+		$this->mPDOs[$sDbName]->conn($dbConf['dsn'], $dbConf['user'], $dbConf['pass']);
+		return $this->mPDOs[$sDbName];
+	}
+
+	public function tableCrud()
+	{
+		return new TableCrud($this->pdo());
+	}
+
+	public function form()
+	{
+		return new Form($this->pdo());
 	}
 
 	public function GetRequestHostName()
@@ -59,6 +85,9 @@ class Config
 		$site_name = $this->GetSiteName();
 		$config_dir = ROOT_DIR . DS . 'config';
 		$mSiteConf = require($config_dir . DS . 'sites' . DS . $site_name . '.php');
+		if (!isset($mSiteConf['setting']['db'])) {
+			$mSiteConf['setting']['db'] = $site_name;
+		}
 		$mCommonConf = require(ROOT_DIR . DS . 'config.php');
 		return array_merge($mCommonConf, $mSiteConf);
 	}

@@ -42,8 +42,8 @@ $data = [
 	],
 	'items' => $items,
 	'onAction' => function ($db, $action, $post) use ($_C) {
-		$response = $_C->auth()->login($db, $post);
-		$response['go'] = '/';
+		$response = $_C->auth()->login($post);
+		$response['router'] = ['path' => '/'];
 		return $response;
 	},
 ];
