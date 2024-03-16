@@ -522,6 +522,8 @@ onMounted(async () => {
 watch(
 	route,
 	async (to) => {
+		Api.list();
+		return;
 		if (pageState.path === to.path) {
 			Api.list();
 		}

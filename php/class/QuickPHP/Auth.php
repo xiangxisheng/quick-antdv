@@ -68,6 +68,9 @@ class Auth
 	public function sessid()
 	{
 		// 取得加密后的sessid，用于存储到数据库
+		if (!isset($_SERVER['HTTP_CLIENTID'])) {
+			return;
+		}
 		// 采用这种方法能防止模拟会话、防止用户提交异常数据
 		return $this->hash($_SERVER['HTTP_CLIENTID']);
 	}
