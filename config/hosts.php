@@ -7,4 +7,5 @@ return [
 	'127.0.0.5' => 'feieryun',
 	'10.168.88.32' => 'asiafort',
 	'fh.btqyb.top' => 'yunfanghong',
+	'bee.feieryun.cn' => 'asiafort',
 ];
