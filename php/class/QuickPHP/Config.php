@@ -6,6 +6,7 @@ class Config
 {
 	private $mConf = [];
 	private $auth = null;
+	private $i18n = null;
 	private $mPDOs = [];
 
 	public function __construct()
@@ -30,6 +31,15 @@ class Config
 		}
 		$this->auth = new Auth($this);
 		return $this->auth;
+	}
+
+	public function i18n()
+	{
+		if ($this->i18n) {
+			return $this->i18n;
+		}
+		$this->i18n = new I18n($this);
+		return $this->i18n;
 	}
 
 	public function db($dbName)

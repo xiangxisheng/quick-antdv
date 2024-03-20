@@ -14,7 +14,7 @@
 				</div>
 			</a-layout-content>
 			<a-layout-footer style="text-align: center">
-				Ant Design ©2018 Created by Ant UED
+				{{ GTR('site.footer') }}
 			</a-layout-footer>
 		</a-layout>
 	</a-layout>
@@ -148,7 +148,15 @@ watch(
 	}
 );
 
+function GTR(_formatpath, _param) {
+	if (_formatpath === undefined) {
+		return '';
+	}
+	return i18n.fGetTransResult(_formatpath, _param, i18n.locale);
+};
+
 return {
+	GTR,
 	menuState,
 	breadcrumbState,
 };

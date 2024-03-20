@@ -4,15 +4,21 @@ namespace QuickPHP;
 
 class I18n
 {
-	private $localePre = 'locale_';
-	private $config;
 
-	function __construct($config)
+	private $localePre = 'locale_';
+	private $oConfig;
+
+	public function __construct($oConfig)
 	{
-		$this->config = $config;
+		$this->oConfig = $oConfig;
 	}
 
-	public function generateLangpack($langPath, $dbName = '', $fCallback = null)
+	private function pdo()
+	{
+		return $this->oConfig->pdo();
+	}
+
+	public function generateLangpack($langPath, $fCallback = null)
 	{
 		$json_flags = 0;
 		$json_flags |= JSON_UNESCAPED_UNICODE;
@@ -22,7 +28,7 @@ class I18n
 		}
 		$this->createDirectory($langPath);
 		$sql = 'SELECT * FROM system_i18n_data';
-		$rows = $this->config->db($dbName)->fetchAll($sql, []);
+		$rows = $this->pdo()->fetchAll($sql, []);
 		if (is_callable($fCallback)) {
 			$fCallback(' Done!');
 		}
