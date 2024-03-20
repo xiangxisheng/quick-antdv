@@ -71,6 +71,10 @@ $route = [
 			"component" => "common/form",
 			"role" => "public"
 		],
+		[
+			"name" => "logout",
+			"role" => "public"
+		],
 	],
 ];
 $static_dir = '/static';

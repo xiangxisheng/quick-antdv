@@ -203,4 +203,9 @@ class Auth
 			$this->pdo()->update('{table_pre}system_sessions', $mData, ['sessid' => $sessid]);
 		}
 	}
+
+	public function logout()
+	{
+		return $this->response('您已退出登录', 0, '/login');
+	}
 }

@@ -1,4 +1,5 @@
 <template>
+	<context-holder />
 	<a-layout style="min-height:100vh">
 		<a-layout-header style="padding-inline: 0px;">
 
@@ -8,7 +9,10 @@
 				</router-link>
 			</div>
 
-			<div style="float: right; padding-inline: 20px; color: #999;">
+			<a-menu style="float: left;" v-model:selectedKeys="menuState.selectedKeys" mode="horizontal" :items="menuState.items" theme="dark"
+				@click="menuState.handleClick"></a-menu>
+
+			<div style="float: right; padding-inline: 10px; color: #999;">
 				<a-dropdown :trigger="['click']">
 					<a class="ant-dropdown-link" @click.prevent>
 						{{ localeState.current }}
@@ -19,19 +23,24 @@
 							<a-menu-item v-for="locale in localeState.get()" :key="locale.name">
 								<a @click="localeState.set(locale.name)">{{ locale.title }}</a>
 							</a-menu-item>
-							<!-- <a-menu-item key="1">
-							<a @click="localeState.set('zh_cn')">中文</a>
-						</a-menu-item> -->
 						</a-menu>
 					</template>
 				</a-dropdown>
-				<!-- <a @click="localeState.set('en_us')">English</a>
-			|
-			<a @click="localeState.set('zh_cn')">中文</a> -->
 			</div>
 
-			<a-menu v-model:selectedKeys="menuState.selectedKeys" mode="horizontal" :items="menuState.items" theme="dark"
-				@click="menuState.handleClick"></a-menu>
+			<div style="float: right; padding-inline: 10px; color: #999;">
+				<a-dropdown :trigger="['click']">
+					<a class="ant-dropdown-link" @click.prevent>
+						admin
+						<i class='bx bx-chevron-down'></i>
+					</a>
+					<template #overlay>
+						<a-menu>
+							<a-menu-item @click="user_logout()">{{ GTR('user.logout') }}</a-menu-item>
+						</a-menu>
+					</template>
+				</a-dropdown>
+			</div>
 
 		</a-layout-header>
 		<a-layout-content>
@@ -41,9 +50,11 @@
 </template>
 
 <script define>
+const { backendApi } = QADV;
 const { reactive, watch, onMounted, inject } = Vue;
 const { useRouter, useRoute } = VueRouter;
 const { Layout, LayoutHeader, LayoutContent, Menu, MenuItem, Dropdown } = antd;
+const [messageApi, contextHolder] = antd.message.useMessage();
 const components = {
 	ALayout: Layout,
 	ALayoutContent: LayoutContent,
@@ -51,6 +62,7 @@ const components = {
 	AMenu: Menu,
 	AMenuItem: MenuItem,
 	ADropdown: Dropdown,
+	contextHolder,
 };
 </script>
 
@@ -120,7 +132,22 @@ watch(
 	}
 );
 
+async function user_logout() {
+	const path = "/logout";
+	const res = await backendApi({ path, messageApi, router });
+	console.log(res);
+};
+
+function GTR(_formatpath, _param) {
+	if (_formatpath === undefined) {
+		return '';
+	}
+	return i18n.fGetTransResult(_formatpath, _param, i18n.locale);
+};
+
 return {
+	user_logout,
+	GTR,
 	setting,
 	localeState,
 	menuState,

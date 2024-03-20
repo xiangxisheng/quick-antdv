@@ -74,7 +74,16 @@ window.QADV = ((config) => {
 		}
 		const text = await oResponse.text();
 		try {
-			return JSON.parse(text);
+			const data = JSON.parse(text);
+			if (data.message && options.messageApi) {
+				options.messageApi.open(data.message);
+			}
+			if (data.router && options.router) {
+				setTimeout(() => {
+					options.router.push(data.router);
+				}, 1000);
+			}
+			return data;
 		} catch (ex) {
 			// JSON解析失败时把解析前的文本放进去
 			ex.text = text;
