@@ -14,10 +14,10 @@
 		@finishFailed="onFinishFailed" :rules="pageState.formData.rules" style="text-align: center; margin: 0 40px;">
 		<a-form-item v-for="item in pageState.formData.items" :label="GTR(item.label)" :name="item.dataIndex" :wrapper-col="item['wrapper-col']">
 			<span v-if="0"></span>
-			<a-input v-else-if="item.form === 'input'" v-model:value="pageState.formData.model[item.dataIndex]" :placeholder="GTR(item.placeholder, item)"
-				:disabled="pageState.loading" />
+			<a-input v-else-if="item.form === 'input'" v-model:value="pageState.formData.model[item.dataIndex]"
+				:placeholder="GTR(item.placeholder, { title: GTR(item.title) })" :disabled="pageState.loading" />
 			<a-input-password v-else-if="item.form === 'input-password'" v-model:value="pageState.formData.model[item.dataIndex]"
-				:placeholder="GTR(item.placeholder, item)" :disabled="pageState.loading" />
+				:placeholder="GTR(item.placeholder, { title: GTR(item.title) })" :disabled="pageState.loading" />
 			<a-checkbox v-else-if="item.form === 'checkbox'" v-model:checked="pageState.formData.model[item.dataIndex]" :disabled="pageState.loading">{{
 		GTR(item.title)
 	}}</a-checkbox>
@@ -84,9 +84,6 @@ const ReloadTrans_dataSource = async () => {
 	pageState.formData.headers = pageData.headers;
 	pageState.formData.items = pageData.items;
 	for (const item of pageData.items) {
-		for (const k in item) {
-			item[k] = await i18n.fGetTransResult(item[k]);
-		}
 		if (item.rules) {
 			// 对全部有含rules的列进行翻译
 			const rules = pageState.formData.rules[item.dataIndex] = deepCloneObject(item.rules);
