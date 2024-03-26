@@ -51,7 +51,10 @@ function GetHTML($_C, $name)
 	$config = $_C->GetConfig();
 	$data = [
 		'title' => $config['setting']['title'],
-		'config' => json_encode($config),
+		'config' => json_encode([
+			'setting' => $config['setting'],
+			'routes' => $config['routes'],
+		]),
 	];
 	foreach ($data as $key => $value) {
 		$html = preg_replace('/{{\s*' . preg_quote($key) . '\s*}}/', $value, $html);

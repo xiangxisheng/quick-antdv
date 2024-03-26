@@ -57,7 +57,7 @@
 	document.head.appendChild(link);
 	if (isAsyncAwaitSupport()) {
 		const script = document.createElement('script');
-		script.src = config.setting.assets_dir + '/js/qadv.js';
+		script.src = config.setting.static_dir + '/qadv.js';
 		script.onload = function () {
 			window.QADV = window.QADV(config);
 			window.QADV.main();

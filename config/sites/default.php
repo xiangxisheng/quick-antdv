@@ -89,6 +89,7 @@ $setting = [
 	'static_dir' => $static_dir,
 	'title' => 'Quick Antdv',
 ];
+$setting['assets_dir'] = 'https://static-1251078878.cos.ap-hongkong.myqcloud.com/assets';
 return [
 	'setting' => $setting,
 	'routes' => [$route],
