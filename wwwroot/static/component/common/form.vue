@@ -84,11 +84,15 @@ const ReloadTrans_dataSource = async () => {
 	pageState.formData.headers = pageData.headers;
 	pageState.formData.items = pageData.items;
 	for (const item of pageData.items) {
+		const item_transed = {};
+		for (const k in item) {
+			item_transed[k] = await i18n.fGetTransResult(item[k]);
+		}
 		if (item.rules) {
 			// 对全部有含rules的列进行翻译
 			const rules = pageState.formData.rules[item.dataIndex] = deepCloneObject(item.rules);
 			for (const rule of rules) {
-				rule.message = await i18n.fGetTransResult(rule.message, item);
+				rule.message = await i18n.fGetTransResult(rule.message, item_transed);
 			}
 		}
 	}
