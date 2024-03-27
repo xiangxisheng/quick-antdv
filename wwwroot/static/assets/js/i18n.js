@@ -70,20 +70,6 @@ window.i18n = ((config) => {
 		state: () => {
 			return {
 				locale: '',
-				i18n_locales: [
-					{
-						"name": "en_us",
-						"title": "English"
-					},
-					{
-						"name": "zh_cn",
-						"title": "简体中文"
-					},
-					{
-						"name": "km_kh",
-						"title": "ខ្មែរ"
-					}
-				],
 				mConfLocale: {},
 				mCacheData: {},
 			}
@@ -97,8 +83,11 @@ window.i18n = ((config) => {
 				this.mCacheData[locale] = await (await fetch(jsonPath)).json();
 			},
 			async fLoadData() {
-				this.mConfLocale = fGetLocaleMap(this.i18n_locales);
+				// 这是页面加载后的入口，用于加载默认语言包
+				this.mConfLocale = fGetLocaleMap(config.setting.i18n_locales);
+				// 首先取得与当前浏览器最匹配的语言
 				const locale = this.locale = fGetCurrentLocale(this.mConfLocale);
+				// 然后加载这个语言包
 				await this.fGetI18nData(locale);
 			},
 			fGetTransResult(sFormatPath, aParam) {
@@ -109,9 +98,13 @@ window.i18n = ((config) => {
 					// 只处理[数据类型]为[字符串]，其他类型直接返回，例如：数字型和逻辑型
 					return sFormatPath;
 				}
-				const locale = fGetCurrentLocale(this.mCacheData);
+				const locale = fGetCurrentLocale(this.mConfLocale);
 				if (!locale) {
 					// 没有匹配到语言包
+					return sFormatPath;
+				}
+				if (!this.mCacheData.hasOwnProperty(locale)) {
+					// 该语言包尚未加载完成
 					return sFormatPath;
 				}
 				const aFormatPath = sFormatPath.split('.');
@@ -141,7 +134,7 @@ window.i18n = ((config) => {
 				oI18nState.save();
 			},
 			fGetLocales() {
-				return i18n_locales;
+				return config.setting.i18n_locales;
 			},
 		}
 	});

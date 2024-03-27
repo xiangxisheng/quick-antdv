@@ -88,8 +88,13 @@ $setting = [
 	'isDev' => false,
 	'static_dir' => $static_dir,
 	'title' => 'Quick Antdv',
+	'i18n_locales' => [
+		["name" => "en_us", "title" => "English",],
+		["name" => "zh_cn", "title" => "简体中文",],
+		["name" => "km_kh", "title" => "ខ្មែរ",]
+	],
 ];
-$setting['assets_dir'] = 'https://static-1251078878.cos.ap-hongkong.myqcloud.com/assets';
+$setting['assets_dir'] = 'https://static.anan.cc/assets';
 return [
 	'setting' => $setting,
 	'routes' => [$route],
