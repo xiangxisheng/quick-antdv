@@ -4,9 +4,10 @@ if (!defined('DS')) {
 	define('DS', DIRECTORY_SEPARATOR);
 }
 define('ROOT_DIR', dirname(__DIR__));
-$_C = require(ROOT_DIR . DS . 'php' . DS . 'quick.php');
+$_C = require (ROOT_DIR . DS . 'php' . DS . 'quick.php');
+$mConfig = $_C->GetConfig();
 
-require(__DIR__ . DS . 'component.php');
+require (__DIR__ . DS . 'component.php');
 
 function isLocal($host_name)
 {

@@ -139,7 +139,17 @@ window.QADV = ((config) => {
 			if (mRoute.component) {
 				// 路由懒加载(https://router.vuejs.org/zh/guide/advanced/lazy-loading.html)
 				mRoute.setting = config.setting;
-				item.component = async () => (await import(`${config.setting.component_dir}/${mRoute.component}${config.setting.component_ext}`)).default(mRoute);
+				var url = `${config.setting.component_dir}/${mRoute.component}`;
+				if (config.setting.component_vue_ext) {
+					url += '.' + config.setting.component_vue_ext;
+				}
+				if (config.setting.component_js_ext) {
+					url += '.' + config.setting.component_js_ext;
+				}
+				if (config.setting.component_gz_ext) {
+					url += '.' + config.setting.component_gz_ext;
+				}
+				item.component = async () => (await import(url)).default(mRoute);
 			}
 			if (mRoute.alias) {
 				item.alias = mRoute.alias;

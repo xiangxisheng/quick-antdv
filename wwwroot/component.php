@@ -44,7 +44,7 @@ function getstr2($strall, $str1, $str2)
 		return '';
 	} //str2都没找到！
 	if ($str1 != "") {
-		$i1 = mb_strrpos($strall, $str1, - (mb_strlen($strall, $html_charset) - $i2), $html_charset);
+		$i1 = mb_strrpos($strall, $str1, -(mb_strlen($strall, $html_charset) - $i2), $html_charset);
 	}
 	if (!is_int($i1)) {
 		return '';
@@ -54,7 +54,7 @@ function getstr2($strall, $str1, $str2)
 
 function getVueFiles($folder_path, $ext = 'vue')
 {
-	$php_files = [];
+	$ret_files = [];
 	$files = scandir($folder_path);
 	foreach ($files as $file) {
 		if ($file === '.' || $file === '..') {
@@ -63,13 +63,13 @@ function getVueFiles($folder_path, $ext = 'vue')
 		$full_path = $folder_path . DS . $file;
 		if (is_dir($full_path)) {
 			// 如果是文件夹，则递归调用该函数
-			$php_files = array_merge($php_files, getVueFiles($full_path));
-		} elseif (pathinfo($full_path, PATHINFO_EXTENSION) === 'vue') {
-			// 如果是 PHP 文件，则添加到结果数组中
-			$php_files[] = $full_path;
+			$ret_files = array_merge($ret_files, getVueFiles($full_path));
+		} elseif (pathinfo($full_path, PATHINFO_EXTENSION) === $ext) {
+			// 如果是 $ext 文件，则添加到结果数组中
+			$ret_files[] = $full_path;
 		}
 	}
-	return $php_files;
+	return $ret_files;
 }
 
 function getJs($vueFile)
@@ -84,8 +84,15 @@ function getJs($vueFile)
 
 function component_build()
 {
-	$vueFiles = getVueFiles(COMPONENT_DIR);
+	global $mConfig;
+	$vueFiles = getVueFiles(COMPONENT_DIR, $mConfig['setting']['component_vue_ext']);
 	foreach ($vueFiles as $vueFile) {
-		file_put_contents($vueFile . '.js', getJs($vueFile));
+		$jsData = getJs($vueFile);
+		$jsPath = $vueFile . '.' . $mConfig['setting']['component_js_ext'];
+		if (!empty($mConfig['setting']['component_gz_ext'])) {
+			$jsPath .= '.' . $mConfig['setting']['component_gz_ext'];
+			$jsData = gzencode($jsData, 9);
+		}
+		file_put_contents($jsPath, $jsData);
 	}
 }

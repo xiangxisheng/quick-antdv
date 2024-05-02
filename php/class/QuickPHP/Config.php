@@ -81,7 +81,7 @@ class Config
 	private function GetSiteName()
 	{
 		$host_name = $this->GetRequestHostName();
-		$hosts = require(ROOT_DIR . DS . 'config' . DS . 'hosts.php');
+		$hosts = require (ROOT_DIR . DS . 'config' . DS . 'hosts.php');
 		if (isset($hosts[$host_name])) {
 			return $hosts[$host_name];
 		}
@@ -95,11 +95,11 @@ class Config
 		}
 		$site_name = $this->GetSiteName();
 		$config_dir = ROOT_DIR . DS . 'config';
-		$mSiteConf = require($config_dir . DS . 'sites' . DS . $site_name . '.php');
+		$mSiteConf = require ($config_dir . DS . 'sites' . DS . $site_name . '.php');
 		if (!isset($mSiteConf['setting']['db'])) {
 			$mSiteConf['setting']['db'] = $site_name;
 		}
-		$mCommonConf = require(ROOT_DIR . DS . 'config.php');
+		$mCommonConf = require (ROOT_DIR . DS . 'config.php');
 		return array_merge($mCommonConf, $mSiteConf);
 	}
 }
