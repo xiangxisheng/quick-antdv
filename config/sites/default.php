@@ -96,6 +96,7 @@ $setting = [
 		["name" => "km_kh", "title" => "ខ្មែរ",]
 	],
 ];
+$setting['assets_dir'] = $static_dir . '/assets';
 $setting['assets_dir'] = 'https://static.anan.cc/assets';
 return [
 	'setting' => $setting,

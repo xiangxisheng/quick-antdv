@@ -48,7 +48,7 @@ class Auth
 		// 取得每个route_path对应所需的role(角色)
 		$roles = [];
 		$this->routes($this->oConfig->getRoutes(), '', function ($name, $route) use (&$roles) {
-			if (isset($route['role'])) {
+			if (isset ($route['role'])) {
 				$roles[$name] = $route['role'];
 			}
 		});
@@ -126,7 +126,8 @@ class Auth
 		if (!$uid) {
 			$this->response('401:unauthorized', 401, '/login');
 		}
-		$mRowUser = $this->pdo()->fetch('SELECT roles FROM {table_pre}system_users WHERE uid=:uid', ['uid' => $uid]);
+		$sql = 'SELECT `roles` FROM {table_pre}system_users WHERE uid=:uid';
+		$mRowUser = $this->pdo()->fetch($sql, ['uid' => $uid]);
 		if (!$mRowUser) {
 			$this->response('用户不存在，请重新登录', 401, '/login');
 		}
