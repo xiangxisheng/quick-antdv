@@ -119,7 +119,7 @@ window.QADV = ((config) => {
 
 	async function VueCreateApp(Vue, VueRouter) {
 		const { createApp } = Vue;
-		const { createRouter, createWebHistory } = VueRouter;
+		const { createRouter, createWebHistory, createWebHashHistory } = VueRouter;
 		const { createPinia } = Pinia;
 		const children = config.routes;
 		const oTopRoute = { children }
@@ -158,7 +158,7 @@ window.QADV = ((config) => {
 		})).children;
 		//routes.push({ path: '/:pathMatch(.*)', component: NotFoundComponent });
 		const router = createRouter({
-			history: createWebHistory(),
+			history: config.setting.hashHistory ? createWebHashHistory() : createWebHistory(),
 			routes, // `routes: routes` 的缩写
 		});
 		const pinia = createPinia();

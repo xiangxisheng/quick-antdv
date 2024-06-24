@@ -86,6 +86,7 @@ $setting = [
 	'component_vue_ext' => 'vue',
 	'component_js_ext' => 'js',
 	'component_gz_ext' => '',
+	'hashHistory' => true,
 	'delay' => 0,
 	'isDev' => false,
 	'static_dir' => $static_dir,

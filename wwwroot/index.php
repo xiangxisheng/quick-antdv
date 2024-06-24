@@ -9,6 +9,14 @@ $mConfig = $_C->GetConfig();
 
 require (__DIR__ . DS . 'component.php');
 
+function generateLangpack($_C) {
+	$i18n = new QuickPHP\I18n($_C);
+	$langPath = __DIR__ . '/static/data/lang';
+	$i18n->generateLangpack($langPath, function ($msg) {
+		//echo $msg;
+	});
+}
+
 function isLocal($host_name)
 {
 	$long = ip2long($host_name);
@@ -48,6 +56,8 @@ function GetHTML($_C, $name)
 		// 有缓存就直接return
 		return file_get_contents($target);
 	}
+	// 没缓存就生成语言包
+	generateLangpack($_C);
 	// 生成HTML时也要构建组件
 	component_build();
 	$html = file_get_contents(__DIR__ . DS . $name . '.hbs');
