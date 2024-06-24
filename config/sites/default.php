@@ -97,7 +97,7 @@ $setting = [
 	],
 ];
 $setting['assets_dir'] = $static_dir . '/assets';
-$setting['assets_dir'] = 'https://static.anan.cc/assets';
+$setting['assets_dir'] = 'https://quick-antdv-assets.pages.dev';
 return [
 	'setting' => $setting,
 	'routes' => [$route],

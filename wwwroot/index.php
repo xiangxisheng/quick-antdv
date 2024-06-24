@@ -41,9 +41,11 @@ function GetHTML($_C, $name)
 	$target = __DIR__ . DS . $name . '.html';
 	$cache_timeout = 1;
 	if (isLocal($host_name)) {
+		// 本地访问就不要缓存
 		$cache_timeout = 0;
 	}
 	if (isCached($target, $cache_timeout)) {
+		// 有缓存就直接return
 		return file_get_contents($target);
 	}
 	// 生成HTML时也要构建组件
@@ -60,6 +62,7 @@ function GetHTML($_C, $name)
 	foreach ($data as $key => $value) {
 		$html = preg_replace('/{{\s*' . preg_quote($key) . '\s*}}/', $value, $html);
 	}
+	// 最后写入文件缓存然后返回
 	file_put_contents($target, $html);
 	return $html;
 }
